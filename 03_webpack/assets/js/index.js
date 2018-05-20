@@ -1,4 +1,4 @@
-import greet from './greeter.js';
+import greet from './greeter2.js';
 
 console.log("I'm the entry point");
 greet();
