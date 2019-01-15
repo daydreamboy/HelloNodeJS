@@ -1,0 +1,31 @@
+<html>
+
+<head>
+    <!-- 开发环境版本，包含了有帮助的命令行警告 -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <meta charset="utf-8">
+</head>
+
+<body>
+    <div id="app">
+        <ol>
+            <!-- 创建一个todo-item组件的示例 -->
+            <todo-item v-for="item in groceryList">
+            </todo-item>
+        </ol>
+    </div>
+
+    <script>
+        Vue.component('todo-item', {
+            // component支持定义属性
+            props: ['todo'],
+            template: '<li>{{ todo.text }}</li>'
+        })
+        // component的使用，需要定义app全局变量
+        var app = new Vue({
+            el: '#app'
+        })
+    </script>
+</body>
+
+</html>

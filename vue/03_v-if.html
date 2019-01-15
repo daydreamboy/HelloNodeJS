@@ -1,0 +1,23 @@
+<html>
+
+<head>
+    <!-- 开发环境版本，包含了有帮助的命令行警告 -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+
+<body>
+    <div id="app-3">
+        <!-- Console: app3.seen = false -->
+        <p v-if="seen">现在你看到我了</p>
+    </div>
+    <script>
+        var app3 = new Vue({
+            el: '#app-3',
+            data: {
+                seen: true
+            }
+        })
+    </script>
+</body>
+
+</html>
