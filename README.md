@@ -257,7 +257,7 @@ Is this OK? (yes)
 
 说明
 
-> 可以使用`npm init --y`命令，默认都设置yes，跳过上面交互提示。
+> 可以使用`npm init -y`命令，默认都设置yes，跳过上面交互提示。
 
 
 
@@ -1008,10 +1008,10 @@ About to write to /Users/wesley_chen/GitHub_Projcets/HelloNodeJS/03_webpack/pack
 Is this ok? (yes)
 ```
 
-- npm init --y，快速创建node工程，默认都是yes（y）
+- npm init -y，快速创建node工程，默认都是yes（y）
 
 ```shell
-$ npm init --y
+$ npm init -y
 Wrote to /Users/wesley_chen/GitHub_Projcets/HelloNodeJS/03_webpack/package.json:
 
 {
