@@ -1,5 +1,4 @@
-var path = require('path');
-var webpack = require('webpack');
+var path = require('path')
 
 module.exports = {
     entry: './assets/js/index.js',
@@ -8,17 +7,18 @@ module.exports = {
         path: path.resolve(__dirname, 'dist')
     },
     module: {
-        // Add the JSHint loader
-        rules:[{
-            test: /\.js$/, // Run the loader on all .js files
-            exclude: /node_modules/, // Run the loader on all .js files
-            use: 'jshint-loader'
-        }]
+        rules: [
+            {
+                enforce: 'pre',
+                test: /\.js$/,
+                exclude: /node_modules/,
+                loader: 'eslint-loader',
+                options: {
+                    // eslint options (if necessary)
+                    emitWarning: true,
+                    failOnError: true,
+                },
+            },
+        ],
     },
-    mode: "development",
-    plugins: [
-        // FIX: Module build failed: TypeError: Cannot read property 'jshint' of undefined
-        // https://github.com/webpack/webpack/issues/6556
-        new webpack.LoaderOptionsPlugin({ options: {} })
-    ]
 };

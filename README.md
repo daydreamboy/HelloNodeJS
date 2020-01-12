@@ -294,7 +294,7 @@ $ node index.js
 hello, world!
 ```
 
-
+> 示例工程，见01_helloworld
 
 
 
@@ -393,9 +393,336 @@ underscore
 
 
 
+## 2、npm常用开发包
+
+### （1）webpack[^5]
+
+webpack是一个npm包，它可以将多个js文件打包成一个js文件。
 
 
-## 2、Typescript[^1]
+
+#### 本地安装webpack
+
+```shell
+$ npm install webpack --save-dev
+$ npm list --depth=0
+03_webpack@1.0.0 /Users/wesley_chen/GitHub_Projects/HelloNodeJS/03_webpack
+└── webpack@4.41.5
+```
+
+注意
+
+> 使用`--save-dev`选项，是因为webpack包并不是当前npm包中代码需要依赖的npm包。
+
+
+
+#### 配置package.json文件
+
+```json
+{
+  "scripts": {
+    "build": "webpack -p",
+    "watch": "webpack --watch"
+  }
+}
+```
+
+在scripts属性中添加两个命令行：build和watch。
+
+说明
+
+> 1. 安装webpack包后，可以使用webpack命令
+> 2. `-p`是让webpack按照生产环境打包，会压缩和混淆js代码
+
+
+
+#### 配置webpack.config.js
+
+在package.json所在目录新建webpack.config.js文件，这个文件是webpack的配置文件。
+
+由于js文件，因此可以直接写js代码，如下
+
+```javascript
+var path = require('path')
+
+module.exports = {
+  entry: './assets/js/index.js',
+  output: {
+      filename: 'bundle.js',
+      path: path.resolve(__dirname, 'dist')
+  }
+};
+```
+
+* 使用require语句，引用Node.js自带的path库
+* `__dirname`是Node.js关键词，代表当前文件的所在路径。举个例子，在`~/test`目录下执行`node example.js`，example.js代码中`__dirname`返回~/test字符串
+* resolve是path库中处理相对路径的方法，path.resolve(__dirname, 'dist')返回当前webpack.config.js文件下面的dist文件夹的路径
+
+* entry字段：表示webpack打包的入口文件。webpack从这个文件开始搜索需要打包的相关文件
+* output.filename字段：打包后文件名
+* output.path字段：打包后文件的输出路径
+
+
+
+#### 示例工程结构
+
+```shell
+$ tree . -L 3 -I node_modules
+.
+├── assets
+│   └── js
+│       ├── greeter1.js
+│       ├── greeter2.js
+│       └── index.js
+├── dist
+├── index.html
+├── package-lock.json
+├── package.json
+└── webpack.config.js
+```
+
+
+
+由于index.js是打包的入口文件，因此程序代码写在这个文件中，如下
+
+index.js
+
+```javascript
+import greet from './greeter1.js';
+
+console.log("I'm the entry point");
+greet();
+```
+
+
+
+index.js可以引用其他js module，例如greeter1.js文件，如下
+
+```javascript
+function greet() {
+    console.log('Have a great day!');
+};
+
+export default greet;
+```
+
+
+
+#### 运行webpack命令
+
+还记得在package.json配置的build命令吗？在npm包工程下，执行`npm run build`命令，如下
+
+```shell
+$ npm run build
+
+> 03_webpack@1.0.0 build /Users/wesley_chen/GitHub_Projects/HelloNodeJS/03_webpack
+> webpack -p
+
+Hash: 34c17ae2ee5749ed1160
+Version: webpack 4.41.5
+Time: 239ms
+Built at: 01/12/2020 4:54:05 PM
+    Asset   Size  Chunks             Chunk Names
+bundle.js  1 KiB       0  [emitted]  main
+Entrypoint main = bundle.js
+[0] ./assets/js/greeter1.js 0 bytes {0} [built]
+[1] ./assets/js/index.js 80 bytes {0} [built]
+```
+
+说明
+
+> webpack命令，依赖webpack-cli包，上面会提示是否安装webpack-cli包，同时同步到package.json文件中。
+
+
+
+可以看到greeter1.js和index.js都打包到dist/bundle.js中，而且bundle.js是经过压缩混淆的。
+
+为了验证bundle.js是否能在浏览器中正确执行，在index.html文件引入bundle.js，如下
+
+index.html
+
+```html
+<html>
+<head>
+    <script src="./dist/bundle.js"></script>
+</head>
+<body></body>
+</html>
+```
+
+
+
+在浏览器中打开index.html文件，在console可以看到输出，如下
+
+```text
+I'm the entry point
+Have a great day!
+```
+
+
+
+注意
+
+> webpack只是将多个js文件打包成一个js文件，但不检查js文件中语法问题，有可能打包后，运行js文件后浏览器报错
+
+
+
+#### 引用外部依赖包
+
+​        刚才index.js引用greeter1.js，没有引入外部依赖包。对于webpack打包来说，引用外部依赖包，不需要额外的配置，按照npm包的引入方式就可以，例如greeter2.js引用moment库。
+
+```shell
+$ npm install moment --save
+```
+
+
+
+greeter2.js
+
+```javascript
+import moment from 'moment';
+
+function greet() {
+    var day = moment().format('dddd');
+    console.log('Have a great ' + day + '!');
+};
+
+export default greet;
+```
+
+修改index.js文件，换成引用greeter2.js文件，如下
+
+```javascript
+import greet from './greeter2.js';
+```
+
+
+
+再次运行`npm run build`，然后打开index.html，浏览器console输出，如下
+
+```text
+I'm the entry point
+Have a great Sunday!
+```
+
+
+
+注意
+
+> 由于引入了moment库，bundle.js的大小比之前要大很多。
+
+
+
+#### 加载loader
+
+loader是webpack在打包、打包前或打包后执行的插件。webpack loader插件可以在[这里](https://webpack.js.org/loaders/)查询。
+
+以使用[eslint-loader](https://webpack.js.org/loaders/eslint-loader/)为例
+
+说明
+
+> jshint[不再维护](https://github.com/webpack-contrib/jshint-loader)，改成eslint
+
+
+
+##### 安装loader
+
+```shell
+$ npm install eslint-loader eslint --save-dev
+```
+
+说明
+
+> 1. eslint-loader依赖eslint，所以eslint也需要一起安装
+> 2. 注意使用`--save-dev`选项，因为eslint-loader库是当前npm包代码不需要引用的
+
+
+
+##### 配置loader
+
+jshint-loader的配置，如下。具体配置可以参考它的[文档](https://webpack.js.org/loaders/eslint-loader/)
+
+webpack.config.js
+
+```javascript
+var path = require('path')
+
+module.exports = {
+    entry: './assets/js/index.js',
+    output: {
+        filename: 'bundle.js',
+        path: path.resolve(__dirname, 'dist')
+    },
+    module: {
+        rules: [
+            {
+                enforce: 'pre',
+                test: /\.js$/,
+                exclude: /node_modules/,
+                loader: 'eslint-loader',
+                options: {
+                    // eslint options (if necessary)
+                },
+            },
+        ],
+    },
+};
+```
+
+
+
+运行`npm run build`，可以发现控制台中，多出一些warning，如下
+
+```shell
+$ npm run build                              
+
+> 03_webpack@1.0.0 build /Users/wesley_chen/GitHub_Projects/HelloNodeJS/03_webpack
+> webpack -p
+
+Hash: 952ea980c53c6057679c
+Version: webpack 4.41.5
+Time: 807ms
+Built at: 01/12/2020 5:55:08 PM
+    Asset     Size  Chunks                    Chunk Names
+bundle.js  263 KiB       0  [emitted]  [big]  main
+Entrypoint main [big] = bundle.js
+[128] (webpack)/buildin/module.js 497 bytes {0} [built]
+[129] ./node_modules/moment/locale sync ^\.\/.*$ 3 KiB {0} [optional] [built]
+[130] ./assets/js/index.js + 1 modules 244 bytes {0} [built] [2 warnings]
+      | ./assets/js/index.js 80 bytes [built] [1 warning]
+      | ./assets/js/greeter2.js 159 bytes [built] [1 warning]
+    + 128 hidden modules
+
+WARNING in ./assets/js/index.js
+Module Warning (from ./node_modules/eslint-loader/dist/cjs.js):
+No ESLint configuration found in /Users/wesley_chen/GitHub_Projects/HelloNodeJS/03_webpack/assets/js.
+
+WARNING in ./assets/js/greeter2.js
+Module Warning (from ./node_modules/eslint-loader/dist/cjs.js):
+No ESLint configuration found in /Users/wesley_chen/GitHub_Projects/HelloNodeJS/03_webpack/assets/js.
+ @ ./assets/js/index.js 1:0-34 4:0-5
+
+WARNING in asset size limit: The following asset(s) exceed the recommended size limit (244 KiB).
+This can impact web performance.
+Assets: 
+  bundle.js (263 KiB)
+
+WARNING in entrypoint size limit: The following entrypoint(s) combined asset size exceeds the recommended limit (244 KiB). This can impact web performance.
+Entrypoints:
+  main (263 KiB)
+      bundle.js
+
+
+WARNING in webpack performance recommendations: 
+You can limit the size of your bundles by using import() or require.ensure to lazy load some parts of your application.
+For more info visit https://webpack.js.org/guides/code-splitting/
+```
+
+
+
+
+
+## 3、Typescript[^1]
 
 
 
@@ -703,12 +1030,14 @@ Wrote to /Users/wesley_chen/GitHub_Projcets/HelloNodeJS/03_webpack/package.json:
 
 
 
-### 2、常用npm包
+### 2、常用npm包列表
 
-| 包名                                                     | 常见用法                         |
-| -------------------------------------------------------- | -------------------------------- |
-| [http-server](https://www.npmjs.com/package/http-server) | `$ http-server -c-1`（禁止缓存） |
-|                                                          |                                  |
+| 包名                                                     | 常见用法                                  |
+| -------------------------------------------------------- | ----------------------------------------- |
+| [http-server](https://www.npmjs.com/package/http-server) | `$ http-server -c-1`（禁止缓存）          |
+| uglify-js                                                | `$ uglifyjs example.js -o example.min.js` |
+
+
 
 
 
@@ -729,6 +1058,7 @@ Wrote to /Users/wesley_chen/GitHub_Projcets/HelloNodeJS/03_webpack/package.json:
 [^2]:https://nodejs.org/en/docs/meta/topics/dependencies/#npm
 [^3]:https://flaviocopes.com/package-json
 [^4]:https://www.sitepoint.com/beginners-guide-node-package-manager/
+[^5]:https://tutorialzine.com/2017/04/learn-webpack-in-15-minutes
 
 
 
