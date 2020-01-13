@@ -1,15 +1,16 @@
 {
-  "name": "04_uglifyjs",
+  "name": "04_nodemon",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
+    "monitor": "nodemon src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "uglify-js": "^3.3.25"
+  "devDependencies": {
+    "nodemon": "^2.0.2"
   }
 }

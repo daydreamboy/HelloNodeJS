@@ -464,6 +464,20 @@ module.exports = {
 
 
 
+说明
+
+> 如果不希望webpack混淆代码，可以设置mode字段为development[^7]，这样输出的bundle.js文件是可读的
+>
+> ```javascript
+> module.exports = {
+>   mode: 'development',
+>   entry: './assets/js/index.js',
+>   ...
+> }
+> ```
+
+
+
 #### 示例工程结构
 
 ```shell
@@ -480,6 +494,8 @@ $ tree . -L 3 -I node_modules
 ├── package.json
 └── webpack.config.js
 ```
+
+> 示例工程，见03_webpack
 
 
 
@@ -717,6 +733,140 @@ WARNING in webpack performance recommendations:
 You can limit the size of your bundles by using import() or require.ensure to lazy load some parts of your application.
 For more info visit https://webpack.js.org/guides/code-splitting/
 ```
+
+
+
+### （2）nodemon
+
+[nodemon](https://github.com/remy/nodemon)是类似node命令的一个npm包，除了可以执行Node.js代码外，还可以建立监听，当对应的文件内容变化时，不用重新运行命令，就自动执行文件。
+
+
+
+安装nodemon包，如下
+
+```shell
+$ npm install nodemon --save-dev
+```
+
+
+
+配置package.json的运行命令[^8]，如下
+
+```json
+{
+  "scripts": {
+    "monitor": "nodemon src/index.js",
+  },
+  ...
+  "devDependencies": {
+    "nodemon": "^2.0.2"
+  }
+}
+```
+
+
+
+index.js的代码，如下
+
+```javascript
+console.log('Hello ever running Node.js project.');
+```
+
+
+
+然后运行npm的run命令，如下
+
+```shell
+$ npm run monitor
+
+> 04_nodemon@1.0.0 monitor /Users/wesley_chen/GitHub_Projects/HelloNodeJS/04_nodemon
+> nodemon src/index.js
+
+[nodemon] 2.0.2
+[nodemon] to restart at any time, enter `rs`
+[nodemon] watching dir(s): *.*
+[nodemon] watching extensions: js,mjs,json
+[nodemon] starting `node src/index.js`
+Hello ever running Node.js project.
+[nodemon] clean exit - waiting for changes before restart
+```
+
+
+
+说明
+
+> 每次修改index.js文件，不用重新执行上面的命令，nodemon会自动重新执行。
+
+
+
+### （3）babel
+
+[babel](https://babeljs.io/)也是npm包，它是一个JavaScript编译器，将JS代码转成浏览器兼容的代码。
+
+
+
+babel的安装，可以基于webpack，也可以基于package.json来安装。
+
+下面介绍基于webpack的安装方法[^6]
+
+
+
+#### 安装loader
+
+babel的webpack插件是babel-loader，当然也需要安装babel自身。
+
+```shell
+$ npm install babel-loader @babel/core @babel/preset-env --save-dev
+```
+
+这里安装@babel/preset-env，是因为需要babel的预置环境
+
+
+
+#### 配置webpack.config.js
+
+```javascript
+var path = require('path')
+
+module.exports = {
+    mode: 'development',
+    entry: './src/index.js',
+    output: {
+        filename: 'bundle.js',
+        path: path.resolve(__dirname, 'dist')
+    },
+    module: {
+        rules: [
+            {
+                test: /\.m?js$/,
+                exclude: '/node_modules/',
+                use: {
+                    loader: 'babel-loader',
+                    options: {
+                        presets: ['@babel/preset-env'],
+                        plugins: [
+                            '@babel/plugin-proposal-object-rest-spread',
+                            '@babel/plugin-proposal-class-properties'
+                        ]
+                    }
+                }
+            }
+        ],
+    },
+};
+```
+
+* test字段，用于哪些文件需要babel处理
+* exclude字段，用于哪些文件不处理。这里有一个坑，官方文档使用的是`exclude: /node_modules/`，但实际上用`exclude: '/node_modules/'`更好。
+* plugins字段，用于应用哪些babel插件。注意这些插件也需要用npm安装，如下
+
+```shell
+$ npm install @babel/plugin-proposal-object-rest-spread @babel/plugin-proposal-class-properties --save-dev
+```
+
+
+
+
 
 
 
@@ -1059,6 +1209,12 @@ Wrote to /Users/wesley_chen/GitHub_Projcets/HelloNodeJS/03_webpack/package.json:
 [^3]:https://flaviocopes.com/package-json
 [^4]:https://www.sitepoint.com/beginners-guide-node-package-manager/
 [^5]:https://tutorialzine.com/2017/04/learn-webpack-in-15-minutes
+
+[^6]:https://webpack.js.org/loaders/babel-loader/
+[^7]:https://webpack.js.org/guides/development/
+[^8]:https://www.robinwieruch.de/minimal-node-js-babel-setup
+
+
 
 
 
