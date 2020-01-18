@@ -475,6 +475,16 @@ module.exports = {
 >   ...
 > }
 > ```
+> 另外，不希望webpack压缩代码[^11]（变量名替换），可以设置optimization参数，如下
+>
+> ```javascript
+> module.exports = {
+>     optimization:{
+>         minimize: false, // <---- disables uglify.
+>         // minimizer: [new UglifyJsPlugin()] if you want to customize it.
+>     }
+> }
+> ```
 
 
 
@@ -1447,6 +1457,8 @@ Wrote to /Users/wesley_chen/GitHub_Projcets/HelloNodeJS/03_webpack/package.json:
 
 [^9]:https://timonweb.com/tutorials/how-to-enable-ecmascript-6-imports-in-nodejs/
 [^10]:https://www.npmjs.com/package/dotenv#preload
+
+[^11]:https://stackoverflow.com/a/51264532
 
 
 
