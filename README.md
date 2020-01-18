@@ -807,11 +807,15 @@ Hello ever running Node.js project.
 
 babel的安装，可以基于webpack，也可以基于package.json来安装。
 
+
+
+#### 基于webpack的安装
+
 下面介绍基于webpack的安装方法[^6]
 
 
 
-#### 安装loader
+##### 安装loader
 
 babel的webpack插件是babel-loader，当然也需要安装babel自身。
 
@@ -823,7 +827,7 @@ $ npm install babel-loader @babel/core @babel/preset-env --save-dev
 
 
 
-#### 配置webpack.config.js
+##### 配置webpack.config.js
 
 ```javascript
 var path = require('path')
@@ -866,7 +870,48 @@ $ npm install @babel/plugin-proposal-object-rest-spread @babel/plugin-proposal-c
 
 
 
+#### 基于package.json的安装[^8]
 
+
+
+##### 安装相关npm包
+
+```shell
+$ npm install -D @babel/core @babel/node @babel/preset-env nodemon
+```
+
+
+
+##### 增加package.json的命令
+
+```json
+{
+  "scripts": {
+    "start": "nodemon --exec babel-node src/index.js"
+  },
+  ...
+}
+```
+
+`--exec`是nodemon命令的选项，用于执行其他命令，例如`nodemon --exec python app.py`。
+
+
+
+说明
+
+> 安装全局的nodemon，可以使用`nodemon --help`查看帮助信息。
+
+
+
+##### 配置.babelrc文件
+
+```json
+{
+  "presets": [
+    "@babel/preset-env"
+  ]
+}
+```
 
 
 
