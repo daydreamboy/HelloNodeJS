@@ -915,6 +915,112 @@ $ npm install -D @babel/core @babel/node @babel/preset-env nodemon
 
 
 
+### （4）esm
+
+[esm](https://www.npmjs.com/package/esm)（ECMA Script Module）是支持es6语法的module loader，能在Node.js代码中支持import语法。
+
+
+
+#### 安装esm包
+
+新建npm工程，安装esm包
+
+```shell
+$ npm init esm -y
+```
+
+或者现有工程，安装esm包
+
+```shell
+$ npm install esm --save
+```
+
+
+
+#### 示例工程[^9]
+
+
+
+server.js
+
+```javascript
+import express from 'express';
+const app = express();
+
+// respond with "Hello world" when a GET request is made to the homepage
+app.get('/', function (req, res) {
+    res.send('Hello, world');
+});
+
+app.listen(3000, () => console.log('Example app listening on port 3000! Open http://localhost:3000/'));
+```
+
+
+
+目前Node.js不支持import语法。如果直接执行，则报错如下
+
+```shell
+$ node server.js 
+/Users/wesley_chen/GitHub_Projects/HelloNodeJS/09_esm/server.js:1
+import express from 'express';
+       ^^^^^^^
+
+SyntaxError: Unexpected identifier
+    at Module._compile (internal/modules/cjs/loader.js:872:18)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:947:10)
+    at Module.load (internal/modules/cjs/loader.js:790:32)
+    at Function.Module._load (internal/modules/cjs/loader.js:703:12)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:999:10)
+    at internal/main/run_main_module.js:17:11
+```
+
+
+
+#### 使用esm
+
+使用esm有下面三种方式
+
+
+
+##### node命令结合esm
+
+```shell
+$ node -r esm server.js
+```
+
+说明
+
+> --r, --require：用于预加载module
+
+
+
+##### nodemon命令结合esm
+
+```shell
+$ nodemon -r esm server.js
+```
+
+
+
+##### 入口代码中引入esm module
+
+index.js
+
+```javascript
+// Set options as a parameter, environment variable, or rc file.
+// eslint-disable-next-line no-global-assign
+require = require("esm")(module/* , options */)
+module.exports = require("./server.js")
+```
+
+在入口文件（例如index.js）中，重定义require，然后引用原来的入口文件（server.js）。这样执行node或nodemon命令，不用加`-r esm`参数。
+
+> 示例工程，见09_esm
+
+
+
+
+
 
 
 ## 3、Typescript[^1]
@@ -1258,6 +1364,8 @@ Wrote to /Users/wesley_chen/GitHub_Projcets/HelloNodeJS/03_webpack/package.json:
 [^6]:https://webpack.js.org/loaders/babel-loader/
 [^7]:https://webpack.js.org/guides/development/
 [^8]:https://www.robinwieruch.de/minimal-node-js-babel-setup
+
+[^9]:https://timonweb.com/tutorials/how-to-enable-ecmascript-6-imports-in-nodejs/
 
 
 
