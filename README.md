@@ -937,6 +937,12 @@ $ npm install esm --save
 
 
 
+注意
+
+> npm init esm -y，不适用安装其他npm包，例如`npm init dotenv -y`会报错。
+
+
+
 #### 示例工程[^9]
 
 
@@ -1016,6 +1022,80 @@ module.exports = require("./server.js")
 在入口文件（例如index.js）中，重定义require，然后引用原来的入口文件（server.js）。这样执行node或nodemon命令，不用加`-r esm`参数。
 
 > 示例工程，见09_esm
+
+
+
+### （5）dotenv[^8]
+
+[dotenv](https://www.npmjs.com/package/dotenv)，提供`.env`文件用于配置私有的环境变量值，并把`.env`中的键值对装载到process.env中。
+
+注意
+
+> `.env`文件，应该放到.gitignore文件中，不能让其他人访问。
+
+
+
+#### 安装dotenv包
+
+```shell
+$ npm install dotenv --save
+```
+
+
+
+#### 配置.env文件
+
+```properties
+MY_SECRET=mysupersecretpassword
+```
+
+
+
+#### 引入dotenv的config模块
+
+
+
+##### 代码引入
+
+代码引入有两种方式，使用require方式或者import方式，如下
+
+* require方式
+
+```javascript
+require('dotenv').config()
+
+console.log('Hello main.js!');
+console.log('main.js: ' + process.env.MY_SECRET);
+```
+
+* import方式（需要esm支持）
+
+```javascript
+import 'dotenv/config';
+import './not_import_dotenv';
+
+console.log('Hello index.js!');
+console.log('index.js: ' + process.env.MY_SECRET);
+```
+
+注意
+
+> 当dotenv/config在not_import_dotenv引用之前，not_import_dotenv中就可以使用process.env来访问.env文件的变量，不需要再引用一次，但是不推荐使用这种隐式方式。在使用process.env的文件中都显式引入dotenv/config。
+
+
+
+##### 预加载引入[^10]
+
+```json
+{
+  "scripts": {
+    "preload": "nodemon -r dotenv/config src/not_import_dotenv.js",
+  },
+  ...
+}
+```
+
+node或nodemon命令使用`-r`选项来预加载dotenv/config模块
 
 
 
@@ -1366,6 +1446,7 @@ Wrote to /Users/wesley_chen/GitHub_Projcets/HelloNodeJS/03_webpack/package.json:
 [^8]:https://www.robinwieruch.de/minimal-node-js-babel-setup
 
 [^9]:https://timonweb.com/tutorials/how-to-enable-ecmascript-6-imports-in-nodejs/
+[^10]:https://www.npmjs.com/package/dotenv#preload
 
 
 

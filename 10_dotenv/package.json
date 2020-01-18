@@ -1,0 +1,22 @@
+{
+  "name": "10_dotenv",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "index": "nodemon -r esm src/index.js",
+    "main": "nodemon src/main.js",
+    "preload": "nodemon -r dotenv/config src/not_import_dotenv.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "esm": "^3.2.25"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.2"
+  }
+}
