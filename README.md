@@ -393,6 +393,40 @@ underscore
 
 
 
+### （5）source map[^12]
+
+Source map是一个JSON文件，用于记录源码转换成实际代码的信息。JS实际代码一般是经过压缩混淆后的，这个给调试带来很大困难。有了source map文件，可以方便调试线上的JS代码。
+
+
+
+#### 生成source map文件
+
+
+
+##### 配置webpack工程的webpack.config.js
+
+```javascript
+module.exports = {
+    devtool: 'source-map',
+};
+```
+
+
+
+这里设置devtool参数为`source-map`，实际上devtool参数的值有几个，可以参考这里的[文档](https://webpack.js.org/configuration/devtool/)。
+
+当运行webpack工程时，webpack会自动生成对应.map文件，同时在打包的js代码最后一行，增加下面的注释
+
+```javascript
+//# sourceMappingURL=bundle.js.map
+```
+
+
+
+
+
+
+
 ## 2、npm常用开发包
 
 ### （1）webpack[^5]
@@ -1459,6 +1493,9 @@ Wrote to /Users/wesley_chen/GitHub_Projcets/HelloNodeJS/03_webpack/package.json:
 [^10]:https://www.npmjs.com/package/dotenv#preload
 
 [^11]:https://stackoverflow.com/a/51264532
+[^12]:https://scotch.io/tutorials/debug-javascript-in-production-with-source-maps
+
+
 
 
 
