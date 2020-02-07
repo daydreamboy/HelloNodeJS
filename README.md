@@ -1143,6 +1143,64 @@ node或nodemon命令使用`-r`选项来预加载dotenv/config模块
 
 
 
+### （6）typescript[^13]
+
+typescript提供tsc命令，用于编译ts文件，输出js文件。
+
+
+
+#### 安装typescript包
+
+```shell
+$ npm install typescript -D
+```
+
+
+
+#### 配置tsconfig.json
+
+tsconfig.json用于配置编译选项，可以用下面命令自动生成一个tsconfig.json。
+
+```shell
+$ npm run tsc -- --init
+```
+
+
+
+tsc是package.json中配置的命令，如下
+
+```json
+  "scripts": {
+    "tsc": "tsc"
+  },
+```
+
+
+
+#### 示例工程
+
+```typescript
+function hello(message: string) {
+    console.log('Hello, ' + message);
+}
+
+let message: string = 'typescript!';
+// Error: Type '100' is not assignable to type 'string'.
+//message = 100;
+
+hello(message)
+```
+
+
+
+### （7）ts-node[^14]
+
+ts-node提供ts-node命令，用于编译ts和执行产物js文件。
+
+```shell
+$ ts-node script.ts
+```
+
 
 
 
@@ -1494,6 +1552,9 @@ Wrote to /Users/wesley_chen/GitHub_Projcets/HelloNodeJS/03_webpack/package.json:
 
 [^11]:https://stackoverflow.com/a/51264532
 [^12]:https://scotch.io/tutorials/debug-javascript-in-production-with-source-maps
+
+[^13]:https://www.valentinog.com/blog/typescript/
+[^14]:https://github.com/TypeStrong/ts-node
 
 
 
