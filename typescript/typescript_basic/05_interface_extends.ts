@@ -18,6 +18,7 @@ function filterByTerm(input: Array<Link>, searchTerm: string) {
     }
 }
 
+// @ts-ignore
 const translatedLink: TranslatedLink = {
     description:
         "TypeScript tutorial for beginners is a tutorial for all the JavaScript developers ...",

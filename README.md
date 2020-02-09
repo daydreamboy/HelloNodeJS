@@ -1203,9 +1203,271 @@ $ ts-node script.ts
 
 
 
+### （8）jest[^16]
+
+​       jest是一个JavaScript测试框架，用于创建、运行和组织测试case。它支持TypeScript、Node、React、Vue等各种类型工程。
 
 
-## 3、Typescript[^1]
+
+#### 安装jest包
+
+```shell
+$ npm i jest --save-dev
+```
+
+
+
+#### 配置package.json
+
+```json
+  "scripts": {
+    "test": "jest"
+  },
+```
+
+
+
+#### 配置代码覆盖率
+
+jest配置代码覆盖率，有三种方法
+
+* 执行npm的script命令中加上`--coverage`。如下
+
+```shell
+$ npm test -- --coverage
+```
+
+* package.json的script命令中加上`--coverage`。如下
+
+```json
+  "scripts": {
+    "test": "jest --coverage"
+  },
+```
+
+* package.json的jest字段，配置`"collectCoverage": true`。如下
+
+```json
+  "scripts": {
+    "test": "jest"
+  },
+  "jest": {
+    "collectCoverage": true
+  },
+```
+
+
+
+#### 生成html报告
+
+jest配置代码覆盖率可以生成html报告。在package.json的jest字段，配置如下
+
+```json
+  "scripts": {
+    "test": "jest"
+  },
+  "jest": {
+    "collectCoverage": true,
+    "coverageReporters": ["html"]
+  },
+```
+
+
+
+#### 示例工程[^17]
+
+以一个简单的单元测试工程为例，步骤如下
+
+* 创建`__test__`文件夹，用于存放单元测试，一般文件命名为xxx.spec.js。举个例子，如下
+
+```javascript
+const filterByTerm = require("../filterByTerm")
+
+describe('Filter function', function () {
+    test("it should filter by a search term (link)", () => {
+       const input = [
+           { id: 1, url: "https://www.url1.dev" },
+           { id: 2, url: "https://www.url2.dev" },
+           { id: 3, url: "https://www.link3.dev" }
+       ];
+
+       const output = [{ id: 3, url: "https://www.link3.dev" }];
+
+       expect(filterByTerm(input, 'link')).toEqual(output);
+       expect(filterByTerm(input, "LINK")).toEqual(output);
+    });
+});
+```
+
+* 根据TTD原则，先准备测试case，然后编写开发代码。这里filterByTerm函数，如下
+
+```javascript
+function filterByTerm(inputArr, searchTerm) {
+    if (!searchTerm) throw Error("searchTerm cannot be empty");
+    if (!inputArr.length) throw Error("inputArr cannot be empty");
+    const regex = new RegExp(searchTerm, "i");
+    return inputArr.filter(function(arrayElement) {
+        return arrayElement.url.match(regex);
+    });
+}
+
+module.exports = filterByTerm;
+```
+
+* 执行单元测试
+
+```shell
+$ npm test
+```
+
+
+
+
+
+
+
+## 3、TypeScript[^1]
+
+TypeScript是强类型的JavaScript代码，经过编译后，变成纯JavaScript代码[^15]。
+
+> **TypeScript is a layer** because you can write TypeScript code in your editor. After a compilation all that TypeScript stuff is gone and you're left with plain, simple JavaScript.
+
+
+
+TypeScript语法介绍如下
+
+
+
+### （1）函数
+
+TypeScript的函数签名都必须声明参数和返回值类型。例如
+
+```typescript
+function filterByTerm(input: string, searchTerm: string): string {
+    console.log('first arg: ' + input);
+    console.log('second arg: ' + searchTerm);
+
+    return 'first arg: ' + input + ', ' + 'second arg: ' + searchTerm;
+}
+```
+
+
+
+### （2）变量
+
+TypeScript中的变量需要声明类型，如下
+
+```typescript
+// Note: not use var
+let aVar: string = 'JavaScript';
+aVar = 'TypeScript';
+
+const aConst: string = 'Hello';
+// Error: const variable can't be modified
+//aConst = 'hello';
+```
+
+* let修饰，表示该变量的值可以在初始化后修改
+* const修饰，表示该变量的值可以在初始化后不能再修改
+
+
+
+### （3）类
+
+TypeScript用interface来定义类，例如
+
+```typescript
+interface Link {
+	  description?: string;
+    id?: number;
+    url: string,
+    printDetails(): string;
+		anotherFunc?(a: number, b: number): number;
+}
+
+interface TranslatedLink extends Link {
+    language: string;
+}
+```
+
+* 类的成员变量称为field。
+* 类继承，可以使用extends关键词
+* 成员变量或成员函数，加上后缀`?`，表示该成员是可选的
+
+
+
+#### 下标访问
+
+类可以定义下标访问。例如
+
+```typescript
+interface Link {
+    description?: string;
+    id?: number;
+    url: string;
+    [index: string]: any;
+}
+```
+
+* `any`，表示下标返回任意类型
+* `[index: string]`，表示下标的类型是`string`
+
+
+
+### （4）实例
+
+初始化类的实例，可以直接用map赋值。例如
+
+```typescript
+const translatedLink: TranslatedLink = {
+    description:
+        "TypeScript tutorial for beginners is a tutorial for all the JavaScript developers ...",
+    id: 1,
+    url: "www.valentinog.com/typescript/",
+    language: "en"
+}
+```
+
+
+
+#### this指针
+
+初始化实例时，成员函数可以通过this来引用成员变量。例如
+
+```typescript
+interface IPerson {
+    name: string;
+    city: string;
+    age: number;
+    printDetails(): string;
+    // Note: mark optional
+    anotherFunc?(a: number, b: number): number;
+}
+
+const tom: IPerson = {
+    name: "Tom",
+    city: "Munich",
+    age: 33,
+    printDetails(): string {
+        return `${this.name} - ${this.city}`;
+    }
+}
+
+console.log(tom.printDetails())
+```
+
+
+
+### （5）别名
+
+TypeScript支持别名，使用`type`关键词来定义。例如
+
+```typescript
+type AnyType = any;
+type Links = Array<Link>
+```
+
+> 示例代码，见xx_type_alias.ts
 
 
 
@@ -1555,6 +1817,10 @@ Wrote to /Users/wesley_chen/GitHub_Projcets/HelloNodeJS/03_webpack/package.json:
 
 [^13]:https://www.valentinog.com/blog/typescript/
 [^14]:https://github.com/TypeStrong/ts-node
+
+[^15]:https://www.valentinog.com/blog/typescript/
+[^16]:https://jestjs.io/
+[^17]:https://www.valentinog.com/blog/jest/
 
 
 
