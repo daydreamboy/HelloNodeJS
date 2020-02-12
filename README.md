@@ -1165,6 +1165,14 @@ tsconfig.json用于配置编译选项，可以用下面命令自动生成一个t
 $ npm run tsc -- --init
 ```
 
+说明
+
+> tsconfig.json中的key/value配置，也可以在上面命令行添加参数。例如
+>
+> ```shell
+> $ npm run tsc -- --init --rootDir src --outDir dist
+> ```
+
 
 
 tsc是package.json中配置的命令，如下
