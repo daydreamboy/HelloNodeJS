@@ -1342,6 +1342,251 @@ TypeScript是强类型的JavaScript代码，经过编译后，变成纯JavaScrip
 
 
 
+### （1）基本数据类型
+
+* Boolean
+
+```typescript
+let isDone: boolean = false;
+```
+
+
+
+* Number
+
+```typescript
+let decimal: number = 6;
+let hex: number = 0xf00d;
+let binary: number = 0b1010;
+let octal: number = 0o744;
+```
+
+
+
+* String
+
+**支持单引号和双引号**
+
+```typescript
+let color: string = "blue";
+color = 'red';
+```
+
+**模板字符串**
+
+```typescript
+let fullName: string = `Bob Bobbington`;
+let age: number = 37;
+let sentence: string = `Hello, my name is ${ fullName }.
+
+I'll be ${ age + 1 } years old next month.`;
+```
+
+<code>``</code>用于定义模板字符串，其里面的占位变量，可以使用<code>${var}</code>方式。
+
+模板字符串还支持raw字符串方式（所见即所得），换行不用使用转义符`\n`。上面sentence变量等价于下面
+
+```typescript
+let sentence: string = "Hello, my name is " + fullName + ".\n\n" +
+    "I'll be " + (age + 1) + " years old next month.";
+```
+
+
+
+* Array
+
+```typescript
+let list: number[] = [1, 2, 3];
+let list: Array<number> = [1, 2, 3];
+```
+
+数组支持`ElementType[]`和`Array<ElementType>`两种方式
+
+
+
+* Tuple
+
+元组定义一组元素，允许每个元素类型不同。元组类型定义后不能改变元素个数。
+
+```typescript
+// Declare a tuple type
+let x: [string, number];
+// Initialize it
+x = ["hello", 10]; // OK
+// Initialize it incorrectly
+x = [10, "hello"]; // Error
+
+console.log(x[0].substring(1)); // OK
+console.log(x[1].substring(1)); // Error, 'number' does not have 'substring'
+
+x[3] = "world"; // Error, Property '3' does not exist on type '[string, number]'.
+
+console.log(x[5].toString()); // Error, Property '5' does not exist on type '[string, number]'.
+```
+
+
+
+* Enum
+
+枚举定义一组值，类似C的枚举值。
+
+```typescript
+enum Color {Red, Green, Blue}
+enum Color {Red = 1, Green = 2, Blue = 4}
+let c: Color = Color.Green;
+```
+
+枚举值可以通过下标，转成字符串，例如
+
+```typescript
+enum Color {Red = 1, Green, Blue}
+let colorName: string = Color[2];
+
+console.log(colorName); // Displays 'Green' as its value is 2 above
+```
+
+
+
+* Any
+
+任意类型用于编译时不检查变量类型
+
+```typescript
+let notSure: any = 4;
+notSure = "maybe a string instead";
+notSure = false; // okay, definitely a boolean
+```
+
+any和Object类型区别在于，any类型实例，对其调用方法也不做编译时检查。
+
+```typescript
+let notSure: any = 4;
+notSure.ifItExists(); // okay, ifItExists might exist at runtime
+notSure.toFixed(); // okay, toFixed exists (but the compiler doesn't check)
+
+let prettySure: Object = 4;
+prettySure.toFixed(); // Error: Property 'toFixed' doesn't exist on type 'Object'.
+```
+
+any类型还可以用于数组放混合类型的元素
+
+```typescript
+let list: any[] = [1, true, "free"];
+
+list[1] = 100;
+```
+
+
+
+* Void
+
+void类型用于函数返回类型
+
+```typescript
+function warnUser(): void {
+    console.log("This is my warning message");
+}
+```
+
+void类型也可以用于变量类型，但是只能赋值null（如果编译时没有指定`--strictNullChecks`）或者undefined
+
+```typescript
+let unusable: void = undefined;
+unusable = null; // OK if `--strictNullChecks` is not given
+```
+
+
+
+* Null和Undefined
+
+null和undefined既可以作为变量类型，也可以作为变量值。
+
+```typescript
+// Not much else we can assign to these variables!
+let u: undefined = undefined;
+let n: null = null;
+```
+
+默认情况下，null和undefined是其他类型的子类型，即null和undefined可以赋值到number类型的变量
+
+如果开启`--strictNullChecks`，null和undefined只能赋值到any类型的变量，或者自身类型变量。
+
+还有一种情况，可以赋值到组合类型变量上，例如`string | null | undefined`
+
+
+
+* Never
+
+never类型，用于总是会抛出异常的函数返回值类型。
+
+never类型是其他类型的子类型，并且可以赋值到其他类型，但是其他类型不能赋值到never类型，除了never类型自身。any类型也不能赋值到never类型。
+
+```typescript
+// Function returning never must have unreachable end point
+function error(message: string): never {
+    throw new Error(message);
+}
+
+// Inferred return type is never
+function fail() {
+    return error("Something failed");
+}
+
+// Function returning never must have unreachable end point
+function infiniteLoop(): never {
+    while (true) {
+    }
+}
+```
+
+
+
+* Object
+
+​     object类型代表非基础（primitive）类型，即除number、string、boolean、bigint、symbol、null和undefined之外的类型。
+
+```typescript
+declare function create(o: object | null): void;
+
+create({ prop: 0 }); // OK
+create(null); // OK
+
+create(42); // Error
+create("string"); // Error
+create(false); // Error
+create(undefined); // Error
+```
+
+
+
+* Type assertion
+
+类型断言，类似其他语言的强制类型转换。有两种方式，如下
+
+**尖括号语法**
+
+```typescript
+let someValue: any = "this is a string";
+let strLength: number = (<string>someValue).length;
+```
+
+**as语法**
+
+```typescript
+let someValue: any = "this is a string";
+let strLength: number = (someValue as string).length;
+```
+
+
+
+
+
+
+
+
+
+
+
 TypeScript语法介绍如下
 
 
@@ -1380,9 +1625,9 @@ const aConst: string = 'Hello';
 
 
 
-### （3）类
+### （3）接口（interface）
 
-TypeScript用interface来定义类，例如
+TypeScript用interface来定义接口，例如
 
 ```typescript
 interface Link {
@@ -1398,15 +1643,15 @@ interface TranslatedLink extends Link {
 }
 ```
 
-* 类的成员变量称为field。
-* 类继承，可以使用extends关键词
+* 接口的成员变量称为field。
+* 接口继承，可以使用extends关键词
 * 成员变量或成员函数，加上后缀`?`，表示该成员是可选的
 
 
 
 #### 下标访问
 
-类可以定义下标访问。例如
+接口可以定义下标访问。例如
 
 ```typescript
 interface Link {
