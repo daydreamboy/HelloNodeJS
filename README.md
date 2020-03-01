@@ -1330,6 +1330,396 @@ $ npm test
 
 
 
+### （9）rxjs
+
+[rxjs](http://reactivex.io/rxjs/)是实现[Reactive X](http://reactivex.io/)的JavaScript库。[官方文档](https://rxjs-dev.firebaseapp.com/guide/overview)对rxjs介绍，如下
+
+​      RxJs是一个采用可观察序列处理事件和异步的，提供核心类型Observable，附属类型Observer、Scheduler、Subjects，以及操作符（map、filter、reduce、every等）
+
+> RxJS is a library for composing asynchronous and event-based programs by using observable sequences. It provides one core type, the [Observable](https://rxjs-dev.firebaseapp.com/guide/observable), satellite types (Observer, Schedulers, Subjects) and operators inspired by [Array#extras](https://developer.mozilla.org/en-US/docs/Web/JavaScript/New_in_JavaScript/1.6) (map, filter, reduce, every, etc) to allow handling asynchronous events as collections.
+
+
+
+#### 基本概念
+
+* Observable，代表某个值或事件，在将来可以产生出来
+* Observer，代表一组回调用于监听Observable产生的事件或值
+* Subscription，代表执行Observable
+* Operator，函数式编程风格的函数，例如map、filter、concat、reduce等
+* Subject，等价EventEmitter，可以广播值或事件给多个Observer
+* Scheduler，中心化的分发器用于控制并发
+
+
+
+##### Cold Observable和Hot Observable[^20]
+
+​       Cold Observable启动仅当Subscription调用后，才有值或事件产生。在这之前的值或者事件，Cold Observable没有捕获到的。Hot Observable在Subscription调用后，能接收到所有的值或者事件，包括Subscription调用之前的值或者事件。
+
+
+
+#### Observable[^21]
+
+根据数据的生产者和消费者，以及数据是单值还是多值的关系，有下面一个分类表
+
+|      | SINGLE   | MULTIPLE   |
+| ---- | -------- | ---------- |
+| Pull | Function | Iterator   |
+| Push | Promise  | Observable |
+
+* Function，生产者不知道数据何时被处理，消费者主动pull数据来处理，返回数据一般是单次返回
+* Iterator，生产者不知道数据何时被处理，消费者主动pull数据来处理，返回数据可以是多次返回
+* Promise，生产者主动push数据到消费者，消费者不知道数据何时被处理，返回数据一般是单次返回
+* Observable，生产者主动push数据到消费者，消费者不知道数据何时被处理，返回数据可以是多次返回
+
+
+
+举个Observable的通用示例代码，如下
+
+Observable.ts
+
+```typescript
+import { Observable } from "rxjs";
+
+const observable = new Observable(subscriber => {
+    subscriber.next(1);
+    subscriber.next(2);
+    subscriber.next(3);
+    setTimeout(() => {
+        subscriber.next(4);
+        subscriber.complete();
+    }, 1000);
+});
+
+console.log('just before subscribe');
+observable.subscribe({
+    next(x) {
+        console.log('got value ' + x);
+    },
+    error(err) {
+        console.error('something wrong occurred: ' + err);
+    },
+    complete() {
+        console.log('done');
+    }
+});
+console.log('just after subscribe');
+```
+
+
+
+使用Observable分为下面4个过程
+
+* **Creating** Observables
+* **Subscribing** to Observables
+* **Executing** the Observable
+* **Disposing** Observables
+
+
+
+##### Creating Observables
+
+使用Observable构造函数，创建Observable实例，带一个subscriber回调。例如上面的代码
+
+```typescript
+const observable = new Observable(subscriber => {
+    subscriber.next(1);
+    subscriber.next(2);
+    subscriber.next(3);
+    setTimeout(() => {
+        subscriber.next(4);
+        subscriber.complete();
+    }, 1000);
+});
+```
+
+当Observable实例调用subscribe方法时，会触发subscriber回调。
+
+> rxjs提供一些便利函数，用于创建Observable实例，例如of、from、interval函数等。
+
+
+
+##### Subscribing to Observables
+
+使用subscribe方法订阅到Observable实例。例如上面的代码
+
+```typescript
+observable.subscribe({
+    next(x) {
+        console.log('got value ' + x);
+    },
+    error(err) {
+        console.error('something wrong occurred: ' + err);
+    },
+    complete() {
+        console.log('done');
+    }
+});
+```
+
+subscribe方法，接收3个类型通知，这个和Executing the Observable过程中next、error和complete方法是对应的。
+
+* Next通知，Observable发送一个值（String、Object等），是必须的参数
+* Error通知，Observable发送JavaScript错误或者异常，是可选的参数
+* Complete通知，Observable不发送任何值，仅标识Observable产生值或者事件已经完全结束，是可选的参数
+
+
+
+##### Executing the Observable
+
+​       执行Observable，实际上是执行subscription，在创建Observable时有个subscription回调，该回调函数中有个subscriber参数，可以调用它的next、error和complete方法。
+
+```typescript
+const observable = new Observable(subscriber => {
+    subscriber.next(1);
+    subscriber.next(2);
+    subscriber.next(3);
+    setTimeout(() => {
+        subscriber.next(4);
+        subscriber.complete();
+    }, 1000);
+});
+```
+
+推荐使用try-catch，来捕获异常，如下
+
+```typescript
+const observable = new Observable(function subscribe(subscriber) {
+  try {
+    subscriber.next(1);
+    subscriber.next(2);
+    subscriber.next(3);
+    subscriber.complete();
+  } catch (err) {
+    subscriber.error(err); // delivers an error if it caught one
+  }
+});
+```
+
+一般调用next可以是0次或无限次，调用error方法0次或者1次，调用complete方法0次或者1次。用正则表达式来描述如下
+
+```javascript
+next*(error|complete)?
+```
+
+
+
+##### Disposing Observables
+
+Disposing Observable，用于结束subscribe关系。可以使用unsubscribe方法来执行默认的行为。
+
+```typescript
+import { from } from 'rxjs';
+
+const observable = from([10, 20, 30]);
+const subscription = observable.subscribe(x => console.log(x));
+// Later:
+subscription.unsubscribe();
+```
+
+也可以在创建Observable时返回一个unsubscribe函数，用于在后面需要Disposing Observable。
+
+```typescript
+import { Observable } from "rxjs";
+
+const observable = new Observable(function subscribe(subscriber) {
+    const intervalId = setInterval(() => {
+       subscriber.next('hi');
+    }, 1000);
+
+    return function unsubscribe() {
+        clearInterval(intervalId);
+    }
+});
+
+const subscription = observable.subscribe((value) => { console.log(value); });
+
+setTimeout(() => {
+    subscription.unsubscribe();
+},5000);
+```
+
+注意：返回这个unsubscribe方法的调用，在subscription对象调用unsubscribe()方法时调用
+
+
+
+
+
+#### 搭建rxjs的环境[^19]
+
+准备环境
+
+```shell
+$ npm install -D webpack webpack-dev-server webpack-cli typescript ts-loader
+```
+
+
+
+安装rxjs的npm包
+
+```shell
+$ npm install rxjs
+```
+
+
+
+创建配置文件
+
+webpack.config.js
+
+```javascript
+const path = require('path');
+module.exports = {
+    entry: './src/index.ts',
+    devtool: 'inline-source-map',
+    module: {
+        rules: [
+            {
+                test: /\.tsx?$/,
+                use: 'ts-loader',
+                exclude: /node_modules/
+            }
+        ]
+    },
+    resolve: {
+        extensions: [ '.tsx', '.ts', '.js' ]
+    },
+    output: {
+        filename: 'bundle.js',
+        path: path.resolve(__dirname, 'dist')
+    }
+};
+```
+
+
+
+tsconfig.json
+
+```json
+{
+  "compilerOptions": {
+    "outDir": "./dist/",
+    "sourceMap": true,
+    "noImplicitAny": true,
+    "module": "es6",
+    "moduleResolution": "node",
+    "target": "es6",
+    "allowJs": true,
+    "lib": [
+      "es2017",
+      "dom"
+    ]
+  }
+}
+```
+
+
+
+#### 示例工程
+
+index.html
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>RxJS Demo</title>
+    <style>
+        body { font-family: 'Arial'; background: lightgray }
+        ul { list-style-type: none; padding: 20px; }
+        li { padding: 15px; background: lightcoral; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+<h1>RxJS Demo</h1>
+<div>
+    <ul id="list"></ul>
+</div>
+<script src="/bundle.js"></script>
+</body>
+</html>
+```
+
+
+
+index.ts
+
+```typescript
+import { Observable } from "rxjs";
+
+let observable = Observable.create((observable:any) => {
+    observable.next('Hello world!');
+    observable.next('Hello again!');
+    observable.complete();
+    observable.next('Bye');
+});
+
+observable.subscribe(
+    (x: any) => logItem(x),
+    (error: any) => logItem('Error: ' + error),
+    () => logItem('Completed')
+);
+
+function logItem(val: any) {
+    let node = document.createElement('li');
+    let textNode = document.createTextNode(val);
+    node.appendChild(textNode);
+    document.getElementById('list').appendChild(node);
+}
+```
+
+
+
+#### rxjs语法[^20]
+
+执行ts文件，先安装ts-node包。
+
+```shell
+$ npm install ts-node -D
+```
+
+
+
+在执行ts文件时，可能会出现下面错误
+
+```shell
+$ ts-node basic/of.ts 
+/Users/wesley_chen/GitHub_Projects/HelloNodeJS/13_rxjs/basic/of.ts:1
+import { of } from "rxjs";
+       ^
+
+SyntaxError: Unexpected token {
+```
+
+在tsconfig.json中，将"module"设置为"commonjs"
+
+
+
+##### of语法
+
+```typescript
+import { of } from "rxjs";
+
+const observable = of(1);
+const subscription = observable.subscribe(
+    (value) => console.log(value),
+    (error: any) => console.log(error),
+    () => console.log('Done!')
+);
+
+subscription.unsubscribe();
+```
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2028,6 +2418,28 @@ Wrote to /Users/wesley_chen/GitHub_Projcets/HelloNodeJS/03_webpack/package.json:
 
 
 
+#### （11）view
+
+##### 查看npm包所有版本号[^18]
+
+格式：npm view <package> versions --json
+
+```shell
+$ npm view webpack versions --json
+[
+  "0.1.0",
+  ...
+]
+```
+
+
+
+
+
+
+
+
+
 ### 2、常用npm包列表
 
 | 包名                                                     | 常见用法                                  |
@@ -2074,6 +2486,16 @@ Wrote to /Users/wesley_chen/GitHub_Projcets/HelloNodeJS/03_webpack/package.json:
 [^15]:https://www.valentinog.com/blog/typescript/
 [^16]:https://jestjs.io/
 [^17]:https://www.valentinog.com/blog/jest/
+
+[^18]:https://stackoverflow.com/a/41416032
+
+[^19]:https://medium.com/codingthesmartway-com-blog/getting-started-with-rxjs-part-1-setting-up-the-development-environment-creating-observables-db76ce053725
+[^20]:https://hub.packtpub.com/how-to-create-observables-in-rxjs-tutorial/
+[^21]:https://rxjs-dev.firebaseapp.com/guide/observable
+
+
+
+
 
 
 
