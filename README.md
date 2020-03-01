@@ -1682,7 +1682,7 @@ $ npm install ts-node -D
 
 
 
-在执行ts文件时，可能会出现下面错误
+在执行ts文件时，可能会出现下面错误[^22]
 
 ```shell
 $ ts-node basic/of.ts 
@@ -2492,6 +2492,9 @@ $ npm view webpack versions --json
 [^19]:https://medium.com/codingthesmartway-com-blog/getting-started-with-rxjs-part-1-setting-up-the-development-environment-creating-observables-db76ce053725
 [^20]:https://hub.packtpub.com/how-to-create-observables-in-rxjs-tutorial/
 [^21]:https://rxjs-dev.firebaseapp.com/guide/observable
+[^22]:https://github.com/TypeStrong/ts-node/issues/744
+
+
 
 
 
