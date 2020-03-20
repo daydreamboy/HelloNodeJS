@@ -423,7 +423,61 @@ module.exports = {
 
 
 
+### （6）搭建Tool工具集的工程
 
+这里介绍如何搭建自己的工具类和对应的test case，方便开发、维护和测试。
+
+npm工程，主要用npm-run-all、webpack、nodemon等工具
+
+```shell
+$ npm install -D npm-run-all webpack nodemon
+```
+
+package.json的配置[^23]，如下
+
+```json
+{
+  "scripts": {
+    "start": "npm-run-all --parallel watch:server watch:build",
+    "watch:build": "webpack --watch",
+    "watch:server": "nodemon \"./dist/bundle.js\" --watch \"./dist\""
+  },
+  ...
+}
+```
+
+上面的配置，执行`npm run start`可以webpack和nodemon同时监听文件变化，然后重新执行打包后的脚本。
+
+npm工程的结构，如下
+
+```shell
+$ tree . -L 2 -I node_modules
+.
+├── dist
+│   └── bundle.js
+├── library
+│   ├── ObjectTool.js
+│   └── StringTool.js
+├── package-lock.json
+├── package.json
+├── src
+│   ├── index.js
+│   ├── test_ObjectToo.js
+│   └── test_StringTool.js
+└── webpack.config.js
+```
+
+index.js的内容，如下
+
+```javascript
+import {run as run1} from './test_StringTool';
+import {run as run2} from './test_ObjectToo';
+
+run1();
+run2();
+```
+
+> 示例工程，见05_Tools
 
 
 
@@ -2525,6 +2579,8 @@ $ npm view webpack versions --json
 [^20]:https://hub.packtpub.com/how-to-create-observables-in-rxjs-tutorial/
 [^21]:https://rxjs-dev.firebaseapp.com/guide/observable
 [^22]:https://github.com/TypeStrong/ts-node/issues/744
+
+[^23]:https://stackoverflow.com/a/39575186
 
 
 

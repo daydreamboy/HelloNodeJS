@@ -4,9 +4,9 @@
   "description": "",
   "main": "src/index.js",
   "scripts": {
-    "build": "webpack",
-    "monitor": "npm run build && nodemon dist/bundle.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "npm-run-all --parallel watch:server watch:build",
+    "watch:build": "webpack --watch",
+    "watch:server": "nodemon \"./dist/bundle.js\" --watch \"./dist\""
   },
   "author": "",
   "license": "ISC",
@@ -17,6 +17,7 @@
     "@babel/preset-env": "^7.8.3",
     "babel-loader": "^8.0.6",
     "nodemon": "^2.0.2",
+    "npm-run-all": "^4.1.5",
     "webpack": "^4.41.5",
     "webpack-cli": "^3.3.10"
   }
