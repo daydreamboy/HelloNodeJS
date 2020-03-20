@@ -1,4 +1,4 @@
-export default class StringTool {
+class StringTool {
     // @see https://stackoverflow.com/a/5040502
     static TruncatingStyle = Object.freeze({
         truncatingNone: 0,
@@ -22,8 +22,8 @@ export default class StringTool {
         truncatingStyle = truncatingStyle || StringTool.TruncatingStyle.truncatingTrail;
         separator = separator || "...";
 
-        var separatorLength = separator.length;
-        var showedLength = limitedLength - separatorLength;
+        let separatorLength = separator.length;
+        let showedLength = limitedLength - separatorLength;
 
         switch (truncatingStyle) {
             case StringTool.TruncatingStyle.truncatingHead: {
@@ -48,3 +48,5 @@ export default class StringTool {
         }
     }
 }
+
+export default StringTool;

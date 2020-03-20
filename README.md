@@ -780,6 +780,38 @@ For more info visit https://webpack.js.org/guides/code-splitting/
 
 
 
+#### 加载plugin
+
+webpack自身是基于plugin搭建的，plugin能完成loader不能完成的任务。webpack plugin插件可以在[这里](https://webpack.js.org/plugins/)查询。
+
+以使用[UglifyjsWebpackPlugin](https://webpack.js.org/plugins/uglifyjs-webpack-plugin/)为例
+
+
+
+##### 安装plugin
+
+```shell
+$ npm install uglify-js uglifyjs-webpack-plugin --save-dev
+```
+
+> uglifyjs-webpack-plugin是基于uglify-js的，因此uglify-js也要安装
+
+
+
+##### 配置plugin
+
+uglifyjs-webpack-plugin的配置，如下。具体配置可以参考它的[文档](https://webpack.js.org/plugins/uglifyjs-webpack-plugin/)
+
+webpack.config.js
+
+```javascript
+
+```
+
+
+
+
+
 ### （2）nodemon
 
 [nodemon](https://github.com/remy/nodemon)是类似node命令的一个npm包，除了可以执行Node.js代码外，还可以建立监听，当对应的文件内容变化时，不用重新运行命令，就自动执行文件。
