@@ -462,7 +462,7 @@ $ tree . -L 2 -I node_modules
 ├── package.json
 ├── src
 │   ├── index.js
-│   ├── test_ObjectToo.js
+│   ├── test_ObjectTool.js
 │   └── test_StringTool.js
 └── webpack.config.js
 ```

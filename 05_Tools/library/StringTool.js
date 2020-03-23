@@ -47,6 +47,46 @@ class StringTool {
             }
         }
     }
+
+    /**
+     * Check a variable if string
+     *
+     * @param variable
+     * @returns {boolean}
+     *
+     * @see https://stackoverflow.com/a/9436948
+     */
+    static checkIfString(variable) {
+        return typeof variable === 'string' || variable instanceof String;
+    }
+
+    /**
+     * Check a variable if string and empty
+     *
+     * @param variable
+     * @returns {boolean}
+     */
+    static checkStringIfEmpty(variable) {
+        if (!this.checkIfString(variable)) {
+            return false;
+        }
+
+        return variable.length == 0;
+    }
+
+    /**
+     * Check a variable if string and not empty
+     *
+     * @param variable
+     * @returns {boolean}
+     */
+    static checkStringIfNotEmpty(variable) {
+        if (!this.checkIfString(variable)) {
+            return false;
+        }
+
+        return variable.length != 0;
+    }
 }
 
 export default StringTool;
