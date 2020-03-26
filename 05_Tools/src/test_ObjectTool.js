@@ -28,6 +28,9 @@ function test_checkIfObject() {
 
     x = new Map();
     console.log(x + ': ' + ObjectTool.checkIfObject(x)); // true
+
+    x = JSON.parse('{"key":"value"}');
+    console.log(x + ': ' + ObjectTool.checkIfObject(x)); // true
 }
 
 
