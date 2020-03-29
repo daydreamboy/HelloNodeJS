@@ -11,3 +11,17 @@ run3();
 run4();
 run5();
 run6();
+console.log('---');
+console.log(typeof Math);
+console.log(typeof Object);
+console.log(Math instanceof Object);
+console.log(Math.constructor);
+console.log(Object.constructor);
+console.log(Date.now());
+
+// Test if needed
+/*
+import {run_forever} from './test_EventThrottleTool';
+run_forever();
+ */
+
