@@ -6,7 +6,8 @@ import BooleanTool from "./BooleanTool";
 
 class JSONTool {
     static mergeTwoJSONObject(JSONObject1, JSONObject2) {
-        if (!ObjectTool.checkIfObject(JSONObject1) || !ObjectTool.checkIfObject(JSONObject2)) {
+        // Note: allow array or dict
+        if (!ObjectTool.checkIfObjectType(JSONObject1) || !ObjectTool.checkIfObjectType(JSONObject2)) {
             return undefined;
         }
 

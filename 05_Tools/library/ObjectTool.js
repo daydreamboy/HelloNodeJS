@@ -24,15 +24,35 @@ class ObjectTool {
     }
 
     /**
-     * Check a variable if object
+     * Check a variable if object type (Object, Array, Date, ...)
      *
      * @param variable
      * @returns {boolean|boolean}
      *
      * @see https://stackoverflow.com/a/8511350
      */
-    static checkIfObject(variable) {
+    static checkIfObjectType(variable) {
         return typeof variable === 'object' && variable !== null;
+    }
+
+    /**
+     * Check a variable if Object type, e.g. {key: value}
+     *
+     * @param variable
+     * @returns {boolean|boolean}
+     *
+     * @see https://stackoverflow.com/a/51285298
+     * @discussion This method not accurately check Object type, e.g. checkIfObject(JSON) return true.
+     * And not treat Map as Object type
+     */
+    static checkIfObject(variable) {
+        if (typeof variable === 'object' && variable !== null) {
+            if (variable.constructor === Object) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
 
