@@ -33,6 +33,11 @@ function test_mergeTwoJSONObject() {
     output = JSONTool.mergeTwoJSONObject(JSON.parse(JSONString1), JSON.parse(JSONString2));
     console.log(JSON.stringify(output));
 
+    JSONString1 = '{"name":"Alice", "job":"teacher"}';
+    JSONString2 = '{}';
+    output = JSONTool.mergeTwoJSONObject(JSON.parse(JSONString1), JSON.parse(JSONString2));
+    console.log(JSON.stringify(output));
+
     // Case 2
     JSONString1 = '["1", "2", "3"]';
     JSONString2 = '[{}, "22", null]';

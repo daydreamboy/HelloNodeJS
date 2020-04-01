@@ -129,11 +129,58 @@ function test_checkIfObject() {
     console.log(x + ': ' + ObjectTool.checkIfObject(x)); // true
 }
 
+function test_checkIfObjectEmpty() {
+    console.log('--- test_checkIfObjectEmpty ---');
+    let x;
+
+    x = ['1', '2'];
+    console.log(x + ': ' + ObjectTool.checkIfObjectEmpty(x)); // false
+
+    x = { key: 'value'};
+    console.log(x + ': ' + ObjectTool.checkIfObjectEmpty(x)); // false
+
+    x = null;
+    console.log(x + ': ' + ObjectTool.checkIfObjectEmpty(x)); // false
+
+    x = 'abc';
+    console.log(x + ': ' + ObjectTool.checkIfObjectEmpty(x)); // false
+
+    x = 1;
+    console.log(x + ': ' + ObjectTool.checkIfObjectEmpty(x)); // false
+
+    x = function () {
+        console.log('Hello');
+    };
+    console.log(x + ': ' + ObjectTool.checkIfObjectEmpty(x)); // false
+
+    x = Number('3.14');
+    console.log(x + ': ' + ObjectTool.checkIfObjectEmpty(x)); // false
+
+    x = new Map();
+    console.log(x + ': ' + ObjectTool.checkIfObjectEmpty(x)); // false
+
+    x = JSON.parse('{"key":"value"}');
+    console.log(x + ': ' + ObjectTool.checkIfObjectEmpty(x)); // false
+
+    x = new Date();
+    console.log(x + ': ' + ObjectTool.checkIfObjectEmpty(x)); // false
+
+    x = new RegExp('ab+c', 'i');
+    console.log(x + ': ' + ObjectTool.checkIfObjectEmpty(x)); // false
+
+    x = JSON;
+    console.log(x + ': ' + ObjectTool.checkIfObjectEmpty(x)); // true
+
+    x = {};
+    console.log(x + ': ' + ObjectTool.checkIfObjectEmpty(x)); // true
+}
+
 function run() {
     console.log('*** ObjectTool testing ***')
     test_checkIfObjectType();
     test_Object_keys();
     test_checkIfObject();
+    test_checkIfObjectEmpty();
 }
 
 export { run };

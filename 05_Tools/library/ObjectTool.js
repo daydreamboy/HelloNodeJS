@@ -54,6 +54,24 @@ class ObjectTool {
 
         return false;
     }
+
+    /**
+     * Check a variable if Object type and empty, e.g. {}
+     *
+     * @param variable
+     * @returns {boolean}
+     *
+     * @see https://stackoverflow.com/a/32108184
+     */
+    static checkIfObjectEmpty(variable) {
+        if (typeof variable === 'object' && variable !== null) {
+            if (variable.constructor === Object && Object.keys(variable).length === 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
 
 export default ObjectTool;

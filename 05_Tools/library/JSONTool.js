@@ -58,7 +58,7 @@ function mergeTwoJSONObject_internal(baseObject, additionalObject) {
             return baseObject;
         }
 
-        if (additionalObject.length == 0) {
+        if (ObjectTool.checkIfObjectEmpty(additionalObject)) {
             return baseObject;
         }
 
