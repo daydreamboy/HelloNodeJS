@@ -2,7 +2,7 @@ import JSONTool from '../library/JSONTool';
 import NumberTool from "../library/NumberTool";
 
 function test_JSONObject() {
-    console.log('--- test_JSONObject ---')
+    console.log('--- test_JSONObject ---');
     let x;
     let JSONObject;
     let JSONString;
@@ -21,7 +21,7 @@ function test_JSONObject() {
 }
 
 function test_mergeTwoJSONObject() {
-    console.log('--- test_mergeTwoJSONObject ---')
+    console.log('--- test_mergeTwoJSONObject ---');
 
     let JSONString1;
     let JSONString2;
