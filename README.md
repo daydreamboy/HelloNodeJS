@@ -2522,16 +2522,16 @@ $ npm view webpack versions --json
 
 
 
+### 2、常用npm包介绍
 
-
-
-
-### 2、常用npm包列表
-
-| 包名                                                     | 常见用法                                  |
-| -------------------------------------------------------- | ----------------------------------------- |
-| [http-server](https://www.npmjs.com/package/http-server) | `$ http-server -c-1`（禁止缓存）          |
-| uglify-js                                                | `$ uglifyjs example.js -o example.min.js` |
+| 包名                                                     | 命令行工具                                | 说明                                                         |
+| -------------------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------ |
+| [http-server](https://www.npmjs.com/package/http-server) | `$ http-server -c-1`（禁止缓存）          |                                                              |
+| nodemon                                                  |                                           | 类似node命令，但可以监听js文件变化，重新执行js文件。见04_nodemon |
+| npm-run-all                                              |                                           | 能并行执行多个script命令。见05_Tools                         |
+| uglify-js                                                | `$ uglifyjs example.js -o example.min.js` |                                                              |
+| webpack                                                  |                                           | 将多个js文件打包合并成一个js文件。见03_webpack               |
+|                                                          |                                           |                                                              |
 
 
 
