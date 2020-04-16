@@ -175,12 +175,34 @@ function test_checkIfObjectEmpty() {
     console.log(x + ': ' + ObjectTool.checkIfObjectEmpty(x)); // true
 }
 
+function test_valueForKeyPath() {
+    console.log('--- test_valueForKeyPath ---');
+    let x;
+    let output;
+
+    // Case 1
+    x = undefined;
+    output = ObjectTool.valueForKeyPath(x, '');
+    console.log(x + ': ' + output);
+
+    // Case 2
+    x = 12;
+    output = ObjectTool.valueForKeyPath(x, '');
+    console.log(x + ': ' + output);
+
+    // Case 2
+    x = 'hello';
+    output = ObjectTool.valueForKeyPath(x, '');
+    console.log(x + ': ' + output);
+}
+
 function run() {
     console.log('*** ObjectTool testing ***')
     test_checkIfObjectType();
     test_Object_keys();
     test_checkIfObject();
     test_checkIfObjectEmpty();
+    test_valueForKeyPath();
 }
 
 export { run };

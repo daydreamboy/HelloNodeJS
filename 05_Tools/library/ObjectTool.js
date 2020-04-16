@@ -1,17 +1,27 @@
+import StringTool from "./StringTool";
+
 class ObjectTool {
     /**
      * Get value from object by key path
      *
      * @param {Object} object the object
-     * @param {String} keyPath the key path, e.g. 'foo.bar', 'foo.bar.2'
+     * @param {String} keyPath the key path, e.g. 'foo.bar', 'foo.bar.2'.
      *
-     * @returns Return undefined if not found.
+     * @returns {Object} Return undefined if not found or parameter is wrong or any exception occurred.
+     *                   Return the original object if keyPath is empty string.
      *
      * @see https://stackoverflow.com/a/44627252
      */
     static valueForKeyPath(object, keyPath) {
-        let result = undefined;
+        if (!StringTool.checkIfString(keyPath)) {
+            return undefined;
+        }
 
+        if (keyPath === '') {
+            return object;
+        }
+
+        let result = undefined;
         try {
             result = keyPath.split('.').reduce((previous, current) => {
                 return previous[current];
