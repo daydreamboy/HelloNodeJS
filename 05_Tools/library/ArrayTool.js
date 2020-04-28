@@ -16,7 +16,7 @@ class ArrayTool {
     }
 
     static checkArrayIfNotEmpty(variable) {
-        if (this.checkIfArray(variable)) {
+        if (!this.checkIfArray(variable)) {
             return false;
         }
 
