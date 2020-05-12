@@ -82,6 +82,29 @@ class ObjectTool {
 
         return false;
     }
+
+    /**
+     * Dump properties as key: value to console.log
+     *
+     * @param variable the expected object
+     * @returns {boolean} true if dump successfully, or false if parameter is not correct
+     * @see https://flaviocopes.com/how-to-inspect-javascript-object/
+     */
+    static dumpProperties(variable) {
+        if (!this.checkIfObject(variable)) {
+            console.log('[Error] not a object: ' + variable);
+            return false;
+        }
+
+        console.log('properties of ' + variable + ':');
+        for (const prop in variable) {
+            if (variable.hasOwnProperty(prop)) {
+                console.log(`${prop}: ${variable[prop]}`);
+            }
+        }
+
+        return true;
+    }
 }
 
 export default ObjectTool;

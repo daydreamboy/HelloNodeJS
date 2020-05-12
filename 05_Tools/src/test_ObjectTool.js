@@ -196,6 +196,28 @@ function test_valueForKeyPath() {
     console.log(x + ': ' + output);
 }
 
+function test_dumpProperties() {
+    console.log('--- test_dumpProperties ---');
+    let x;
+
+    x = ['1', '2'];
+    ObjectTool.dumpProperties(x);
+
+    x = { key1: 'value1', key2: 'value2' };
+    ObjectTool.dumpProperties(x);
+
+    x = null;
+    ObjectTool.dumpProperties(x);
+
+    x = 'abc';
+    ObjectTool.dumpProperties(x);
+
+    x = new Map();
+    x.set('key1', 'value1');
+    x.set('key2', 'value2');
+    ObjectTool.dumpProperties(x);
+}
+
 function run() {
     console.log('*** ObjectTool testing ***')
     test_checkIfObjectType();
@@ -203,6 +225,7 @@ function run() {
     test_checkIfObject();
     test_checkIfObjectEmpty();
     test_valueForKeyPath();
+    test_dumpProperties();
 }
 
 export { run };
