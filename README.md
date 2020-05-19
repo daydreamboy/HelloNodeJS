@@ -481,7 +481,55 @@ run2();
 
 
 
-## 2、npm常用开发包
+### （7）Node.js的module[^24]
+
+​        JavaScript本身没有module概念，通过JavaScript库、JavaScript引擎（Chrome V8 JavaScript引擎）支持、浏览器支持等，使得JavaScript有module这个功能。
+
+module主要功能有下面两点[^25]
+
+* 定义：封装一段内聚的代码，形成功能模块
+* 引用依赖：引用其他module作为对象使用
+
+总结来说，module是代码模块化的体现。
+
+
+
+module有下面几种形式
+
+* AMD（Asynchronous Module Definition），使用在浏览器中，提供module的定义规范，即用define函数来定义module。[requireJS](https://requirejs.org/)实现了AMD。
+* CJS（CommonJS），使用在Node.js中。用`require`和`module.exports`来定义module和引用module。npm包系统都使用CommonJS形式。
+* EMS（ES Module），是ES6（ES2015）标准下JavaScript原生提供的module方式。使用`export`导出module，使用`import`导入module
+* System.register方式，用于在ES5中支持ES6定义的module，这个功能可以通过[systemjs](https://github.com/systemjs/systemjs/blob/master/docs/system-register.md)库提供
+* UMD（Universal Module Definition），兼容了AMD和CJS，即同时支持浏览器和Node.js中使用。这个功能可以通过[umdjs](https://github.com/umdjs/umd)库提供
+
+
+
+这里介绍Node.js的CommonJS形式。
+
+
+
+
+
+## 2、Node.js语法
+
+### （1）Modules
+
+#### a. 内置变量
+
+| 内置变量     | 作用                       | 示例 |
+| ------------ | -------------------------- | ---- |
+| `__filename` | 当前文件的绝对路径         |      |
+| `__dirname`  | 当前文件所在目录的绝对路径 |      |
+
+
+
+
+
+
+
+
+
+## 3、npm常用开发包
 
 ### （1）webpack[^5]
 
@@ -2581,6 +2629,11 @@ $ npm view webpack versions --json
 [^22]:https://github.com/TypeStrong/ts-node/issues/744
 
 [^23]:https://stackoverflow.com/a/39575186
+
+[^24]:https://www.sitepoint.com/understanding-module-exports-exports-node-js/
+[^25]:https://requirejs.org/docs/whyamd.html#purposes
+
+
 
 
 
