@@ -69,10 +69,29 @@ function test_mergeTwoJSONObject() {
     console.log(JSON.stringify(output));
 }
 
+function test_JSONObjectWithObject() {
+    console.log('--- test_JSONObjectWithObject ---');
+    let x;
+    let output;
+
+    // Case 1
+    x = '{"key": "value"}';
+    console.log(x + ': ' + JSON.stringify(JSONTool.JSONObjectWithObject(x)));
+
+    // Case 2
+    x = '["value1", "value2"]';
+    console.log(x + ': ' + JSON.stringify(JSONTool.JSONObjectWithObject(x)));
+
+    // Case 3
+    x = {"key2": "value2"};
+    console.log(x + ': ' + JSON.stringify(JSONTool.JSONObjectWithObject(x)));
+}
+
 function run() {
     console.log('*** JSONTool testing ***')
     test_JSONObject();
     test_mergeTwoJSONObject();
+    test_JSONObjectWithObject();
 }
 
 export { run };

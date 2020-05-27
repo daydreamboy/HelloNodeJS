@@ -5,6 +5,15 @@ import ArrayTool from "./ArrayTool";
 import BooleanTool from "./BooleanTool";
 
 class JSONTool {
+    /**
+     * Merge two JSON Object using overwrite mode
+     *
+     * @param JSONObject1 the base JSON object
+     * @param JSONObject2 the overwrite JSON object
+     * @returns {JSON Object|undefined}
+     * @discussion This method uses JSONObject2 to overwrite JSONObject1. If the key of JSONObject2 not in JSONObject1 will
+     * not insert the new key in JSONObject1
+     */
     static mergeTwoJSONObject(JSONObject1, JSONObject2) {
         // Note: allow array or dict
         if (!ObjectTool.checkIfObjectType(JSONObject1) || !ObjectTool.checkIfObjectType(JSONObject2)) {
@@ -12,6 +21,28 @@ class JSONTool {
         }
 
         return mergeTwoJSONObject_internal(JSONObject1, JSONObject2);
+    }
+
+    /**
+     * Parse object as JSON Object
+     *
+     * @param variable the String or Object or not
+     * @returns {JSON Object|undefined}. If parse failed, return undefined
+     */
+    static JSONObjectWithObject(variable) {
+        if (ObjectTool.checkIfObject(variable)) {
+            return variable;
+        }
+
+        let JSONObject = undefined;
+        try {
+            JSONObject = JSON.parse(variable);
+        }
+        catch (error) {
+            //console.log(error);
+        }
+
+        return JSONObject;
     }
 }
 
