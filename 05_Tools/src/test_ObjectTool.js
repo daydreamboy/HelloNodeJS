@@ -194,6 +194,12 @@ function test_valueForKeyPath() {
     x = 'hello';
     output = ObjectTool.valueForKeyPath(x, '');
     console.log(x + ': ' + output);
+
+    x = {
+        key: 'value'
+    };
+    output = ObjectTool.valueForKeyPath(x, 'key');
+    console.log(x + ': ' + output);
 }
 
 function test_dumpProperties() {
