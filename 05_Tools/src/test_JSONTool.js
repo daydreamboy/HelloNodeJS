@@ -85,6 +85,10 @@ function test_JSONObjectWithObject() {
     // Case 3
     x = {"key2": "value2"};
     console.log(x + ': ' + JSON.stringify(JSONTool.JSONObjectWithObject(x)));
+
+    // Case 4
+    x = undefined;
+    console.log(x + ': ' + JSON.stringify(JSONTool.JSONObjectWithObject(x)));
 }
 
 function run() {
