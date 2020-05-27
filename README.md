@@ -506,6 +506,89 @@ module有下面几种形式
 
 这里介绍Node.js的CommonJS形式。
 
+#### a. 导入module
+
+```javascript
+const fs = require('fs');
+const folderPath = expand_path('~/Desktop');
+
+const files = fs.readdirSync(folderPath);
+if (files) {
+    files.forEach(file => {
+        console.log(file);
+    });
+}
+```
+
+如果是Node.js内置module，直接使用require语句，引用module的名字。如果是自定义module，可以通过相对路径引用对应的module。
+
+
+
+#### b. 使用exports导出module
+
+```javascript
+const getName = () => {
+    return 'Jim';
+}
+
+exports.getName = getName;
+```
+
+使用如下
+
+```javascript
+const user = require('./export_a_function');
+console.log(`User: ${user.getName()}`);
+```
+
+一个module可以导出多个函数和常量，如下
+
+```javascript
+const getName = () => {
+    return 'Jim';
+};
+
+const getLocation = () => {
+    return 'Munich';
+};
+
+const dateOfBirth = '12.01.1982';
+
+exports.getName = getName;
+exports.getLocation = getLocation;
+exports.dateOfBirth = dateOfBirth;
+```
+
+
+
+#### c. 使用module.exports导出module
+
+​       module.exports和exports的作用是一样的，exports.XXX方式可以导出多个函数和变量，而module.exports方式只唯一导出一个函数或变量，一般用于导出某个class。举个例子，如下
+
+```javascript
+class User {
+    constructor(name, age, email) {
+        this.name = name;
+        this.age = age;
+        this.email = email;
+    }
+
+    getUserStats() {
+        return `
+        Name: ${this.name}
+        Age: ${this.age}
+        Email: ${this.email}
+        `
+    }
+}
+
+module.exports = User;
+```
+
+注意
+
+> module.exports.XXX方式也可以导出多个函数和变量
+
 
 
 
