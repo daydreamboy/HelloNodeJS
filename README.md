@@ -591,6 +591,20 @@ module.exports = User;
 
 
 
+#### d. 检查module变量
+
+在Node.js中每个js文件中都存在内置module变量，可以使用console.log来查看module变量。
+
+```javascript
+console.log(module);
+```
+
+可以看到exports是module变量的一个属性。
+
+> 示例代码，见check_module_1.js和check_module_2.js
+
+
+
 
 
 ## 2、Node.js语法
