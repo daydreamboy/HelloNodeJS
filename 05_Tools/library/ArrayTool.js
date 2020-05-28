@@ -87,7 +87,7 @@ class ArrayTool {
      * @see https://stackoverflow.com/questions/26264956/convert-object-array-to-hash-map-indexed-by-an-attribute-value-of-the-object
      */
     static convertArrayToObjectUsingKeyPath(variable, keyPath) {
-        if (!this.checkIfArray(variable)) {
+        if (!this.checkArrayIfNotEmpty(variable)) {
             return undefined;
         }
 
@@ -130,7 +130,7 @@ class ArrayTool {
      * 2. If the element in order array not matches the value of the key path, return undefined
      */
     static sortArrayItemsByOrderArray(variable, keyPath, orderArray) {
-        if (!this.checkArrayIfEmpty(variable)) {
+        if (!this.checkArrayIfNotEmpty(variable)) {
             return undefined;
         }
 
