@@ -105,6 +105,28 @@ class ObjectTool {
 
         return true;
     }
+
+    /**
+     * Swap key and value of an Object
+     *
+     * @param variable the Object to expected
+     * @returns {Object|undefined} If variable is not an Object, return undefined
+     * @see https://stackoverflow.com/a/23013726
+     * @discussion This method not supports nested Object, e.g. { "c": { "d": 1 } =>  {"[object Object]":"c"}
+     * @warning If the value is integer or float, when it becomes key, it auto convert into string,
+     * e.g. {"b": 42, "c": 3.14} =>  {"42":"b", "3.14":"c"}
+     */
+    static keyValueSwappedObject(variable) {
+        if (!this.checkIfObject(variable)) {
+            return undefined;
+        }
+
+        return Object.entries(variable).reduce((ret, entry) => {
+            const [ key, value ] = entry;
+            ret[value] = key;
+            return ret;
+        }, {});
+    }
 }
 
 export default ObjectTool;

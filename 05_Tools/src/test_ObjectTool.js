@@ -224,6 +224,37 @@ function test_dumpProperties() {
     ObjectTool.dumpProperties(x);
 }
 
+function test_keyValueSwappedObject() {
+    console.log('--- test_keyValueSwappedObject ---');
+    let x;
+    let output;
+
+    // Case 1
+    x = ['1', '2'];
+    output = ObjectTool.keyValueSwappedObject(x);
+    console.log(`${x}: ${output}`);
+
+    // Case 2
+    x = {
+        "a": "somestring",
+        "b": 42,
+        "c": 3.14
+    };
+    output = ObjectTool.keyValueSwappedObject(x);
+    console.log(`${JSON.stringify(x)}: ${JSON.stringify(output)}`);
+
+    // Case 3
+    x = {
+        "a": "somestring",
+        "b": 42,
+        "c": {
+            'd': 1,
+        }
+    };
+    output = ObjectTool.keyValueSwappedObject(x);
+    console.log(`${JSON.stringify(x)}: ${JSON.stringify(output)}`);
+}
+
 function run() {
     console.log('*** ObjectTool testing ***')
     test_checkIfObjectType();
@@ -232,6 +263,7 @@ function run() {
     test_checkIfObjectEmpty();
     test_valueForKeyPath();
     test_dumpProperties();
+    test_keyValueSwappedObject();
 }
 
 export { run };
