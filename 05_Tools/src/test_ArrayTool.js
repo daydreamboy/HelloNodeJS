@@ -67,10 +67,105 @@ function test_sortArrayItemsByNumeric() {
     console.log(output); // [ { level1: { level2: 1 } }, { level1: { level2: '2.1' } }, { level1: { level2: 3 } } ]
 }
 
+function test_convertArrayToObjectUsingKeyPath() {
+    console.log('--- test_convertArrayToObjectUsingKeyPath ---');
+
+    let x;
+    let output;
+
+    x = [
+        {
+            'id': '1',
+            'other': 'some string1',
+            'map': {
+                'mid': 'a'
+            }
+        },
+        {
+            'id': '2',
+            'other': 'some string2',
+            'map': {
+                'mid': 'b'
+            }
+        },
+        {
+            'id': '3',
+            'other': 'some string3',
+            'map': {
+                'mid': 'c'
+            }
+        }
+    ];
+
+    // Case 1.1
+    output = ArrayTool.convertArrayToObjectUsingKeyPath(x, 'id');
+    console.log(output);
+
+    // Case 1.2
+    output = ArrayTool.convertArrayToObjectUsingKeyPath(x, 'map.mid');
+    console.log(output);
+
+    // Case 1.3
+    output = ArrayTool.convertArrayToObjectUsingKeyPath(x, 'map.nid');
+    console.log(output);
+}
+
+function test_sortArrayItemsByOrderArray() {
+    console.log('--- test_sortArrayItemsByOrderArray ---');
+
+    let x;
+    let output;
+    let orderArray;
+
+    x = [
+        {
+            'id': '1',
+            'other': 'some string1',
+            'map': {
+                'mid': 'a'
+            }
+        },
+        {
+            'id': '2',
+            'other': 'some string2',
+            'map': {
+                'mid': 'b'
+            }
+        },
+        {
+            'id': '3',
+            'other': 'some string3',
+            'map': {
+                'mid': 'c'
+            }
+        }
+    ];
+
+    // Case 1
+    orderArray = [ '3', '2', '1' ];
+    output = ArrayTool.sortArrayItemsByOrderArray(x, 'id', orderArray);
+    console.log(`order: ${orderArray}`);
+    console.log(output);
+
+    // Case 2
+    orderArray = [ 'b', 'c', 'a' ];
+    output = ArrayTool.sortArrayItemsByOrderArray(x, 'map.mid', orderArray);
+    console.log(`order: ${orderArray}`);
+    console.log(output);
+
+    // Case 3
+    orderArray = [ 'b', 'c', 'a' ];
+    output = ArrayTool.sortArrayItemsByOrderArray(x, 'map.nid', orderArray);
+    console.log(`order: ${orderArray}`);
+    console.log(output);
+}
+
 function run() {
     console.log('*** ArrayTool testing ***')
     test_checkIfArray();
     test_sortArrayItemsByNumeric();
+    test_convertArrayToObjectUsingKeyPath();
+    test_sortArrayItemsByOrderArray();
 }
 
 export {run};

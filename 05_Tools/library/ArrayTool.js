@@ -26,8 +26,8 @@ class ArrayTool {
     /**
      * Sort item in array by numeric order
      *
-     * @param variable expected as Array type
-     * @param keyPath the key path. Default is empty string.
+     * @param variable{Array} expected as Array type
+     * @param keyPath{String} the key path. Default is empty string.
      * @param isDescend the ascend order or the descend order
      * @returns {Array|undefined} Return undefined if variable is not an array.
      *
@@ -75,6 +75,95 @@ class ArrayTool {
                 return firstNumber - secondNumber;
             }
         });
+    }
+
+    /**
+     * Convert elements of the array by key path into an Object
+     *
+     * @param variable{Array} the array to expected
+     * @param keyPath{String} the key path
+     * @returns {Object|undefined} the Object which key is the value according to the key path
+     * @discussion If the keyPath not exists, return undefined
+     * @see https://stackoverflow.com/questions/26264956/convert-object-array-to-hash-map-indexed-by-an-attribute-value-of-the-object
+     */
+    static convertArrayToObjectUsingKeyPath(variable, keyPath) {
+        if (!this.checkIfArray(variable)) {
+            return undefined;
+        }
+
+        if (!StringTool.checkStringIfNotEmpty(keyPath)) {
+            return undefined;
+        }
+
+        if (this.checkArrayIfEmpty(variable)) {
+            return variable;
+        }
+
+        let result = undefined;
+        try {
+            result = variable.reduce((map, element) => {
+                let key = ObjectTool.valueForKeyPath(element, keyPath);
+                if (key) {
+                    map[key] = element;
+                }
+                else {
+                    throw new Error(`the key path not exists: ${keyPath}`);
+                }
+                return map;
+            }, {});
+        }
+        catch (error) {
+            console.log(`an error occurred: ${error}`);
+        }
+
+        return result;
+    }
+
+    /**
+     * Sort items of the array by key path and specific order
+     *
+     * @param variable{Array} the array to expected
+     * @param keyPath{String} the key path to find and order
+     * @param orderArray{Array} the specific order
+     * @returns {Array|undefined} the sorted array
+     * @discussion 1. If the key path not exists, return undefined
+     * 2. If the element in order array not matches the value of the key path, return undefined
+     */
+    static sortArrayItemsByOrderArray(variable, keyPath, orderArray) {
+        if (!this.checkArrayIfEmpty(variable)) {
+            return undefined;
+        }
+
+        if (!StringTool.checkStringIfNotEmpty(keyPath)) {
+            return undefined;
+        }
+
+        if (!this.checkArrayIfNotEmpty(orderArray)) {
+            return undefined;
+        }
+
+        let sortedArray = undefined;
+        let lookupObject = this.convertArrayToObjectUsingKeyPath(variable, keyPath);
+
+        try {
+            if (lookupObject) {
+                sortedArray = orderArray.reduce((result, element) => {
+                    let foundItem = lookupObject[element];
+                    if (foundItem) {
+                        result.push(foundItem);
+                    }
+                    else {
+                        throw new Error(`can't find the item match ${element} by key path ${keyPath}`);
+                    }
+                    return result;
+                }, []);
+            }
+        }
+        catch (error) {
+            console.log(`an error occurred: ${error}`);
+        }
+
+        return sortedArray;
     }
 }
 
