@@ -559,6 +559,17 @@ exports.getLocation = getLocation;
 exports.dateOfBirth = dateOfBirth;
 ```
 
+说明
+
+> 当module导出多个函数和常量，可以使用destructuring assignment方式来导入对应的函数或常量。举个例子，如下
+>
+> ```javascript
+> const { getName, dateOfBirth} = require('./export_multiple_function');
+> console.log(`${getName()} was born on ${dateOfBirth}.`);
+> ```
+>
+> 上面导入getName函数和dateOfBirth常量。示例代码，见test_destructuring_assignment_import.js
+
 
 
 #### c. 使用module.exports导出module
