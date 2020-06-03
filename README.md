@@ -616,6 +616,24 @@ console.log(module);
 
 
 
+#### e. 导出another module
+
+Node.js不支持像ES6下面的语法一样全部导出另外一个module
+
+```javascript
+export * from './export_a_class';
+```
+
+一般需要重新再次定义函数和常量，然后导出[^26]。如果another module是整体导出（module.exports=XXX），则可以使用下面方式，间接导出下。
+
+```javascript
+module.exports = require('./export_a_class');
+```
+
+> 示例代码，见test_export_another_module.js
+
+
+
 
 
 ## 2、Node.js语法
@@ -2740,6 +2758,8 @@ $ npm view webpack versions --json
 
 [^24]:https://www.sitepoint.com/understanding-module-exports-exports-node-js/
 [^25]:https://requirejs.org/docs/whyamd.html#purposes
+
+[^26]:https://stackoverflow.com/a/13367319
 
 
 
