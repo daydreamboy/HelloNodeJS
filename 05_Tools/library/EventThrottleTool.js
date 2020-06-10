@@ -17,8 +17,8 @@ function restoreTimestamp(key) {
 /**
  * Check the event should be handled on current timestamp. Return true to handle, return false to ignore.
  *
- * @param key the unique string
- * @param interval the milliseconds
+ * @param {string} key - the unique string
+ * @param {number} interval - the milliseconds
  * @returns {boolean} return true if the time between current event and previous event is greater than the interval,
  * or return false.
  * @note The first time call this method by the different key will always return true.

@@ -8,9 +8,9 @@ class JSONTool {
     /**
      * Merge two JSON Object using overwrite mode
      *
-     * @param JSONObject1 the base JSON object
-     * @param JSONObject2 the overwrite JSON object
-     * @returns {JSON Object|undefined}
+     * @param {object} JSONObject1 - the base JSON object
+     * @param {object} JSONObject2 - the overwrite JSON object
+     * @returns {JSON object|undefined}
      * @discussion This method uses JSONObject2 to overwrite JSONObject1. If the key of JSONObject2 not in JSONObject1 will
      * not insert the new key in JSONObject1
      */
@@ -26,8 +26,8 @@ class JSONTool {
     /**
      * Parse object as JSON Object
      *
-     * @param variable the String or Object or not
-     * @returns {JSON Object|undefined}. If parse failed, return undefined
+     * @param {object|string} variable - the String or Object or not
+     * @returns {JSON object|undefined}. If parse failed, return undefined
      */
     static JSONObjectWithObject(variable) {
         if (ObjectTool.checkIfObject(variable)) {

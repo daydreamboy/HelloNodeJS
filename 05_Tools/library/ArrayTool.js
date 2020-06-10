@@ -26,10 +26,10 @@ class ArrayTool {
     /**
      * Sort item in array by numeric order
      *
-     * @param variable{Array} expected as Array type
-     * @param keyPath{String} the key path. Default is empty string.
-     * @param isDescend the ascend order or the descend order
-     * @returns {Array|undefined} Return undefined if variable is not an array.
+     * @param {array} variable - expected as Array type
+     * @param {string} keyPath - the key path. Default is empty string.
+     * @param {boolean} isDescend - the ascend order or the descend order
+     * @returns {array|undefined} Return undefined if variable is not an array.
      *
      * @discussion This method treat items as Number/String/Object.
      * 1. Pass a empty keyPath, will sort the items directly.
@@ -80,9 +80,9 @@ class ArrayTool {
     /**
      * Convert elements of the array by key path into an Object
      *
-     * @param variable{Array} the array to expected
-     * @param keyPath{String} the key path
-     * @returns {Object|undefined} the Object which key is the value according to the key path
+     * @param {array} variable - the array to expected
+     * @param {string} keyPath - the key path
+     * @returns {object|undefined} the Object which key is the value according to the key path
      * @discussion If the keyPath not exists, return undefined
      * @see https://stackoverflow.com/questions/26264956/convert-object-array-to-hash-map-indexed-by-an-attribute-value-of-the-object
      */
@@ -122,10 +122,10 @@ class ArrayTool {
     /**
      * Sort items of the array by key path and specific order
      *
-     * @param variable{Array} the array to expected
-     * @param keyPath{String} the key path to find and order
-     * @param orderArray{Array} the specific order
-     * @returns {Array|undefined} the sorted array
+     * @param {array} variable - the array to expected
+     * @param {string} keyPath - the key path to find and order
+     * @param {array} orderArray - the specific order
+     * @returns {array|undefined} the sorted array
      * @discussion 1. If the key path not exists, return undefined
      * 2. If the element in order array not matches the value of the key path, return undefined
      */

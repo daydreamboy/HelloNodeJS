@@ -4,10 +4,10 @@ class ObjectTool {
     /**
      * Get value from object by key path
      *
-     * @param {Object} object the object
-     * @param {String} keyPath the key path, e.g. 'foo.bar', 'foo.bar.2'.
+     * @param {object} object - the object
+     * @param {string} keyPath - the key path, e.g. 'foo.bar', 'foo.bar.2'.
      *
-     * @returns {Object} Return undefined if not found or parameter is wrong or any exception occurred.
+     * @returns {object} Return undefined if not found or parameter is wrong or any exception occurred.
      *                   Return the original object if keyPath is empty string.
      *
      * @see https://stackoverflow.com/a/44627252
@@ -36,8 +36,8 @@ class ObjectTool {
     /**
      * Check a variable if object type (Object, Array, Date, ...)
      *
-     * @param variable
-     * @returns {boolean|boolean}
+     * @param {any} variable - the any variable
+     * @returns {boolean}
      *
      * @see https://stackoverflow.com/a/8511350
      */
@@ -110,7 +110,7 @@ class ObjectTool {
      * Swap key and value of an Object
      *
      * @param variable the Object to expected
-     * @returns {Object|undefined} If variable is not an Object, return undefined
+     * @returns {object|undefined} If variable is not an Object, return undefined
      * @see https://stackoverflow.com/a/23013726
      * @discussion This method not supports nested Object, e.g. { "c": { "d": 1 } =>  {"[object Object]":"c"}
      * @warning If the value is integer or float, when it becomes key, it auto convert into string,
