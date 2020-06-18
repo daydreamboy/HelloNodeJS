@@ -2700,12 +2700,12 @@ $ npm view webpack versions --json
 
 | 包名                                                     | 命令行工具                                | 说明                                                         |
 | -------------------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------ |
-| [http-server](https://www.npmjs.com/package/http-server) | `$ http-server -c-1`（禁止缓存）          |                                                              |
+| [http-server](https://www.npmjs.com/package/http-server) | `$ http-server -c-1`                      | `-c-1`选项，禁止缓存                                         |
 | nodemon                                                  |                                           | 类似node命令，但可以监听js文件变化，重新执行js文件。见04_nodemon |
 | npm-run-all                                              |                                           | 能并行执行多个script命令。见05_Tools                         |
 | uglify-js                                                | `$ uglifyjs example.js -o example.min.js` |                                                              |
 | webpack                                                  |                                           | 将多个js文件打包合并成一个js文件。见03_webpack               |
-|                                                          |                                           |                                                              |
+| [lz-string](https://github.com/pieroxy/lz-string/)       |                                           | 字符串压缩工具                                               |
 
 
 
