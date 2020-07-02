@@ -18,6 +18,52 @@ class DebugTool {
     }
 
     /**
+     * Dump a variable info
+     *
+     * @param obj the {x} format
+     * @param print If print to console.log. Default is true.
+     * @returns {string} the debug info string
+     *
+     * @see https://stackoverflow.com/questions/46217853/get-constructor-name-of-object
+     */
+    static dump = (obj, print=true) => {
+        let value = Object.values(obj)[0];
+        let stringifiedValue = value;
+        let constructorString = undefined;
+
+        // Note: symbol object must use toString function to convert to string
+        if (typeof value === 'symbol') {
+            stringifiedValue = value.toString();
+        }
+        else if (typeof value === 'object') {
+            try {
+                stringifiedValue = JSON.stringify(value);
+            }
+            catch (e) {
+                console.log('111');
+                console.log(e);
+            }
+        }
+
+        if (typeof value === 'undefined') {
+            constructorString = 'undefined';
+        }
+        else if (value === null) {
+            constructorString = 'undefined';
+        }
+        else {
+            constructorString = value.constructor.name;
+        }
+
+        let debugString = `${Object.keys(obj)[0]} = (${typeof value})[${constructorString}] \`${stringifiedValue}\``;
+        if (print) {
+            console.log(debugString);
+        }
+
+        return debugString;
+    };
+
+    /**
      * Get current function name
      *
      * @returns {string}
