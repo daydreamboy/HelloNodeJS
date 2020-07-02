@@ -1,7 +1,9 @@
 import ArrayTool from '../library/ArrayTool';
+import LogTool from "../library/LogTool";
+import DebugTool from "../library/DebugTool";
 
 function test_checkIfArray() {
-    console.log('--- test_checkIfArray ---');
+    LogTool.v(`--- ${DebugTool.currentFunctionName()} ---`);
 
     let x;
 
@@ -16,7 +18,7 @@ function test_checkIfArray() {
 }
 
 function test_sortArrayItemsByNumeric() {
-    console.log('--- test_sortArrayItemsByNumeric ---');
+    LogTool.v(`--- ${DebugTool.currentFunctionName()} ---`);
 
     let x;
     let output;
@@ -68,7 +70,7 @@ function test_sortArrayItemsByNumeric() {
 }
 
 function test_convertArrayToObjectUsingKeyPath() {
-    console.log('--- test_convertArrayToObjectUsingKeyPath ---');
+    LogTool.v(`--- ${DebugTool.currentFunctionName()} ---`);
 
     let x;
     let output;
@@ -111,7 +113,7 @@ function test_convertArrayToObjectUsingKeyPath() {
 }
 
 function test_sortArrayItemsByOrderArray() {
-    console.log('--- test_sortArrayItemsByOrderArray ---');
+    LogTool.v(`--- ${DebugTool.currentFunctionName()} ---`);
 
     let x;
     let output;
@@ -161,7 +163,7 @@ function test_sortArrayItemsByOrderArray() {
 }
 
 function run() {
-    console.log('*** ArrayTool testing ***')
+    LogTool.d('*** ArrayTool testing ***');
     test_checkIfArray();
     test_sortArrayItemsByNumeric();
     test_convertArrayToObjectUsingKeyPath();

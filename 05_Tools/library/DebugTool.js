@@ -26,7 +26,7 @@ class DebugTool {
      *
      * @see https://stackoverflow.com/questions/46217853/get-constructor-name-of-object
      */
-    static dump = (obj, print=true) => {
+    static dump(obj, print=true) {
         let value = Object.values(obj)[0];
         let stringifiedValue = value;
         let constructorString = undefined;

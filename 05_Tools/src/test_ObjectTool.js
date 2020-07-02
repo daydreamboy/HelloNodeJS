@@ -1,7 +1,10 @@
 import ObjectTool from "../library/ObjectTool";
+import LogTool from "../library/LogTool";
+import DebugTool from "../library/DebugTool";
 
 function test_checkIfObjectType() {
-    console.log('--- test_checkIfObjectType ---');
+    LogTool.v(`--- ${DebugTool.currentFunctionName()} ---`);
+
     let x;
 
     x = ['1', '2'];
@@ -44,7 +47,8 @@ function test_checkIfObjectType() {
 }
 
 function test_Object_keys() {
-    console.log('--- test_Object_keys ---');
+    LogTool.v(`--- ${DebugTool.currentFunctionName()} ---`);
+
     let x;
 
     x = ['1', '2'];
@@ -87,7 +91,8 @@ function test_Object_keys() {
 }
 
 function test_checkIfObject() {
-    console.log('--- test_checkIfObject ---');
+    LogTool.v(`--- ${DebugTool.currentFunctionName()} ---`);
+
     let x;
 
     x = ['1', '2'];
@@ -130,7 +135,8 @@ function test_checkIfObject() {
 }
 
 function test_checkIfObjectEmpty() {
-    console.log('--- test_checkIfObjectEmpty ---');
+    LogTool.v(`--- ${DebugTool.currentFunctionName()} ---`);
+
     let x;
 
     x = ['1', '2'];
@@ -176,7 +182,8 @@ function test_checkIfObjectEmpty() {
 }
 
 function test_valueForKeyPath() {
-    console.log('--- test_valueForKeyPath ---');
+    LogTool.v(`--- ${DebugTool.currentFunctionName()} ---`);
+
     let x;
     let output;
 
@@ -203,7 +210,8 @@ function test_valueForKeyPath() {
 }
 
 function test_dumpProperties() {
-    console.log('--- test_dumpProperties ---');
+    LogTool.v(`--- ${DebugTool.currentFunctionName()} ---`);
+
     let x;
 
     x = ['1', '2'];
@@ -225,7 +233,8 @@ function test_dumpProperties() {
 }
 
 function test_keyValueSwappedObject() {
-    console.log('--- test_keyValueSwappedObject ---');
+    LogTool.v(`--- ${DebugTool.currentFunctionName()} ---`);
+
     let x;
     let output;
 
@@ -256,7 +265,7 @@ function test_keyValueSwappedObject() {
 }
 
 function run() {
-    console.log('*** ObjectTool testing ***')
+    LogTool.d('*** ObjectTool testing ***')
     test_checkIfObjectType();
     test_Object_keys();
     test_checkIfObject();

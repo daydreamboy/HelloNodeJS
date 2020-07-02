@@ -1,8 +1,11 @@
 import JSONTool from '../library/JSONTool';
 import NumberTool from "../library/NumberTool";
+import LogTool from "../library/LogTool";
+import DebugTool from "../library/DebugTool";
 
 function test_JSONObject() {
-    console.log('--- test_JSONObject ---');
+    LogTool.v(`--- ${DebugTool.currentFunctionName()} ---`);
+
     let x;
     let JSONObject;
     let JSONString;
@@ -21,7 +24,7 @@ function test_JSONObject() {
 }
 
 function test_mergeTwoJSONObject() {
-    console.log('--- test_mergeTwoJSONObject ---');
+    LogTool.v(`--- ${DebugTool.currentFunctionName()} ---`);
 
     let JSONString1;
     let JSONString2;
@@ -70,7 +73,8 @@ function test_mergeTwoJSONObject() {
 }
 
 function test_JSONObjectWithObject() {
-    console.log('--- test_JSONObjectWithObject ---');
+    LogTool.v(`--- ${DebugTool.currentFunctionName()} ---`);
+
     let x;
     let output;
 
@@ -92,7 +96,7 @@ function test_JSONObjectWithObject() {
 }
 
 function run() {
-    console.log('*** JSONTool testing ***')
+    LogTool.d('*** JSONTool testing ***')
     test_JSONObject();
     test_mergeTwoJSONObject();
     test_JSONObjectWithObject();

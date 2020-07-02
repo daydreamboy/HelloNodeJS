@@ -1,6 +1,10 @@
 import BooleanTool from '../library/BooleanTool';
+import LogTool from "../library/LogTool";
+import DebugTool from "../library/DebugTool";
 
 function test_checkIfBoolean() {
+    LogTool.v(`--- ${DebugTool.currentFunctionName()} ---`);
+
     let x;
 
     x = true;
@@ -15,7 +19,7 @@ function test_checkIfBoolean() {
 
 
 function run() {
-    console.log('*** BooleanTool testing ***')
+    LogTool.d('*** BooleanTool testing ***')
     test_checkIfBoolean();
 }
 

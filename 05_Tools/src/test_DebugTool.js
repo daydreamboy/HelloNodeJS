@@ -1,7 +1,8 @@
 import DebugTool from '../library/DebugTool';
+import LogTool from "../library/LogTool";
 
 function test_inspectValue() {
-    console.log('--- test_inspectValue ---');
+    LogTool.v(`--- ${DebugTool.currentFunctionName()} ---`);
     let a = true;
     console.log(DebugTool.inspectValue(a));
 
@@ -16,15 +17,14 @@ function test_inspectValue() {
 }
 
 function test_currentFunctionName() {
-    console.log('--- test_currentFunctionName ---');
+    LogTool.v(`--- ${DebugTool.currentFunctionName()} ---`);
 
     console.log(DebugTool.currentFunctionName());
     console.log(DebugTool.currentFunctionName());
 }
 
 function test_dump() {
-    //LogTool.v(`--- ${DebugTool.currentFunctionName()} ---`);
-    console.log('--- ${DebugTool.currentFunctionName()} ---');
+    LogTool.v(`--- ${DebugTool.currentFunctionName()} ---`);
 
     let x;
     console.log(`debug: ${DebugTool.dump({x}, false)}`);
@@ -61,7 +61,7 @@ function test_dump() {
 }
 
 function run() {
-    console.log('*** DebugTool testing ***')
+    LogTool.d('*** DebugTool testing ***')
     test_inspectValue();
     test_currentFunctionName();
     test_dump();

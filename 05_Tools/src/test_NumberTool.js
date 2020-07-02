@@ -1,7 +1,10 @@
 import NumberTool from "../library/NumberTool";
+import LogTool from "../library/LogTool";
+import DebugTool from "../library/DebugTool";
 
 function test_checkIfNumber() {
-    console.log('--- test_checkIfNumber ---');
+    LogTool.v(`--- ${DebugTool.currentFunctionName()} ---`);
+
     let x;
 
     x = 1;
@@ -22,7 +25,8 @@ function test_checkIfNumber() {
 }
 
 function test_compareNumber() {
-    console.log('--- test_compareNumber ---');
+    LogTool.v(`--- ${DebugTool.currentFunctionName()} ---`);
+
     let x;
     let y;
 
@@ -56,7 +60,7 @@ function test_compareNumber() {
 }
 
 function run() {
-    console.log('*** NumberTool testing ***')
+    LogTool.d('*** NumberTool testing ***')
     test_checkIfNumber();
     test_compareNumber();
 }

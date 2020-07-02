@@ -1,6 +1,10 @@
 import StringTool from "../library/StringTool";
+import LogTool from "../library/LogTool";
+import DebugTool from "../library/DebugTool";
 
 function test_truncateString() {
+    LogTool.v(`--- ${DebugTool.currentFunctionName()} ---`);
+
     let input = '测试时是地方哈是否if的hi个';
     let output;
 
@@ -15,6 +19,8 @@ function test_truncateString() {
 }
 
 function test_checkStringIfEmpty() {
+    LogTool.v(`--- ${DebugTool.currentFunctionName()} ---`);
+
     let string;
 
     string = '';
@@ -28,6 +34,8 @@ function test_checkStringIfEmpty() {
 }
 
 function test_checkStringIfNotEmpty() {
+    LogTool.v(`--- ${DebugTool.currentFunctionName()} ---`);
+
     let string;
 
     string = 'abc';
@@ -41,7 +49,7 @@ function test_checkStringIfNotEmpty() {
 }
 
 function run() {
-    console.log('*** StringTool testing ***')
+    LogTool.d('*** StringTool testing ***')
     test_truncateString();
     test_checkStringIfEmpty();
     test_checkStringIfNotEmpty();
