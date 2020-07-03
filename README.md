@@ -198,6 +198,10 @@ $ which uglifyjs
 $ uglifyjs example.js -o example.min.js
 ```
 
+说明
+
+> 全局安装npm包的位置是/usr/local/lib/node_modules/<package>
+
 
 
 本地安装npm包，参考下面“创建npm包（HelloWorld）”一节。
@@ -2459,7 +2463,7 @@ removed 1 package in 0.13s
 
 - npm list
 
-```
+```shell
 $ npm list
 01_helloworld@1.0.0 /Users/wesley_chen/Ali-Projects/node-projects/01_helloworld
 └── underscore@1.9.0
@@ -2467,7 +2471,7 @@ $ npm list
 
 - npm ll/la，在npm list基础上列出额外的信息
 
-```
+```shell
 $ npm la
 01_helloworld@1.0.0
 │ /Users/wesley_chen/GitHub_Projcets/HelloNodeJS/01_helloworld
@@ -2480,7 +2484,7 @@ $ npm la
 
 - npm list --depth=0，列出第一层级的依赖包
 
-```
+```shell
 $ npm list --depth=0 
 03_webpack@1.0.0 /Users/wesley_chen/GitHub_Projcets/HelloNodeJS/03_webpack
 ├── jshint@2.9.5
@@ -2497,7 +2501,7 @@ $ npm list --depth=0
 格式：npm outdated
 说明：检查npm包更新
 
-```
+```shell
 $ npm outdated
 Package     Current  Wanted  Latest  Location
 underscore    1.8.2   1.9.0   1.9.0  01_helloworld
@@ -2582,7 +2586,7 @@ $ find . -name "node_modules" -type d -exec rm -rf '{}' +
 
 - npm config list
 
-```
+```shell
 $ npm config list
 ; cli configs
 metrics-registry = "https://registry.npmjs.org/"
@@ -2603,7 +2607,7 @@ prefix = "/usr/local"
 
 - npm config get，查看某个项配置
 
-```
+```shell
 $ npm config get prefix
 /usr/local
 ```
@@ -2762,6 +2766,33 @@ BgMagenta = "\x1b[45m"
 BgCyan = "\x1b[46m"
 BgWhite = "\x1b[47m"
 ```
+
+
+
+### 5、npx命令
+
+npx命令主要用于执行npm包提供的命令行工具。命令行工具的软链接，主要放在local和global两个位置
+
+* local位置，`./node_modules/.bin/`文件夹下
+* global位置，`/usr/local/bin`文件夹下
+
+npx命令直接执行某个npm包
+
+```shell
+$ npx some-package
+```
+
+npm包也可以不用提前安装，执行npx后自动触发安装，例如
+
+```shell
+$ npx create-react-app my-app
+```
+
+说明
+
+> 1. 如果上述命令执行失败，尝试用sudo
+> 2. 如果create-react-app命令行工具，不在本地或者全局位置，则每次执行npx命令都会下载create-react-app包，避免每次下载可以将create-react-app安装到全局。
+> 3. npx create-react-app --help，可以查看create-react-app命令行工具的帮助信息
 
 
 
