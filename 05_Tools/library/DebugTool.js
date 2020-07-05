@@ -40,8 +40,19 @@ class DebugTool {
                 stringifiedValue = JSON.stringify(value);
             }
             catch (e) {
-                console.log('111');
                 console.log(e);
+            }
+
+            if (stringifiedValue === '{}' && Object.getOwnPropertyNames(value).length > 0) {
+                let properties = {};
+                let propertyNames = Object.getOwnPropertyNames(value);
+                propertyNames.forEach((prop) => {
+                    if (value.hasOwnProperty(prop)) {
+                        properties[prop] = `[${typeof value[prop]}]`;
+                    }
+                });
+
+                stringifiedValue = JSON.stringify(properties);
             }
         }
 

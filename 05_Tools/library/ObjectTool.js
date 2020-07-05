@@ -97,11 +97,12 @@ class ObjectTool {
         }
 
         console.log('properties of ' + variable + ':');
-        for (const prop in variable) {
+        let propertyNames = Object.getOwnPropertyNames(variable);
+        propertyNames.forEach((prop) => {
             if (variable.hasOwnProperty(prop)) {
                 console.log(`${prop}: ${variable[prop]}`);
             }
-        }
+        });
 
         return true;
     }

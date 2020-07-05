@@ -56,6 +56,9 @@ function test_dump() {
     x = Math;
     DebugTool.dump({x}); // "object"
 
+    x = JSON;
+    DebugTool.dump({x}); // "object"
+
     x = setTimeout;
     DebugTool.dump({x}); // "function"
 }

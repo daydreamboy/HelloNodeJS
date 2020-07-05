@@ -230,6 +230,9 @@ function test_dumpProperties() {
     x.set('key1', 'value1');
     x.set('key2', 'value2');
     ObjectTool.dumpProperties(x);
+
+    x = JSON;
+    ObjectTool.dumpProperties(x);
 }
 
 function test_keyValueSwappedObject() {
