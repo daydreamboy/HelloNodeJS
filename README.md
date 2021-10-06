@@ -2388,7 +2388,7 @@ type Links = Array<Link>
 
 ### 1、npm常用命令
 
-#### （1）install
+#### (1) install
 
 格式：npm install \<package\>     
 别名：npm i \<package\>    
@@ -2426,9 +2426,9 @@ added 1 package in 4.764s
 $ npm i express momemt lodash mongoose body-parser webpack
 ```
 
-- npm install \<package1\> --global，全局安装包。全局安装的包，可以使用改命令，而本地安装则使用不了该命令。
+- npm install \<package1\> --global，全局安装包。全局安装的包，可以使用该命令，而本地安装则不用使用该命令。
 
-```
+```shell
 $ npm install uglify-js --global       
 /usr/local/bin/uglifyjs -> /usr/local/lib/node_modules/uglify-js/bin/uglifyjs
 + uglify-js@3.3.25
@@ -2439,7 +2439,7 @@ $ which uglifyjs
 
 
 
-#### （2）uninstall
+#### (2) uninstall
 
 格式：npm uninstall \<package\>   
 别名：npm um \<package\>      
@@ -2455,7 +2455,7 @@ removed 1 package in 0.13s
 
 
 
-#### （3）list
+#### (3) list
 
 格式：npm list    
 别名：npm ls     
@@ -2496,7 +2496,7 @@ $ npm list --depth=0
 
 
 
-#### （4）outdated
+#### (4) outdated
 
 格式：npm outdated
 说明：检查npm包更新
@@ -2509,7 +2509,7 @@ underscore    1.8.2   1.9.0   1.9.0  01_helloworld
 
 
 
-#### （5）update
+#### (5) update
 
 格式：npm update
 说明：更新npm包。如果要更新所有包，直接`npm update`
@@ -2525,7 +2525,7 @@ updated 1 package in 1.48s
 
 
 
-#### （6）search
+#### (6) search
 
 格式：npm search
 说明：搜索某个npm包
@@ -2540,7 +2540,7 @@ fs-extra                  | fs-extra contains…   | =jprichardson…  | 2018-05
 
 
 
-#### （7）cache
+#### (7) cache
 
 格式：npm cache     
 说明：管理npm包的cache，位于~/.npm文件夹下
@@ -2572,14 +2572,14 @@ $ find . -name "node_modules" -type d -exec rm -rf '{}' +
 
 
 
-#### （8）help
+#### (8) help
 
 格式：npm help \<command\>    
 说明：查看某个command的帮助信息，例如`npm help install`
 
 
 
-#### （9）config
+#### (9) config
 
 格式：npm config
 说明：查看npm配置，子命令有list、get、set等
@@ -2614,7 +2614,7 @@ $ npm config get prefix
 
 
 
-#### （10）init
+#### (10) init
 
 格式：npm init    
 说明：创建一个package.json文件，该文件用于配置node工程
@@ -2682,7 +2682,7 @@ Wrote to /Users/wesley_chen/GitHub_Projcets/HelloNodeJS/03_webpack/package.json:
 
 
 
-#### （11）view
+#### (11) view
 
 ##### 查看npm包所有版本号[^18]
 
@@ -2698,6 +2698,37 @@ $ npm view webpack versions --json
 
 
 
+#### (12) exec (npx命令)
+
+npm exec的缩写是npx，后面都简称npx命令。
+
+npx命令主要用于执行npm包提供的命令行工具。命令行工具的软链接，主要放在local和global两个位置
+
+* local位置，`./node_modules/.bin/`文件夹下
+* global位置，`/usr/local/bin`文件夹下
+
+npx命令直接执行某个npm包
+
+```shell
+$ npx some-package
+```
+
+npm包也可以不用提前安装，执行npx后自动触发安装，例如
+
+```shell
+$ npx create-react-app my-app
+```
+
+说明
+
+> 1. 如果上述命令执行失败，尝试用sudo
+> 2. 如果create-react-app命令行工具，不在本地或者全局位置，则每次执行npx命令都会下载create-react-app包，避免每次下载可以将create-react-app安装到全局。
+> 3. npx create-react-app --help，可以查看create-react-app命令行工具的帮助信息
+
+
+
+
+
 
 
 ### 2、常用npm包介绍
@@ -2710,6 +2741,33 @@ $ npm view webpack versions --json
 | uglify-js                                                | `$ uglifyjs example.js -o example.min.js` |                                                              |
 | webpack                                                  |                                           | 将多个js文件打包合并成一个js文件。见03_webpack               |
 | [lz-string](https://github.com/pieroxy/lz-string/)       |                                           | 字符串压缩工具                                               |
+| [cnpm](https://github.com/cnpm/cnpm)                     |                                           | 用法和npm一样，但是下载npm包可以走国内镜像用于加速           |
+
+
+
+#### (1) http-server
+
+在任意目录下，执行`http-server`命令，可以将此目录作为WebRoot提供http访问。
+
+说明
+
+> 如果目录下面有public文件夹，则默认使用该文件夹作为WebRoot
+
+如果需要指定文件夹，则执行`http-server path/to/folder`命令。
+
+执行`http-server --help`，查看帮助信息
+
+
+
+#### (2) cnpm
+
+安装cnpm[^28]，如下
+
+```shell
+$ npm install -g cnpm --registry=https://registry.npm.taobao.org
+```
+
+
 
 
 
@@ -2769,33 +2827,6 @@ BgWhite = "\x1b[47m"
 
 
 
-### 5、npx命令
-
-npx命令主要用于执行npm包提供的命令行工具。命令行工具的软链接，主要放在local和global两个位置
-
-* local位置，`./node_modules/.bin/`文件夹下
-* global位置，`/usr/local/bin`文件夹下
-
-npx命令直接执行某个npm包
-
-```shell
-$ npx some-package
-```
-
-npm包也可以不用提前安装，执行npx后自动触发安装，例如
-
-```shell
-$ npx create-react-app my-app
-```
-
-说明
-
-> 1. 如果上述命令执行失败，尝试用sudo
-> 2. 如果create-react-app命令行工具，不在本地或者全局位置，则每次执行npx命令都会下载create-react-app包，避免每次下载可以将create-react-app安装到全局。
-> 3. npx create-react-app --help，可以查看create-react-app命令行工具的帮助信息
-
-
-
 
 
 ## References
@@ -2839,6 +2870,8 @@ $ npx create-react-app my-app
 [^26]:https://stackoverflow.com/a/13367319
 
 [^27]:https://stackoverflow.com/questions/9781218/how-to-change-node-jss-console-font-color
+
+[^28]:https://cnpmjs.org/
 
 
 
