@@ -638,6 +638,27 @@ module.exports = require('./export_a_class');
 
 
 
+### （8）Node.js中使用ES module
+
+
+
+```shell
+$ npm run test-integer
+
+> hello_pegjs@1.0.0 test-integer
+> node test/test_integer.js
+
+(node:8577) Warning: To load an ES module, set "type": "module" in the package.json or use the .mjs extension.
+(Use `node --trace-warnings ...` to show where the warning was created)
+/Users/wesley_chen/GitHub_Projects/HelloNodeJS/19_pegjs/hello_pegjs/test/test_integer.js:1
+import IntegerParser from '../pegjs/integer-parser';
+^^^^^^
+```
+
+
+
+
+
 
 
 ## 2、Node.js语法
@@ -2616,7 +2637,8 @@ $ npm config get prefix
 
 #### (10) init
 
-格式：npm init    
+格式：npm init
+
 说明：创建一个package.json文件，该文件用于配置node工程
 
 - npm init
@@ -2698,6 +2720,39 @@ $ npm view webpack versions --json
 
 
 
+##### 查看已安装的npm包的版本号
+
+npm没有提供专门命令，用于查看已安装的npm包的版本号。但是可以通过查看npm包所在的文件夹名（文件夹名上会有版本号信息）来确认版本号[^30]。
+
+首先确认要查看的npm包是全局安装的，还是局部安装的。
+
+* 如果是全局安装，则需要`-g`选项
+* 如果是局部安装，则cd到npm工程下面
+
+
+
+这里以全局安装的npm包为例，执行下面命令。
+
+```shell
+$ npm list --depth=0 -g | grep webpack
+```
+
+list命令，用于将prefix目录下面的npm包全部列出，而`--depth=0`只列出第一层（因为list命令也会列出依赖的npm包），使用grep进行过滤。
+
+
+
+注意
+
+> ```shell
+> $ npm view webpack version
+> ```
+>
+> 这个view命令，仅查询npm包最新的版本号，会查询远端，而不是本地安装的npm包版本号
+
+
+
+
+
 #### (12) exec (npx命令)
 
 npm exec的缩写是npx，后面都简称npx命令。
@@ -2727,6 +2782,11 @@ $ npx create-react-app my-app
 
 
 
+#### (13) start
+
+格式：npm start
+说明：启动package.json中scripts的start字段。如果没有start字段，则执行`node server.js`。
+
 
 
 
@@ -2742,6 +2802,7 @@ $ npx create-react-app my-app
 | webpack                                                  |                                           | 将多个js文件打包合并成一个js文件。见03_webpack               |
 | [lz-string](https://github.com/pieroxy/lz-string/)       |                                           | 字符串压缩工具                                               |
 | [cnpm](https://github.com/cnpm/cnpm)                     |                                           | 用法和npm一样，但是下载npm包可以走国内镜像用于加速           |
+| [pegjs](https://pegjs.org/)                              |                                           | 用于产生词法分析和语法分析的解析器                           |
 
 
 
@@ -2768,6 +2829,14 @@ $ npm install -g cnpm --registry=https://registry.npm.taobao.org
 ```
 
 
+
+#### (3) pegjs
+
+Node.js环境中，可以使用下面命令来安装，如下
+
+```shell
+$ npm install -g pegjs
+```
 
 
 
@@ -2827,6 +2896,20 @@ BgWhite = "\x1b[47m"
 
 
 
+### 5、安装npm常见错误
+
+### (1) Unable to resolve dependency tree
+
+尝试执行下面命令[^29]，如下
+
+```shell
+$ npm install --save --legacy-peer-deps
+```
+
+
+
+
+
 
 
 ## References
@@ -2872,6 +2955,8 @@ BgWhite = "\x1b[47m"
 [^27]:https://stackoverflow.com/questions/9781218/how-to-change-node-jss-console-font-color
 
 [^28]:https://cnpmjs.org/
+[^29]:https://stackoverflow.com/questions/64573177/unable-to-resolve-dependency-tree-error-when-installing-npm-packages
+[^30]:https://stackoverflow.com/questions/10972176/find-the-version-of-an-installed-npm-package
 
 
 
