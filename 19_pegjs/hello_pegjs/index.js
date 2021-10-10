@@ -1,3 +1,4 @@
+// This for testing PEG.js syntax
 
 function test_hello_world() {
     // example from https://nathanpointer.com/blog/introToPeg/

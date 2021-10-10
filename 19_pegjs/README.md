@@ -110,6 +110,16 @@ function test_normal_1() {
 
 
 
+### (3) 使用PEG.js作为ES Module
+
+TODO
+
+
+
+
+
+
+
 ## 2、PEG.js语法
 
 在上面介绍，提到.pegjs文件。这个文件的内容是根据PEG.js语法，来描述一些语法规则，然后PEG.js根据描述生成一个parser。
