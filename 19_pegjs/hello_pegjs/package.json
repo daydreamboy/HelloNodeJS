@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
     "test-integer1": "node test/test_integer_by_parser_library.js",
     "test-integer2": "node test/test_integer_by_api.js"
   },

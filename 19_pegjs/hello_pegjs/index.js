@@ -20,5 +20,17 @@ function test_formatting() {
     console.log(output);
 }
 
+function test_specify_first_rule() {
+    let peg = require("pegjs");
+    let grammar = "start = [a-z]+; integer = digits:[0-9]* { return digits.join(''); };";
+    let parser = peg.generate(grammar, {
+        allowedStartRules: ['integer']
+    });
+
+    let output = parser.parse("314");
+    console.log(output);
+}
+
 test_hello_world();
 test_formatting();
+test_specify_first_rule();

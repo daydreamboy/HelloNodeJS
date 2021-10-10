@@ -244,13 +244,41 @@ identifer "name" = <parsing-expression>
 
 integer.pegjs文件中有2个规则，start和integer。
 
-生成parser时（pegjs命令或者generate方法），如果没有指定选项，parser解析则默认从start规则开始。
+生成parser时（pegjs命令或者generate方法），如果没有指定allowedStartRules选项，parser解析则默认从第一个规则开始。
+
+```shell
+$ pegjs --help
+Usage: pegjs [options] [--] [<input_file>]
+
+Options:
+      --allowed-start-rules <rules>  comma-separated list of rules the generated
+                                     parser will be allowed to start parsing
+                                     from (default: the first rule in the
+                                     grammar)
+```
+
+
+
+举个例子，如下
+
+```javascript
+function test_specify_first_rule() {
+    let peg = require("pegjs");
+    let grammar = "start = [a-z]+; integer = digits:[0-9]* { return digits.join(''); };";
+    let parser = peg.generate(grammar, {
+        allowedStartRules: ['integer']
+    });
+
+    let output = parser.parse("314");
+    console.log(output);
+}
+```
 
 
 
 这篇文章[^3]，归纳PEG.js语法，有两个基本原则
 
-* PEG.js语法，有一个规则列表组成，并且从root开始自上而下的解析，这里root实际就是start规则。如果某个规则，不能从root触发，则这个规则实际是不生效的。
+* PEG.js语法，有一个规则列表组成，并且从root规则开始自上而下的解析，这里root规则实际就是第一个规则。如果某个规则，不能从root规则触达到，则这个规则实际是不生效的。
 * 规则的定义，类似变量定义，identifier=parsing-expression，parsing-expression类似正则表达式，而且parsing-expression中可以引用其他规则。
 
 原文描述，如下
@@ -264,6 +292,49 @@ integer.pegjs文件中有2个规则，start和integer。
 
 PEG.js官方文档[^4]，提供下面一些parsing-expression的结构，如下
 
+| parsing-expression                                           | 说明                                                         | 示例                                                         |
+| ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| "literal"<br/>'literal'<br/>"literal"i<br/>'literal'i        | 严格匹配literal字符串。如果后缀有i，则表示忽略大小写。       | start = "hello"i                                             |
+| .                                                            | 仅匹配一个字符。                                             |                                                              |
+| [characters]<br/>[characters]i                               | 从集合中仅匹配一个字符。例如`[a-z]`、`[^a-z]`。如果后缀有i，则表示忽略大小写。如果以^开头，则集合的反集。 | `start = [^a-z]`                                             |
+| rule                                                         | 匹配另外一个规则。规则identifier必须存在                     | start = integer; integer = digits:[0-9]* { return digits.join('') } |
+| ( expression )                                               | 匹配一个子表达式。一般配合其他符号使用，例如+                | start = ('a' / 'b')+                                         |
+| expression *                                                 | 重复匹配一个表达式，零次或多次。贪心匹配                     | start = "hello" *                                            |
+| expression +                                                 | 重复匹配一个表达式，至少1次或多次。贪心匹配                  | start = "hello" +                                            |
+| expression ?                                                 | 匹配表达式。匹配失败，返回null。TODO，没整明白               |                                                              |
+| & expression                                                 | TODO，没整明白                                               |                                                              |
+| ! expression                                                 | TODO，没整明白                                               |                                                              |
+| & { predicate }                                              | TODO，没整明白                                               |                                                              |
+| ! { predicate }                                              | TODO，没整明白                                               |                                                              |
+| $ expression                                                 | TODO，没整明白                                               |                                                              |
+| label : expression                                           | 匹配expression，成功后将结果存到label中。label必须是JavaScript标志符。label一般和action一起使用 |                                                              |
+| expression<sub>1</sub> expression<sub>2</sub> ... expression<sub>n</sub> | 依次匹配一个expression列表，返回一个匹配的数组               |                                                              |
+| expression { action }                                        | 匹配expression，成功后执行action。action里面必须return一个值。action块中 |                                                              |
+| expression<sub>1</sub> / expression<sub>2</sub> / ... / expression<sub>n</sub> | 依次匹配expression。如果其中一个匹配成功，则返回匹配结果     |                                                              |
+
+说明
+
+> 如果没有特殊说明返回值，上面parsing-expression，匹配成功，返回匹配结果。这里的结果，有可能是输入字符串，也可能是匹配结果的数组。
+
+
+
+注意
+
+> expression处理空格是有特殊含义的，比如expression<sub>1</sub> expression<sub>2</sub> ... expression<sub>n</sub>，是由空格组成的。
+>
+> 如果要匹配空格，则需要单独定义一个规则[^5]，比如
+>
+> ```properties
+> // optional whitespace
+> _ = [ \t\r\n]*
+> // mandatory whitespace
+> __ = [ \t\r\n]+
+> ```
+>
+> 
+
+
+
 
 
 
@@ -276,6 +347,7 @@ PEG.js官方文档[^4]，提供下面一些parsing-expression的结构，如下
 [^2]:https://github.com/pegjs/pegjs/issues/423
 [^3]:https://nathanpointer.com/blog/introToPeg/
 [^4]:https://pegjs.org/documentation#grammar-syntax-and-semantics
+[^5]:https://stackoverflow.com/questions/8257184/ignore-whitespace-with-peg-js
 
 
 

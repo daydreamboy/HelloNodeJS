@@ -1,0 +1,16 @@
+{
+  "name": "hello_pegjs_syntax",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node -r esm index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "esm": "^3.2.25",
+    "pegjs": "^0.10.0"
+  }
+}
