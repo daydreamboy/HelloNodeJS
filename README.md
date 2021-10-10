@@ -640,22 +640,107 @@ module.exports = require('./export_a_class');
 
 ### （8）Node.js中使用ES module
 
+在Node.js中使用ES module，需要一定配置node参数或者使用esm这个库来支持。
 
+举个例子，如下
 
-```shell
-$ npm run test-integer
+```javascript
+import http from 'http';
+import app from './app';
 
-> hello_pegjs@1.0.0 test-integer
-> node test/test_integer.js
-
-(node:8577) Warning: To load an ES module, set "type": "module" in the package.json or use the .mjs extension.
-(Use `node --trace-warnings ...` to show where the warning was created)
-/Users/wesley_chen/GitHub_Projects/HelloNodeJS/19_pegjs/hello_pegjs/test/test_integer.js:1
-import IntegerParser from '../pegjs/integer-parser';
-^^^^^^
+const server = http.Server(app);
+server.listen(3000, () => {
+    return true;
+});
 ```
 
+> 示例代码，见09_es_module_issued
 
+当执行下面命令
+
+```shell
+$ npm run test_issue 
+
+> 09_es_module_issued@1.0.0 test_issue
+> node server.js
+
+(node:18730) Warning: To load an ES module, set "type": "module" in the package.json or use the .mjs extension.
+(Use `node --trace-warnings ...` to show where the warning was created)
+/Users/wesley_chen/GitHub_Projects/HelloNodeJS/09_es_module_issued/server.js:1
+import http from 'http';
+^^^^^^
+
+SyntaxError: Cannot use import statement outside a module
+    at wrapSafe (internal/modules/cjs/loader.js:1116:16)
+    at Module._compile (internal/modules/cjs/loader.js:1164:27)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:1220:10)
+    at Module.load (internal/modules/cjs/loader.js:1049:32)
+    at Function.Module._load (internal/modules/cjs/loader.js:937:14)
+    at Function.executeUserEntryPoint [as runMain] (internal/modules/run_main.js:71:12)
+    at internal/main/run_main_module.js:17:47
+```
+
+在前面也提到Node.js有自己的CommonJS module，并不支持ES Module。
+
+
+
+目前有两种方法可以让Node.js支持ES Module
+
+* 配置node命令参数
+* 使用esm库
+
+
+
+#### a. 配置node命令参数
+
+根据上面的报错，在package.json中设置"type": "module"，但是还是报错，如下
+
+```shell
+$ npm run test_issue
+
+> 09_es_module_by_node_arguments@1.0.0 test_issue
+> node server.js
+
+internal/modules/run_main.js:54
+    internalBinding('errors').triggerUncaughtException(
+                              ^
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/Users/wesley_chen/GitHub_Projects/HelloNodeJS/09_es_module_by_node_arguments/app' imported from /Users/wesley_chen/GitHub_Projects/HelloNodeJS/09_es_module_by_node_arguments/server.js
+Did you mean to import ../app.js?
+    at finalizeResolution (internal/modules/esm/resolve.js:284:11)
+    at moduleResolve (internal/modules/esm/resolve.js:662:10)
+    at Loader.defaultResolve [as _resolve] (internal/modules/esm/resolve.js:752:11)
+    at Loader.resolve (internal/modules/esm/loader.js:97:40)
+    at Loader.getModuleJob (internal/modules/esm/loader.js:242:28)
+    at ModuleWrap.<anonymous> (internal/modules/esm/module_job.js:50:40)
+    at link (internal/modules/esm/module_job.js:49:36) {
+  code: 'ERR_MODULE_NOT_FOUND'
+}
+```
+
+但是将`import app from './app';`换成`import app from './app.js';`则不会报错。但是这种写法不是常见的ES Module的语法。
+
+实际上，需要三个配置[^31]，如下
+
+* package.json中设置"type": "module"
+* node命令增加`--experimental-modules`参数
+* node命令增加`--es-module-specifier-resolution=node`参数
+
+> 示例工程，参考09_es_module_by_node_arguments
+
+
+
+#### b. 使用esm库
+
+前面也提到esm库，但是需要注意的是，使用esm库，不能在package.json中设置"type": "module"。
+
+在node命令增加`-r esm`参数，如下
+
+```json
+"test_es_module_by_esm": "node -r esm server.js",
+```
+
+> 示例工程，见09_es_module_by_esm
 
 
 
@@ -1268,7 +1353,8 @@ $ npm install esm --save
 
 注意
 
-> npm init esm -y，不适用安装其他npm包，例如`npm init dotenv -y`会报错。
+> 1. npm init esm -y，不适用安装其他npm包，例如`npm init dotenv -y`会报错。
+> 2. 如果使用esm，则在package.json中不能声明"type": "module"，否则可能有冲突
 
 
 
@@ -2957,6 +3043,8 @@ $ npm install --save --legacy-peer-deps
 [^28]:https://cnpmjs.org/
 [^29]:https://stackoverflow.com/questions/64573177/unable-to-resolve-dependency-tree-error-when-installing-npm-packages
 [^30]:https://stackoverflow.com/questions/10972176/find-the-version-of-an-installed-npm-package
+
+[^31]:https://stackoverflow.com/questions/61291633/expressjs-is-return-error-err-module-not-found-if-i-import-the-file-without-j
 
 
 

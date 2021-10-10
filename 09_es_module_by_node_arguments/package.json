@@ -1,0 +1,19 @@
+{
+  "name": "09_es_module_by_node_arguments",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test_issue": "node server.js",
+    "test_es_module_by_node_arguments": "node --experimental-modules --es-module-specifier-resolution=node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "express": "^4.17.1",
+    "http": "^0.0.1-security"
+  }
+}
