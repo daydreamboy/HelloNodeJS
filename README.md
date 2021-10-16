@@ -759,6 +759,50 @@ Did you mean to import ../app.js?
 
 
 
+### （2）assert
+
+assert是Node.js内置的库。
+
+举个例子，如下
+
+```javascript
+const assert = require('assert').strict;
+
+function test_float_pegjs() {
+    let grammar;
+    let parser;
+    let output;
+    let input;
+
+    grammar = pegjs('./float.pegjs');
+    parser = peg.generate(grammar);
+
+    // Case 1
+    input = '3.14';
+    output = parser.parse(input);
+    assert.equal(output, 3.14, 'not equal');
+
+    // Case 2
+    input = '-3.14';
+    output = parser.parse(input);
+    assert.equal(output, -3.14, 'not equal');
+
+    // Case 3
+    input = '-.14';
+    assert.throws(() => { parser.parse(input); }, Error);
+}
+```
+
+assert的throws签名，如下
+
+```javascript
+assert.throws(fn[, error][, message])
+```
+
+* fn，第一个参数是函数，而不是表达式。如果需要表达式，则用匿名函数封装下[^32]
+* error，一般填Error
+* message，报错信息
+
 
 
 
@@ -2984,7 +3028,7 @@ BgWhite = "\x1b[47m"
 
 ### 5、安装npm常见错误
 
-### (1) Unable to resolve dependency tree
+#### (1) Unable to resolve dependency tree
 
 尝试执行下面命令[^29]，如下
 
@@ -3045,6 +3089,8 @@ $ npm install --save --legacy-peer-deps
 [^30]:https://stackoverflow.com/questions/10972176/find-the-version-of-an-installed-npm-package
 
 [^31]:https://stackoverflow.com/questions/61291633/expressjs-is-return-error-err-module-not-found-if-i-import-the-file-without-j
+
+[^32]:https://stackoverflow.com/questions/6645559/node-assert-throws-not-catching-exception
 
 
 
