@@ -301,15 +301,15 @@ PEG.js官方文档[^4]，提供下面一些parsing-expression的结构，如下
 | ( expression )                                               | 匹配一个子表达式。一般配合其他符号使用，例如+                | start = ('a' / 'b')+                                         |
 | expression *                                                 | 重复匹配一个表达式，零次或多次。贪心匹配                     | start = "hello" *                                            |
 | expression +                                                 | 重复匹配一个表达式，至少1次或多次。贪心匹配                  | start = "hello" +                                            |
-| expression ?                                                 | 匹配表达式。匹配失败，返回null。TODO，没整明白               |                                                              |
+| expression ?                                                 | 匹配一个表达式，0次或1次。                                   |                                                              |
 | & expression                                                 | TODO，没整明白                                               |                                                              |
 | ! expression                                                 | TODO，没整明白                                               |                                                              |
 | & { predicate }                                              | TODO，没整明白                                               |                                                              |
 | ! { predicate }                                              | TODO，没整明白                                               |                                                              |
-| $ expression                                                 | TODO，没整明白                                               |                                                              |
+| $ expression                                                 | 如果匹配expression，将匹配的文本返回，而不是匹配的结果。     |                                                              |
 | label : expression                                           | 匹配expression，成功后将结果存到label中。label必须是JavaScript标志符。label一般和action一起使用 |                                                              |
 | expression<sub>1</sub> expression<sub>2</sub> ... expression<sub>n</sub> | 依次匹配一个expression列表，返回一个匹配的数组               |                                                              |
-| expression { action }                                        | 匹配expression，成功后执行action。action里面必须return一个值。action块中 |                                                              |
+| expression { action }                                        | 匹配expression，成功后执行action。action里面必须return一个值在action块中 | integer "integer"   = digits:[0-9]+ { return makeInteger(digits); } |
 | expression<sub>1</sub> / expression<sub>2</sub> / ... / expression<sub>n</sub> | 依次匹配expression。如果其中一个匹配成功，则返回匹配结果     |                                                              |
 
 说明
@@ -335,7 +335,219 @@ PEG.js官方文档[^4]，提供下面一些parsing-expression的结构，如下
 
 
 
+### 常用解析表达式
 
+#### $ expression用法
+
+如果匹配expression，将匹配的文本返回，而不是匹配的结果。
+
+举个例子，如下
+
+```javascript
+function test_expression_$_expression() {
+		...
+    // Group 2
+    grammar = 'start = $( \'0x\' [a-fA-F0-9]+ )';
+    parser = peg.generate(grammar);
+
+    // Case 3
+    input = '0x123';
+    output = parser.parse(input);
+    console.log(output); // 0x123
+
+    // Group 3
+    grammar = 'start = \'0x\' [a-fA-F0-9]+';
+    parser = peg.generate(grammar);
+
+    // Case 4
+    input = '0x123';
+    output = parser.parse(input);
+    console.log(output); // [ '0x', [ '1', '2', '3' ] ]
+}
+```
+
+
+
+
+
+### 注释
+
+可以使用`//`和`/*...*/`
+
+> You can also use JavaScript-style comments (`// ...` and `/* ... */`).
+
+
+
+### 在初始化块中的JS代码
+
+在第一个规则之前，在初始化块中，可以定义JS函数和全局变量。这些函数和变量，可以在规则的action和{predicate}中可以访问到。
+
+> The first rule can be preceded by an *initializer* — a piece of JavaScript code in curly braces (“{” and “}”). This code is executed before the generated parser starts parsing. All variables and functions defined in the initializer are accessible in rule actions and semantic predicates.
+
+举个例子，如下
+
+```properties
+{
+  function makeInteger(o) {
+    return parseInt(o.join(""), 10);
+  }
+}
+
+start
+  = additive
+
+additive
+  = left:multiplicative "+" right:additive { return left + right; }
+  / multiplicative
+
+multiplicative
+  = left:primary "*" right:multiplicative { return left * right; }
+  / primary
+
+primary
+  = integer
+  / "(" additive:additive ")" { return additive; }
+
+integer "integer"
+  = digits:[0-9]+ { return makeInteger(digits); }
+```
+
+
+
+### Action块
+
+在提供提到Action块的语法，如下
+
+| parsing-expression    | 说明                                                         | 示例                                                         |
+| --------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| expression { action } | 匹配expression，成功后执行action。action里面必须return一个值在action块中 | integer "integer"   = digits:[0-9]+ { return makeInteger(digits); } |
+
+在后面的规则中，这个用法比较常见。action块实际上是一个转换器，用于将匹配成功后数据，再次处理输出。
+
+举个例子，如下
+
+```javascript
+function test_action_block() {
+    LogTool.v(`--- ${DebugTool.currentFunctionName()} ---`);
+
+    let grammar;
+    let parser;
+    let output;
+    let input;
+
+    // Group 1
+    grammar = 'start = digits:[0-9]+ { return parseInt(digits.join(""), 10); }';
+    parser = peg.generate(grammar);
+
+    // Case 1
+    input = '1234';
+    output = parser.parse(input);
+    console.log(output); // 1234
+
+    // Group 2
+    grammar = 'start = digits:[0-9]+';
+    parser = peg.generate(grammar);
+
+    // Case 2
+    input = '1234';
+    output = parser.parse(input);
+    console.log(output); // [ '1', '2', '3', '4' ]
+}
+```
+
+
+
+### 官方parser例子
+
+官方文档中，有下面一个parser例子，如下
+
+```properties
+{
+  function makeInteger(o) {
+    return parseInt(o.join(""), 10);
+  }
+}
+
+start
+  = additive
+
+additive
+  = left:multiplicative "+" right:additive { return left + right; }
+  / multiplicative
+
+multiplicative
+  = left:primary "*" right:multiplicative { return left * right; }
+  / primary
+
+primary
+  = integer
+  / "(" additive:additive ")" { return additive; }
+
+integer "integer"
+  = digits:[0-9]+ { return makeInteger(digits); }
+```
+
+以上面这个例子，分析PEG.js的规则逻辑：
+
+从整个结构看，有5个规则。第一个规则，即start规则，实际就是additive规则。从上面介绍，知道PEG.js总是从第一个规则开始解析语法。
+
+* additive规则，包括两个或的表达式
+  * left:multiplicative "+" right:additive { return left + right; }。action块中，实际处理加法逻辑
+  * multiplicative
+* multiplicative规则，包括两个或的表达式
+  * left:primary "*" right:multiplicative { return left * right; }。action块中，实际处理乘法逻辑
+  * primary
+* primary规则，包括两个或的表达式
+  * integer
+  * "(" additive:additive ")" { return additive; }。这个表达式，有点特殊，如果是(xx)结构，要求xx满足additive规则，这显然形成一个环，回到additive规则的解析上
+* integer规则，仅包括一个表达式
+  * digits:[0-9]+ { return makeInteger(digits); }。action块中，实际将匹配成功的字符串，转成数字。方便调用integer规则时返回数字结果。
+
+了解上面全部规则后，大概知道这个parser可以用于解析加法和乘法的混合运算。在这个平台[^6]，可以做一些验证。
+
+在验证过程，发现这个parser有个问题，它的输入算术表达式不支持空格。
+
+那么我重新定义了一个space，如下
+
+```properties
+space = ' ' *
+```
+
+并重新修改了其他规则，用到了space规则，如下
+
+```properties
+{
+  function makeInteger(o) {
+    return parseInt(o.join(""), 10);
+  }
+}
+
+start
+  = additive
+
+additive
+  = left:multiplicative space "+" space right:additive { return left + right; }
+  / multiplicative
+
+multiplicative
+  = left:primary space "*" space right:multiplicative { return left * right; }
+  / primary
+
+primary
+  = integer
+  / "(" space additive:additive space ")" { return additive; }
+
+integer "integer"
+  = digits:[0-9]+ { return makeInteger(digits); }
+  
+space = ' ' *
+```
+
+上面parser可以支持下面带空格的算术表达式
+
+```tex
+(3 + 4 * 3) * 4
+```
 
 
 
@@ -348,6 +560,8 @@ PEG.js官方文档[^4]，提供下面一些parsing-expression的结构，如下
 [^3]:https://nathanpointer.com/blog/introToPeg/
 [^4]:https://pegjs.org/documentation#grammar-syntax-and-semantics
 [^5]:https://stackoverflow.com/questions/8257184/ignore-whitespace-with-peg-js
+
+[^6]:https://pegjs.org/online
 
 
 
