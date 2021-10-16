@@ -260,6 +260,29 @@ function test_action_block() {
     console.log(output); // [ '1', '2', '3', '4' ]
 }
 
+function test_action_block_optional_label() {
+    LogTool.v(`--- ${DebugTool.currentFunctionName()} ---`);
+
+    let grammar;
+    let parser;
+    let output;
+    let input;
+
+    // Group 1
+    grammar = 'start = minus:(\'-\')? digits:[0-9]+ { console.log(\'debug: \' + minus); return (minus ? -1 : 1) * parseInt(digits.join(""), 10); }';
+    parser = peg.generate(grammar);
+
+    // Case 1
+    input = '1';
+    output = parser.parse(input);
+    console.log(output); // 1234
+
+    // Case 2
+    input = '-2';
+    output = parser.parse(input);
+    console.log(output); // -2
+}
+
 test_literal();
 test_character_collection();
 test_subexpression();
@@ -268,4 +291,5 @@ test_expression_match_one_or_more();
 test_expression_match_zero_or_one();
 test_expression_$_expression();
 test_action_block();
+test_action_block_optional_label();
 

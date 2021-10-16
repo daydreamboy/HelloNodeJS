@@ -316,6 +316,8 @@ PEG.js官方文档[^4]，提供下面一些parsing-expression的结构，如下
 
 > 如果没有特殊说明返回值，上面parsing-expression，匹配成功，返回匹配结果。这里的结果，有可能是输入字符串，也可能是匹配结果的数组。
 
+> 示例代码，见hello_pegjs_syntax/index.js
+
 
 
 注意
@@ -452,6 +454,43 @@ function test_action_block() {
     input = '1234';
     output = parser.parse(input);
     console.log(output); // [ '1', '2', '3', '4' ]
+}
+```
+
+
+
+说明
+
+> action块中支持console.log，因此可以用输出来调试
+
+
+
+Action块可以引用表达式上的label，但是如果label对应的表达式是可选的，则该label变量是null。
+
+举个例子，如下
+
+```javascript
+function test_action_block_optional_label() {
+    LogTool.v(`--- ${DebugTool.currentFunctionName()} ---`);
+
+    let grammar;
+    let parser;
+    let output;
+    let input;
+
+    // Group 1
+    grammar = 'start = minus:(\'-\')? digits:[0-9]+ { console.log(\'debug: \' + minus); return (minus ? -1 : 1) * parseInt(digits.join(""), 10); }';
+    parser = peg.generate(grammar);
+
+    // Case 1
+    input = '1';
+    output = parser.parse(input);
+    console.log(output); // 1234
+
+    // Case 2
+    input = '-2';
+    output = parser.parse(input);
+    console.log(output); // -2
 }
 ```
 
