@@ -580,13 +580,65 @@ pageConfig选项支持的配置项有下面几种[^4]，如下
 
 ## 3、基于TypeScript + Fusion Design模板进行二次开发
 
-上面已经创建好基于TypeScript + Fusion Design的icejs_fusion_design工程，它的页面样式，如下
+上面已经创建好基于TypeScript + Fusion Design模板的icejs_fusion_design工程，它的页面样式，如下
 
 <img src="images/TypeScript + Fusion Design.png" style="zoom:50%;" />
 
 简单分析下这个页面结构，它包含下面几个部分
 
-* 
+* Header部分（深蓝色部分）
+* 侧边栏部分
+* Dashboard部分（也包括Alibaba Fusion这个footer）
+
+如果这种结构是我们需要的样式，那么就基于TypeScript + Fusion Design模板进行二次开发。如果不适用，很可惜这个模板不能复用，需要选择其他方案。
+
+以icejs_fusion_design的layouts/BasicLayout/index.tsx为例，如下
+
+```javascript
+  return (
+    <ConfigProvider device={device}>
+      <Shell
+        style={{
+          minHeight: '100vh',
+        }}
+        type="brand"
+        fixedHeader={false}
+      >
+        <Shell.Branding>
+          <Logo
+            image="https://img.alicdn.com/tfs/TB1.ZBecq67gK0jSZFHXXa9jVXa-904-826.png"
+            text="Logo"
+          />
+        </Shell.Branding>
+        <Shell.Navigation
+          direction="hoz"
+          style={{
+            marginRight: 10,
+          }}
+        />
+        <Shell.Action />
+        <Shell.Navigation>
+          <PageNav />
+        </Shell.Navigation>
+
+        <Shell.Content>{children}</Shell.Content>
+        <Shell.Footer>
+          <Footer />
+        </Shell.Footer>
+      </Shell>
+    </ConfigProvider>
+  );
+```
+
+上面这里就是BasicLayout提供的布局，基本和分析的布局一致，{children}是可以动态替换的dashboard部分，并使用到PageNav、Footer和Logo组件。
+
+
+
+### (1) 侧边栏添加按钮
+
+
+
+
 
 
 
