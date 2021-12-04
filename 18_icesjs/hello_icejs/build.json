@@ -1,8 +1,4 @@
 {
   "vite": true,
-  "plugins": [
-    [
-      "build-plugin-antd"
-    ]
-  ]
+  "plugins": []
 }

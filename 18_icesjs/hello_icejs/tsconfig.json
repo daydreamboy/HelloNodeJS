@@ -22,11 +22,12 @@
     "suppressImplicitAnyIndexErrors": true,
     "noUnusedLocals": true,
     "skipLibCheck": true,
+    "types": ["node"],
     "paths": {
       "@/*": ["./src/*"],
-      "ice": [".ice/index.ts"]
+      "ice": [".ice"]
     }
   },
-  "include": ["src/*", ".ice"],
+  "include": ["src", ".ice"],
   "exclude": ["node_modules", "build", "public"]
 }
