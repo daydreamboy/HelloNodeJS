@@ -17,6 +17,10 @@ ice.js的中文名是飞冰，是一个基于 React 的研发解决方案，围�
 
 这里主要介绍使用CLI方式。
 
+
+
+### (1) 初始化一个ice.js应用
+
 使用下面命令，初始化一个ice.js应用
 
 ```shell
@@ -118,6 +122,49 @@ ice.js应用也是npm工程结构的，实际上`npm init ice`命令已经预置
 ```
 
 
+
+可以选择一个“TypeScript + Fusion Design ”模板创建，package.json，如下
+
+```json
+{
+  "name": "@alifd/scaffold-lite",
+  "version": "0.1.0",
+  "description": "轻量级模板，使用 TypeScript，仅包含基础的 Layout。",
+  "dependencies": {
+    "@alifd/next": "^1.19.4",
+    "moment": "^2.24.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "@alifd/theme-design-pro": "0.x"
+  },
+  "devDependencies": {
+    "@iceworks/spec": "^1.0.0",
+    "build-plugin-moment-locales": "^0.1.0",
+    "eslint": "^7.30.0",
+    "ice.js": "^2.0.0",
+    "stylelint": "^13.2.0",
+    "build-plugin-ignore-style": "^0.1.0",
+    "@types/react": "^17.0.2",
+    "@types/react-dom": "^17.0.2"
+  },
+  "scripts": {
+    "start": "icejs start",
+    "build": "icejs build",
+    "lint": "npm run eslint && npm run stylelint",
+    "eslint": "eslint --cache --ext .js,.jsx,.ts,.tsx ./",
+    "eslint:fix": "npm run eslint -- --fix",
+    "stylelint": "stylelint \"**/*.{css,scss,less}\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alibaba-fusion/materials/tree/master/scaffolds/scaffold-lite"
+  },
+  "private": true,
+  "originTemplate": "@alifd/scaffold-lite"
+}
+```
+
+可以看出多了一些npm库的依赖。
 
 
 
