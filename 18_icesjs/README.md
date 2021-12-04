@@ -810,11 +810,38 @@ Alibaba Fusion Design是阿里巴巴提供的企业级的中后台设计系统�
 
 
 
+## 7、常见报错处理
+
+### (1) Identifier 'React' has already been declared
+
+报错示例
+
+```
+1  |  import * as React from 'react';
+2  |  import {Component} from "react";
+3  |  import React from 'react';
+   |         ^
+4  |  import { Button } from '@alifd/next';
+5  |  // import styles from './index.module.css';
+```
+
+解决方法：去掉
+
+```
+import React from 'react';
+```
+
+原因见https://ice.work/docs/guide/basic/vite/#uncaught-syntaxerror-identifier-react-has-already-been-declared
 
 
 
 
-## 7、OCPWorkbench
+
+
+
+
+
+## 8、OCPWorkbench
 
 OCPWorkbench是基于ice.js的一个web应用。
 
