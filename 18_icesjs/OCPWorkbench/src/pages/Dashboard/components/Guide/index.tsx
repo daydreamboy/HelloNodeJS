@@ -5,7 +5,7 @@ import styles from './index.module.css';
 const Guide = () => {
   return (
     <div className={styles.container}>
-      <h2 className={styles.title}>Welcome to icejs!</h2>
+      <h2 className={styles.title}>Welcome to OCP工作台!</h2>
 
       <p className={styles.description}>This is a awesome project, enjoy it!</p>
 

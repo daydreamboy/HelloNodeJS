@@ -71,7 +71,7 @@ $ npm start
 
 命令行终端自动打开http://localhost:3333/网页，显示如下
 
-<img src="images/hello_icejs_without_UI_components.png" style="zoom:25%; float:left" />
+<img src="images/TypeScript + No UI Components.png" style="zoom:25%; float:left" />
 
 由于选择“No UI Components”，因此网页比较简陋。
 
@@ -284,7 +284,7 @@ const appConfig: IAppConfig = {
 runApp(appConfig);
 ```
 
-> 示例代码，见ice_fusion_design
+> 示例代码，见icejs_fusion_design
 
 可以知道应用的页面渲染，都是通过runApp函数。它有一个Object参数，类型是IAppConfig
 
@@ -393,7 +393,7 @@ Options:
 
 
 
-ice.js应用有自己的配置文件build.json。以ice_fusion_design的build.json为例，如下
+ice.js应用有自己的配置文件build.json。以icejs_fusion_design的build.json为例，如下
 
 ```json
 {
@@ -455,9 +455,144 @@ module.exports = {
 
 
 
+### (5) 路由配置
+
+ice.js的路由配置文件是`src/routes.ts`。以icejs_fusion_design的`src/routes.ts`为例，如下
+
+```javascript
+import { IRouterConfig, lazy } from 'ice';
+import BasicLayout from '@/layouts/BasicLayout';
+
+const Dashboard = lazy(() => import('@/pages/Dashboard'));
+const routerConfig: IRouterConfig[] = [
+  {
+    path: '/',
+    component: BasicLayout,
+    children: [
+      {
+        path: '/',
+        exact: true,
+        component: Dashboard,
+      },
+    ],
+  },
+];
+export default routerConfig;
+```
 
 
-## 3、OCPWorkbench
+
+官方给以一个示例以及说明，如下
+
+```javascript
+import UserLayout from '@/Layouts/UserLayout';
+import UserLogin from '@/pages/UserLogin';
+import NotFound from '@/components/NotFound';
+import wrapperPage from '@/components/WrapperPage';
+
+const routerConfig = [
+  // 分组路由，children 里的路由会将父节点的 component 作为布局组件
+  {
+    path: '/user',
+    component: UserLayout,
+    children: [
+      {
+        // 路由路径
+        path: '/login',
+        // 精确匹配
+        exact: true,
+        // 路由组件
+        component: UserLogin,
+        // 配置路由的高阶组件
+        wrappers: [wrapperPage],
+        // 扩展配置：icejs 1.x 仅支持将 pageConfig 配置在对应的页面组件上，具体请参考「页面组件」章节
+        pageConfig: {
+          title: '登录页面',
+          scrollToTop: true,
+          // ...
+        },
+      },
+      {
+        path: '/',
+        // 重定向
+        redirect: '/user/login',
+      },
+      {
+        // 404 没有匹配到的路由
+        component: NotFound,
+      },
+    ],
+  },
+  // 非分组路由
+  {
+    path: '/about',
+    component: About,
+  },
+];
+
+export default routerConfig;
+```
+
+
+
+注意
+
+> 路由有一个按顺序匹配的规则，从上到下一旦命中路由匹配规则就会停止遍历，因此如果你在最前面配置了 / 这样一个路由，则所有的路由都会命中该规则，导致其他路由没有效果，所以在开发时要注意路由的顺序以及 `exact` 属性的使用[^5]。
+
+
+
+
+
+pageConfig选项支持的配置项有下面几种[^4]，如下
+
+- title: `String`，配置页面标题
+- scrollToTop: `Boolean`，默认 false，进入页面时是否要滚动到顶部
+- auth: `String[]`，配置页面准入权限角色列表
+- errorBoundary: `Boolean`，默认 false，是否为页面组件包裹 `ErrorBoundary`
+- keepAlive: `Boolean`，由 `plugin-keep-alive` 插件扩展，默认 `true`
+- spm: `String`，由 `plugin-spm` 插件扩展
+
+
+
+说明
+
+> 除了上面中心化配置，还有一种去中心化配置，即每个页面组件上配置它的路由配置。例如
+>
+> ```javascript
+> // src/pages/Home/index.tsx
+> import React from 'react';
+> 
+> const Home = () => {
+>   return (
+>     <div>Home</div>
+>   );
+> };
+> 
+> + Home.pageConfig = {
+> +   title: 'Home'
+> + };
+> export default Home;
+> ```
+>
+> 
+
+
+
+## 3、基于TypeScript + Fusion Design模板进行二次开发
+
+上面已经创建好基于TypeScript + Fusion Design的icejs_fusion_design工程，它的页面样式，如下
+
+<img src="images/TypeScript + Fusion Design.png" style="zoom:50%;" />
+
+简单分析下这个页面结构，它包含下面几个部分
+
+* 
+
+
+
+
+
+## 4、OCPWorkbench
 
 OCPWorkbench是基于ice.js的一个web应用。
 
@@ -478,4 +613,6 @@ OCPWorkbench是基于ice.js的一个web应用。
 [^1]:https://ice.work/docs/guide/about
 [^2]:https://ice.work/docs/guide/start
 [^3]:https://ice.work/docs/guide/basic/app
+[^4]:https://ice.work/docs/guide/basic/page
+[^5]:https://ice.work/docs/guide/basic/router
 
