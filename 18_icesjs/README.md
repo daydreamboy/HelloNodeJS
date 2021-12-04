@@ -636,6 +636,175 @@ pageConfig选项支持的配置项有下面几种[^4]，如下
 
 ### (1) 侧边栏添加按钮
 
+侧边栏添加按钮以及对应的dashboard部分，只需要完成下面2个步骤
+
+* 修改src/routes.ts文件
+* src/pages增加一个页面
+
+
+
+src/routes.ts文件改动，如下
+
+```javascript
+import { IRouterConfig, lazy } from 'ice';
+import BasicLayout from '@/layouts/BasicLayout';
+
+const Dashboard = lazy(() => import('@/pages/Dashboard'));
+const Menu1 = lazy(() => import('@/pages/Menu1'));
+
+const routerConfig: IRouterConfig[] = [
+  {
+    path: '/',
+    component: BasicLayout,
+    children: [
+      {
+        path: '/',
+        exact: true,
+        component: Dashboard,
+      },
+      {
+        path: '/menu1',
+        exact: true,
+        component: Menu1,
+      },
+    ],
+  },
+];
+export default routerConfig;
+```
+
+
+
+src/pages增加一个页面，Menu1/index.tsx文件，如下
+
+```javascript
+import * as React from 'react';
+
+const Menu1 = () => {
+  return (
+    <h1>这里是菜单对应的dashboard页面</h1>
+  );
+};
+
+export default Menu1;
+```
+
+
+
+### (2) css样式配置
+
+ice.js应用的工程里面支持全局样式和局部样式
+
+* 全局样式，定义在 `src/global.[scss|less|scss]` 文件中
+
+* 局部样式，定义在页面组件文件夹下的index.module.css中
+
+以上面Menu1页面组件为例，它的样式文件在Menu1/index.module.css中，如下
+
+```css
+.container {
+  background: #f00;
+}
+```
+
+在Menu1/index.tsx文件中，使用方式，如下
+
+```javascript
+import * as React from 'react';
+import styles from './index.module.css';
+
+const Menu1 = () => {
+  return (
+    <div className={styles.container}>
+      <h1>这里是菜单对应的dashboard页面</h1>
+    </div>
+  );
+};
+
+export default Menu1;
+```
+
+
+
+// TODO: 样式覆盖有问题
+
+
+
+## 4、ice.js应用的基础能力
+
+### (1) 日志打印
+
+一般都是使用`console.log`打印日志，实际上还有下面几种级别
+
+```javascript
+console.trace(msg)：输出一个堆栈跟踪
+console.debug(msg)：输出一个调试日志
+console.log(msg)：输出一个信息日志
+console.warn(msg)：输出一个警告日志
+console.error(msg)：输出一个错误日志
+```
+
+根据不同环境有选择打印日志，ice.js工程支持构建成功后，去掉`log` 级别以及以下的所有log代码。在 `build.json` 中配置 `dropLogLevel` 选项，如下
+
+```json
+{
+  "dropLogLevel": "log"
+}
+```
+
+
+
+// TODO
+
+环境配置
+
+静态资源处理
+
+数据请求
+
+状态管理
+
+
+
+
+
+## 5、ice.js废弃npm库
+
+ics.js提供一些业务使用的npm库，目前ics.js是2.0，之前有些npm库已经废弃[^6]。
+
+| npm 包名             | 显示名称  | 说明             | 文档地址（fusion1.x 版本）                                   | 文档地址（fusion0.x 版本）                                   |
+| -------------------- | --------- | ---------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| @icedesign/container | Container | 建议直接使用 div | [文档](https://unpkg.com/@icedesign/container@1.0.5/build/index.html) | [文档](https://unpkg.com/browse/@icedesign/container@0.1.10/README.md) |
+|                      |           |                  |                                                              |                                                              |
+
+说明
+
+> ice.js之前提供的@icedesign/xxx库，例如@icedesign/base，它提供Input组件。现在已经全部迁移到@alifd/next库中
+
+
+
+## 6、Alibaba Fusion Design
+
+Alibaba Fusion Design是阿里巴巴提供的企业级的中后台设计系统解决方案。官方地址是https://fusion.design/。
+
+说明
+
+> 个人理解是，Alibaba Fusion Design是通过提供@alifd/next这个库，用于快速开发企业的后台页面开发。
+
+在这里介绍Alibaba Fusion Design，是因为ice.js依赖了@alifd/next这个库[^7]。
+
+以icejs_fusion_design为例，它的package.json，如下
+
+```javascript
+{
+  "dependencies": {
+    "@alifd/next": "^1.19.4",
+    "@alifd/theme-design-pro": "0.x"
+  },
+}
+```
+
+因此，开发一个ice.js应用，也需要掌握@alifd/next提供的组件。
 
 
 
@@ -644,7 +813,8 @@ pageConfig选项支持的配置项有下面几种[^4]，如下
 
 
 
-## 4、OCPWorkbench
+
+## 7、OCPWorkbench
 
 OCPWorkbench是基于ice.js的一个web应用。
 
@@ -653,6 +823,12 @@ OCPWorkbench是基于ice.js的一个web应用。
 ### (1) 创建OCPWorkbench
 
 采用“TypeScript + Fusion Design”模板。
+
+
+
+### (2) 配置package.json
+
+
 
 
 
@@ -667,4 +843,7 @@ OCPWorkbench是基于ice.js的一个web应用。
 [^3]:https://ice.work/docs/guide/basic/app
 [^4]:https://ice.work/docs/guide/basic/page
 [^5]:https://ice.work/docs/guide/basic/router
+
+[^6]:https://ice.work/docs/resource/biz-components
+[^7]:https://fusion.design/pc/doc/component/102?themeid=2
 

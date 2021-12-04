@@ -2,7 +2,7 @@ const headerMenuConfig = [];
 
 const asideMenuConfig = [
   {
-    name: 'Dashboard',
+    name: '设备列表',
     path: '/',
     icon: 'smile',
   },
