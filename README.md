@@ -2970,6 +2970,14 @@ $ npm install -g pegjs
 
 
 
+#### (4) icejs
+
+icejs是web app的脚手架工具，官方地址见https://ice.work/
+
+```shell
+$ npm install -g icejs
+```
+
 
 
 ### 3、Visual Code常用插件
