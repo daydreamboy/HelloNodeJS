@@ -3,7 +3,8 @@ import WeiwoResponse from './models/weiwoResponse';
 import {axios} from "@ice/runtime";
 import StorageTool from "@/services/storage-tool";
 
-const simulatorIP = '127.0.0.1';
+// MARK: default configuration
+const simulatorIP = '127.0.0.1:2222';
 const storageKeyDeviceIPs = 'deviceIPs';
 
 function WeiwoSerializeArgument(arg: any): any {
@@ -80,7 +81,7 @@ class Weiwo {
 
   async sendRequest(body: object): Promise<any> {
     const url = this.url ? this.url : Weiwo.defaultURL()
-
+    console.log('requesting');
     try {
       const dict = <WeiwoResponse>(await axios.post(url, body, { timeout: 10000 })).data
 
@@ -100,7 +101,7 @@ class Weiwo {
         return Promise.reject(new Error(dict.msg))
       }
     } catch (err) {
-      console.log(err)
+      console.error('weiwo: ' + err);
       return undefined
     }
   }

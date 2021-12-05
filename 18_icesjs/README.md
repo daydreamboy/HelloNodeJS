@@ -812,7 +812,9 @@ Alibaba Fusion Design是阿里巴巴提供的企业级的中后台设计系统�
 
 ## 7、常见报错处理
 
-### (1) Identifier 'React' has already been declared
+### (1) 网页运行时报错
+
+#### a. Identifier 'React' has already been declared
 
 报错示例
 
@@ -835,7 +837,9 @@ import React from 'react';
 
 
 
-### (2) WebStorm报错Property '' does not exist on type 'Readonly{}>
+### (2) WebStorm报错
+
+#### a. Property '' does not exist on type 'Readonly{}>
 
 解决方法：实现Component时要加上类型[^8]
 
@@ -859,6 +863,18 @@ const App = ({}: MyProps) => {
   ...
 };
 ```
+
+
+
+#### b. 'React' refers to a UMD global, but the current file is a module. Consider adding an import instead.
+
+解决方法：文件中引入React
+
+```javascript
+import React from 'react';
+```
+
+
 
 
 

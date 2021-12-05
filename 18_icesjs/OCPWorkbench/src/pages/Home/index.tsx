@@ -2,6 +2,7 @@ import {Component} from "react";
 import {Button, Input} from "@alifd/next";
 import React from 'react';
 import DeviceConnectBalloon from './components/DeviceConnectBalloon';
+import DevicePanel from "@/pages/Home/components/DevicePanel";
 import {
   Add,
   History,
@@ -41,20 +42,15 @@ export default class Home extends Component<{}, HomeState> {
     const addDeviceWithDeviceIP = async (arg: string) => {
       const { deviceIPs } = this.state
       if (Array.isArray(arg)) {
-        console.log('1');
         for (const newDeviceIP of arg) {
           if (!deviceIPs.includes(newDeviceIP)) {
             deviceIPs.unshift(newDeviceIP)
           }
         }
       } else {
-        console.log('2');
         const newDeviceIP = arg
-
-        console.log('3: ' + deviceIPs);
         deviceIPs.unshift(newDeviceIP)
       }
-      console.log('4');
       await this.saveDeviceIPs(deviceIPs)
     }
 
@@ -67,6 +63,8 @@ export default class Home extends Component<{}, HomeState> {
 
       await addDeviceWithDeviceIP(newDeviceIP)
     }
+
+    const { deviceIPs } = this.state;
 
     return (
       <div className='home-page'>
@@ -129,8 +127,28 @@ export default class Home extends Component<{}, HomeState> {
         </div>
 
         {/* 第三行 */}
-        <div>
-
+        <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
+          {deviceIPs.map((deviceIP, index) => {
+            return (
+              <DevicePanel
+                deviceIP={deviceIP}
+                index={index}
+                key={index}
+                showRemoveButton={deviceIPs.length > 1}
+                removeDeviceCallback={ async () => {
+                  const { deviceIPs } = this.state
+                  deviceIPs.splice(index, 1)
+                  await this.saveDeviceIPs(deviceIPs)
+                }}
+                setDefaultCallback={ async () => {
+                  const { deviceIPs } = this.state
+                  deviceIPs.splice(index, 1)
+                  deviceIPs.unshift(deviceIP)
+                  await this.saveDeviceIPs(deviceIPs)
+                }}
+              />
+            )
+          })}
         </div>
       </div>
     )
