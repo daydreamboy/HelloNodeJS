@@ -835,13 +835,57 @@ import React from 'react';
 
 
 
+### (2) WebStorm报错Property '' does not exist on type 'Readonly{}>
+
+解决方法：实现Component时要加上类型[^8]
+
+```javascript
+interface MyProps {
+  ...
+}
+
+interface MyState {
+  value: string
+}
+
+class App extends React.Component<MyProps, MyState> {
+  ...
+}
+
+// Or with hooks, something like
+
+const App = ({}: MyProps) => {
+  const [value, setValue] = useState<string>('');
+  ...
+};
+```
+
+
+
+
+
+## 8、常见Tips
+
+### (1) 在render函数返回语句，增加注释
+
+使用`{/* this is a comment */}`[^9]，如下
+
+```javascript
+render() {
+  return (
+    {/* this is a comment */}
+    <h2>some text</h2>
+  );
+}
+```
 
 
 
 
 
 
-## 8、OCPWorkbench
+
+## 9、OCPWorkbench
 
 OCPWorkbench是基于ice.js的一个web应用。
 
@@ -854,6 +898,10 @@ OCPWorkbench是基于ice.js的一个web应用。
 
 
 ### (2) 配置package.json
+
+```json
+@icon-park/react
+```
 
 
 
@@ -873,4 +921,7 @@ OCPWorkbench是基于ice.js的一个web应用。
 
 [^6]:https://ice.work/docs/resource/biz-components
 [^7]:https://fusion.design/pc/doc/component/102?themeid=2
+
+[^8]:https://stackoverflow.com/questions/47561848/property-value-does-not-exist-on-type-readonly
+[^9]:https://stackoverflow.com/questions/45829113/react-how-to-comment-html-inside-a-render-method
 

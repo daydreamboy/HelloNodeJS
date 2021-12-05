@@ -18,18 +18,18 @@ class DeviceConnectBalloon extends Component {
         trigger={
           <Button
             type='primary'
-            style={{ marginRight: 20 }}
+            style={{marginRight: 20}}
             onClick={() => {
-              this.setState({ visible: true })
+              this.setState({visible: true})
             }}
           >
             {buttonLabel}
           </Button>
         }
         visible={this.state.visible}
-        onVisibleChange={(visible, type) => {
+        onVisibleChange={(visible: boolean, type: string) => {
           if (type === 'docClick' || type === 'closeClick') {
-            this.setState({ visible: false })
+            this.setState({visible: false})
           }
         }}
       >
