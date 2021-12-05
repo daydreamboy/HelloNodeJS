@@ -1,28 +1,10 @@
 import WeiwoRequest from './models/weiwoRequest';
 import WeiwoResponse from './models/weiwoResponse';
 import {axios} from "@ice/runtime";
+import StorageTool from "@/services/storage-tool";
 
 const simulatorIP = '127.0.0.1';
-
-// Web storage API: https://developer.mozilla.org/en-US/docs/Web/API/Storage
-function loadDeviceIPsFromStorage(): Array<string> {
-  if (typeof window == 'object') {
-    const deviceIPsJSONString = window.localStorage.getItem('deviceIPs')
-    if (deviceIPsJSONString) {
-      const deviceIPs = JSON.parse(deviceIPsJSONString)
-      if (Array.isArray(deviceIPs)) {
-        return deviceIPs
-      }
-    }
-  }
-
-  return [simulatorIP]
-}
-
-function saveDeviceIPsToStorage(deviceIPs: Array<string>) {
-  const jsonString = JSON.stringify(deviceIPs)
-  window.localStorage.setItem('deviceIPs', jsonString)
-}
+const storageKeyDeviceIPs = 'deviceIPs';
 
 function WeiwoSerializeArgument(arg: any): any {
   const type = typeof arg
@@ -42,7 +24,7 @@ function WeiwoSerializeArgument(arg: any): any {
 }
 
 class Weiwo {
-  static deviceIPs: Array<string> = loadDeviceIPsFromStorage();
+  static DeviceIPs: Array<string> = StorageTool.loadUniqueStringArray(storageKeyDeviceIPs, [simulatorIP]);
   static GatewayHost = 'app.ocp';
   static MainQueue = 1;
   static ContainerAsValue = 1 << 1;
@@ -58,7 +40,7 @@ class Weiwo {
       this.url = <string>deviceSpec
     } else if (specType == 'number') {
       const deviceIndex = <number>deviceSpec
-      this.url = Weiwo.makeURLWithDeviceIP(Weiwo.deviceIPs[deviceIndex])
+      this.url = Weiwo.makeURLWithDeviceIP(Weiwo.DeviceIPs[deviceIndex])
     } else {
       this.url = Weiwo.defaultURL()
     }
@@ -123,10 +105,15 @@ class Weiwo {
     }
   }
 
-  // Utility
+  // Manage device IPs
   static saveDeviceIPs(deviceIPs: Array<string>): void {
-    Weiwo.deviceIPs = deviceIPs
-    saveDeviceIPsToStorage(deviceIPs)
+    Weiwo.DeviceIPs = [... new Set(deviceIPs)];
+    StorageTool.saveStringArrayToStorage(storageKeyDeviceIPs, Weiwo.DeviceIPs);
+  }
+
+  static resetDeviceIPsToDefault(): void {
+    StorageTool.removeItem(storageKeyDeviceIPs);
+    Weiwo.DeviceIPs = StorageTool.loadUniqueStringArray(storageKeyDeviceIPs, []);
   }
 
   static makeHost(str: string): string {
@@ -142,7 +129,7 @@ class Weiwo {
   }
 
   static defaultDeviceIP(): string {
-    return Weiwo.deviceIPs[0]
+    return Weiwo.DeviceIPs[0]
   }
 
   // REST style request

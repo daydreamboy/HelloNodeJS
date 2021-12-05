@@ -21,7 +21,7 @@ export default class Home extends Component<{}, HomeState> {
   constructor(props) {
     super(props);
     this.state = {
-      deviceIPs: Weiwo.deviceIPs,
+      deviceIPs: Weiwo.DeviceIPs,
       newDeviceIP: '',
     };
     console.log("on constructor");
@@ -34,7 +34,7 @@ export default class Home extends Component<{}, HomeState> {
 
   async refreshDeviceList() {
     await setStateAsync(this, { deviceIPs: [] })
-    await setStateAsync(this, { deviceIPs: Weiwo.deviceIPs })
+    await setStateAsync(this, { deviceIPs: Weiwo.DeviceIPs })
   }
 
   render() {
@@ -111,7 +111,7 @@ export default class Home extends Component<{}, HomeState> {
             </Button>
             <Button
               onClick={() => {
-                Weiwo.resetToDefault()
+                Weiwo.resetDeviceIPsToDefault()
                 window.location.reload()
               }}
             >
@@ -130,7 +130,7 @@ export default class Home extends Component<{}, HomeState> {
 
         {/* 第三行 */}
         <div>
-          
+
         </div>
       </div>
     )
