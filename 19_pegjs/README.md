@@ -112,7 +112,7 @@ function test_normal_1() {
 
 ### (3) 使用PEG.js作为ES Module
 
-PEG.js使用pegjsmingl导出的parser库，可以使用`--format`参数来指定module类型，但是似乎没有提供ES Module的选项[^2]。
+PEG.js使用pegjs命令导出的parser库，可以使用`--format`参数来指定module类型，但是似乎没有提供ES Module的选项[^2]。
 
 ```shell
 $ pegjs --help
