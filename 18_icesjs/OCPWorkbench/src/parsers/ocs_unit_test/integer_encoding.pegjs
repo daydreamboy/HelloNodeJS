@@ -1,14 +1,10 @@
 integer_encoding = 'char' { return 'c' }
-/
-'short' { return 's' }
-/
-'int' { return 'i' }
-/
-'long' extra:(SPACE_n 'long') {
+/ 'short' { return 's' }
+/ 'int' { return 'i' }
+/ 'long' extra:(SPACE_n 'long') {
   return extra ? 'q' : 'l'
 }
-/
-'unsigned' SPACE_n encoding:integer_encoding {
+/ 'unsigned' SPACE_n encoding:integer_encoding {
   return encoding.toUpperCase()
 }
 
