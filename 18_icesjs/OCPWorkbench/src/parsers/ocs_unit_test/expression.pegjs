@@ -18,7 +18,22 @@
   }
 }
 
-start = expression
+start = expression_list / expression_tuple
+
+/// Syntax - Expression
+///////////////////////
+
+expression_list = S_n first:expression rest:(rest_expression)* {
+  return rest ? [first].concat(rest) : [first]
+}
+
+rest_expression = S_n ',' S_n expr:expression {
+  return expr
+}
+
+expression_tuple = '(' S_n list:expression_list? S_n ')' {
+  return list ? list : []
+}
 
 expression = 'await' S expression: expression {
   return [call('await'), [expression]]
@@ -52,18 +67,6 @@ expression = 'await' S expression: expression {
   return condition.concat(call('?:', [falseValue]))
 }
 / p12
-
-expression_tuple = '(' S_n list:expression_list? S_n ')' {
-  return list ? list : []
-}
-
-expression_list = S_n first:expression rest:(rest_expression)* {
-  return rest ? [first].concat(rest) : [first]
-}
-
-rest_expression = S_n ',' S_n expr:expression {
-  return expr
-}
 
 /// Syntax - C function extern
 ///////////////////////
