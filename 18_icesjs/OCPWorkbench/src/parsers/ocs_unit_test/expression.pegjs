@@ -53,112 +53,6 @@ expression = 'await' S expression: expression {
 }
 / p12
 
-p12 = 
-	first:p11 second:(concat_item)* {
-		return second ? first.concat(second) : first
-    }
-    
-concat_item
-	= S '..' S p11:p11 {
-    	return call('..', [p11])
-    }
-
-p11 = first:p10 second:(or_item)* {
-		return second ? first.concat(second) : first
-	}
-
-or_item 
-	= S (('or' SPACE) / '||') S p10:p10 {
-    	return call('||', [p10])
-    }
-
-p10 = first:p9 second:(and_item)* {
-		return second ? first.concat(second) : first
-	}
-
-and_item
-	= S (('and' SPACE) / '&&') S p9:p9{
-    	return call('&&', [p9])
-    }
- 
-p9 = p6
-
-p6 
-	=  first:p5 second:(equality_compare_item)* {
-    	return second ? first.concat(second) : first
-	}
-
-equality_compare_item
-	= S op:('==') S p5:p5 {
-    	return call(op, [p5])
-     }
-    / S op:('!=' / '<>' / '~=') S p5:p5{
-        return call('!=', [p5])
-    }
-
-p5 = first:p4 second:(compare_item)* {
-		return second ? first.concat(second) : first
-	}
-
-compare_item
-	= S op:('<=' / '<' / '>=' / '>') S p4:p4{
-    	return call(op, [p4])
-    }
-
-p4 = first:p3 second:(shift_item)* {
-		return second ? first.concat(second) : first
-	}
-   
-shift_item 
-	= S op:('<<' / '>>') S p3:p3 {
-    	return call(op, [p3])
-     }
-
-p3 = first:p2 second:(addition_item)* {
-		return second ? first.concat(second) : first 
-	}
-  
-addition_item
-	= S op:('+' / '-') S p2:p2 {
-    	return call(op, [p2])
-    }
-
-p2 
-	= first:p1 second:(multiplication_item)* {
-		return second ? first.concat(second) : first 
-     }
-    / '!' p2:p2 {
-    	return [call('!', [p2])]
-    }
-
-multiplication_item
-	= S op:('%' / '*' / '/') S p1:p1 {
-    	return call(op, [p1])
-    }
-    
-p1 
-	= '(' S expression:expression S ')' {
-    	return expression
-    }
-    / '^' S name:IDENTIFIER {
-        return [call('awaitblock', [[ literal(name) ]])]
-    }
-    / declaration:declaration_group {
-        return [call('Weiwo'), call('declareCFunctions:', [[literal(declaration)]]) ]
-    }
-    / '-' S list:item_list {
-        return list.concat(call('weiwo_negate'))
-    }
-    / item_list
-
-label_param_type
-	= label:IDENTIFIER S ':' S dummy_type S paramName:IDENTIFIER S_n {
-    	return {label, paramName}
-    }
-    
-dummy_type
-	= S '(' [^)]+ ')' S { return null }
-    
 declaration_group 
 	= 'extern' S '"C"' S '{' S_n  declarations:declaration* S_n '}' {
     	const map = {}
@@ -192,18 +86,6 @@ c_param_type
     / type:type_encoding (SPACE IDENTIFIER)? {
     	return type
     }
-    
-item_list 
-	= first:first_item rest:rest_item*{
-        if(!Array.isArray(first)){
-            first = [first]
-        }
-    	if(rest){
-        	return first.concat(rest);
-        }else{
-        	return first
-        }
-    } 
     
 first_item = literal 
 / protocol 
@@ -360,6 +242,106 @@ rest_expression
         return expr
     }
 
+/// Syntax - OP priority group
+///////////////////////
+
+p12 =  first:p11 second:(concat_item)* {
+  return second ? first.concat(second) : first
+}
+    
+concat_item = S '..' S p11:p11 {
+  return call('..', [p11])
+}
+
+p11 = first:p10 second:(or_item)* {
+  return second ? first.concat(second) : first
+}
+
+or_item = S (('or' SPACE) / '||') S p10:p10 {
+  return call('||', [p10])
+}
+
+p10 = first:p9 second:(and_item)* {
+  return second ? first.concat(second) : first
+}
+
+and_item = S (('and' SPACE) / '&&') S p9:p9 {
+  return call('&&', [p9])
+}
+ 
+p9 = p6
+
+p6 = first:p5 second:(equality_compare_item)* {
+  return second ? first.concat(second) : first
+}
+
+equality_compare_item = S op:('==') S p5:p5 {
+  return call(op, [p5])
+}
+/ S op:('!=' / '<>' / '~=') S p5:p5 {
+  return call('!=', [p5])
+}
+
+p5 = first:p4 second:(compare_item)* {
+  return second ? first.concat(second) : first
+}
+
+compare_item = S op:('<=' / '<' / '>=' / '>') S p4:p4 {
+  return call(op, [p4])
+}
+
+p4 = first:p3 second:(shift_item)* {
+  return second ? first.concat(second) : first
+}
+   
+shift_item = S op:('<<' / '>>') S p3:p3 {
+  return call(op, [p3])
+}
+
+p3 = first:p2 second:(addition_item)* {
+  return second ? first.concat(second) : first 
+}
+  
+addition_item = S op:('+' / '-') S p2:p2 {
+  return call(op, [p2])
+}
+
+p2 = first:p1 second:(multiplication_item)* {
+  return second ? first.concat(second) : first 
+}
+/ '!' p2:p2 {
+  return [call('!', [p2])]
+}
+
+multiplication_item = S op:('%' / '*' / '/') S p1:p1 {
+  return call(op, [p1])
+}
+    
+p1 = '(' S expression:expression S ')' {
+  return expression
+}
+/ '^' S name:IDENTIFIER {
+  return [call('awaitblock', [[ literal(name) ]])]
+}
+/ declaration:declaration_group {
+  return [call('Weiwo'), call('declareCFunctions:', [[literal(declaration)]]) ]
+}
+/ '-' S list:item_list {
+  return list.concat(call('weiwo_negate'))
+}
+/ item_list
+
+item_list  = first:first_item rest:rest_item* {
+  if (!Array.isArray(first)) {
+    first = [first]
+  }
+  if (rest) {
+    return first.concat(rest);
+  } 
+  else {
+    return first
+  }
+} 
 
 /// Syntax - Type Encoding
 ///////////////////////
