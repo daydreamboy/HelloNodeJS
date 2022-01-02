@@ -5,7 +5,9 @@
    */
   function call(name, args) {
     const obj = { name }
-    obj.args = args || undefined
+    if (args) {
+      obj.args = args
+    }
 
     return obj
   }
@@ -209,7 +211,7 @@ oc_pair = S label:$('@'? IDENTIFIER) S ':' S arg:expression S_n {
 /// Syntax - OP priority group
 ///////////////////////
 
-p12 =  first:p11 second:(concat_item)* {
+p12 = first:p11 second:(concat_item)* {
   return second ? first.concat(second) : first
 }
     
