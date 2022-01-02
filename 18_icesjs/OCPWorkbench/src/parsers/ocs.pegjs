@@ -5,7 +5,9 @@
    */
   function call(name, args) {
     const obj = { name }
-    obj.args = args || undefined
+    if (args) {
+      obj.args = args
+    }
 
     return obj
   }
@@ -20,8 +22,21 @@
 
 ocs_file = remote_lib / js_lib / code_body
 
+
 /// Syntax - Expression
 ///////////////////////
+
+expression_list = S_n first:expression rest:(rest_expression)* {
+  return rest ? [first].concat(rest) : [first]
+}
+
+rest_expression = S_n ',' S_n expr:expression {
+  return expr
+}
+
+expression_tuple = '(' S_n list:expression_list? S_n ')' {
+  return list ? list : []
+}
 
 expression = 'await' S expression: expression {
   return [call('await'), [expression]]
@@ -56,159 +71,6 @@ expression = 'await' S expression: expression {
 }
 / p12
 
-expression_tuple = '(' S_n list:expression_list? S_n ')' {
-  return list ? list : []
-}
-
-expression_list = S_n first:expression rest:(rest_expression)* {
-  return rest ? [first].concat(rest) : [first]
-}
-
-rest_expression = S_n ',' S_n expr:expression {
-  return expr
-}
-
-/// Syntax - op priority group
-///////////////////////
-
-p12 = first:p11 second:(concat_item) {
-  return second ? first.concat(second) : first
-}
-
-p11 = first:p10 second:(or_item) {
-  return second ? first.concat(second) : first
-}
-
-p10 = first:p9 second:(and_item)* {
-  return second ? first.concat(second) : first
-}
-
-p9 = p6
-
-p6 = first:p5 second:(equality_compare_item)* {
-  return second ? first.concat(second) : first
-}
-
-p5 = first:p4 second:(compare_item)* {
-  return second ? first.concat(second) : first
-}
-
-p4 = first:p3 second:(shift_item)* {
-  return second ? first.concat(second) : first
-}
-
-p3 = first:p2 second:(addition_item)* {
-  return second ? first.concat(second) : first
-}
-
-p2 = first:p1 second:(multiplication_item)* {
-  return second ? first.concat(second) : first
-}
-/ '!' p2:p2 {
-  return [ call('!', [p2]) ]
-}
-
-p1 = '(' S expression:expression S ')' {
-  return expression
-}
-/ spec:block_spec {
-  return [ call('Weiwo'), call('createBlock:', [[ literal(spec) ]]) ]
-}
-/ '^' S name:IDENTIFIER {
-  return [ call('awaitblock', [[ literal(name) ]]) ]
-}
-/ declaration:declaration_group {
-  return [ call('Weiwo'), call('declareCFunctions:', [[ literal(declaration) ]]) ]
-}
-/ hook_group:hook_group {
-  return [ call('Weiwo'), call('hookClass:', [[ literal(hook_group) ]]) ]
-}
-/ '-' S list:item_list {
-  return list.concat(call('weiwo_negate'))
-}
-/ item_list
-
-/// items
-concat_item = S '..' S p11:p11 {
-  return call('..', [p11])
-}
-
-or_item = S (('or' SPACE) / '||') S p10:p10 {
-  return call('||', [p10])
-}
-
-and_item = S (('and' SPACE) / '&&') S p9:p9 {
-  return call('&&', [p9])
-}
-
-equality_compare_item = S op:('==') S p5:p5 {
-  return call(op, [p5])
-}
-/ S op:('!=' / '<>' / '~=') S p5:p5 {
-  return call('!=', [p5])
-}
-
-compare_item = S op:('<=' / '<' / '>=' / '>') S p4:p4 {
-  return call(op, [p4])
-}
-
-shift_item = S op:('<<' / '>>') S p3:p3 {
-  return call(op, [p3])
-}
-
-addition_item = S op:('+' / '-') S p2:p2 {
-  return call(op, [p2])
-}
-
-multiplication_item = S op:('%' / '*' / '/') S p1:p1 {
-  return call(op, [p1])
-}
-
-item_list = first:first_item rest:rest_item* {
-  if (!Array.isArray(first)) {
-    first = [first]
-  }
-
-  if (rest) {
-    return first.concat(rest)
-  }
-  else {
-    return first
-  }
-}
-
-first_item = literal 
-/ protocol 
-/ encode 
-/ main_call 
-/ once_call 
-/ interpolated_string 
-/ sizeof_expression 
-/ while_statement
-/ if_statement
-/ for_in_statement
-/ for_loop_statement
-/ array_constructor
-/ dictionary_constructor
-/ oc_call
-/ address
-/ new_pointer
-/ postfix_statement
-/ switch_statement
-/ function_call
-
-rest_item 
-    = message_call
-    / S '^' S operand:expression{
-        return call('^', [operand])
-    }
-    / S '[' subscript:expression ']' {
-    	return call('weiwo_getSubscript:', [subscript])
-    }
-    / SPACE 'is' SPACE className:IDENTIFIER {
-    	return call('is', [[ literal(className) ]])
-    }
-
 /// Syntax - C function extern
 ///////////////////////
 
@@ -239,12 +101,228 @@ c_param_type = '...' { return '.' }
 / type:type_encoding (SPACE IDENTIFIER)? {
   return type
 }
+    
+first_item = literal 
+/ protocol 
+/ encode 
+/ interpolated_string 
+/ sizeof_expression
+/ array_constructor 
+/ dictionary_constructor 
+/ oc_call 
+/ address 
+/ new_pointer 
+/ postfix_statement 
+/ function_call
 
-/// Syntax - C clause sizeof
+sizeof_expression = 'sizeof' S '(' S type:type_encoding S ')' S {
+  return call('sizeof', [
+    [literal(type)]
+  ])
+}
+
+address = hexaddress:HEXADECIMAL {
+  return [call('$'), call('objectFromAddress:', [[ literal(hexaddress) ]])]
+}
+
+/// Syntax - OCS new keyword
 ///////////////////////
 
-sizeof_expression = 'sizeof' S '(' type:type_encoding S ')' S {
-  return call('sizeof', [ [literal(type)] ])
+new_pointer = 'new' SPACE type:type_encoding {
+  return [
+    call('Weiwo'),
+    call('outArgument', [[ literal(type) ]])
+  ]
+}
+
+/// Syntax - C ++/--
+///////////////////////
+
+postfix_statement = name:IDENTIFIER op:('++'/'--') {
+  return call('updateSlot', [
+    [ literal(name) ],
+    [ call(name), call(op[0], [[ literal(1) ]]) ]
+  ])
+}
+
+/// Syntax - OCS interpolated string
+///////////////////////
+
+interpolated_string = '$"' parts:interpolated_item* '"' {
+  if (parts && parts.length > 0) {
+    return [
+      call('sqaureBrackets', parts),
+      call('componentsJoinedByString:', [[ literal('') ]])
+    ]
+  }
+  else {
+    return''
+  }
+}
+
+interpolated_item = '{' value:expression '}' {
+  return value
+}
+/ chars:( ESCAPED_CHAR / [^\'"{}] )+ {
+  return [ literal(chars.join('')) ]
+}
+
+/// Syntax - Objective-C Container
+///////////////////////
+
+array_constructor = '@[' S_n args:expression_list? S_n (',')? S_n ']' {
+  return call('squareBrackets', args)
+}
+
+dictionary_constructor = '@{' S_n args:expression_list? S_n (',')? S_n '}' {
+  return call('curlyBrackets', args)
+}
+
+/// Syntax - C function call
+///////////////////////
+
+function_call = name:IDENTIFIER tuple:expression_tuple? {
+  return call(name, tuple)
+}
+
+/// Syntax - Objective-C method call
+///////////////////////
+
+oc_call = '[' S_n target:expression S_n methodName:$('@'? IDENTIFIER) S_n ']' {
+  return target.concat(call(methodName))
+}
+/ '[' S_n target:expression S_n methodName:$('@'? IDENTIFIER ':') S_n first:expression rest:oc_rest_argument+ ']' {
+  const args = [first].concat(rest)
+  return target.concat(call(methodName + '...', args))
+}
+/ '[' S_n target:expression S_n pairs:oc_pair+ S_n ']' {
+  const methodName = pairs.map(pair => pair.label + ':').join('')
+  const args = pairs.map(pair => pair.arg)
+  return target.concat(call(methodName, args))
+}
+
+oc_rest_argument = S ',' S arg:expression {
+  return arg
+}
+
+oc_pair = S label:$('@'? IDENTIFIER) S ':' S arg:expression S_n {
+  return {label, arg}
+}
+
+/// Syntax - OP priority group
+///////////////////////
+
+p12 = first:p11 second:(concat_item)* {
+  return second ? first.concat(second) : first
+}
+    
+concat_item = S '..' S p11:p11 {
+  return call('..', [p11])
+}
+
+p11 = first:p10 second:(or_item)* {
+  return second ? first.concat(second) : first
+}
+
+or_item = S (('or' SPACE) / '||') S p10:p10 {
+  return call('||', [p10])
+}
+
+p10 = first:p9 second:(and_item)* {
+  return second ? first.concat(second) : first
+}
+
+and_item = S (('and' SPACE) / '&&') S p9:p9 {
+  return call('&&', [p9])
+}
+ 
+p9 = p6
+
+p6 = first:p5 second:(equality_compare_item)* {
+  return second ? first.concat(second) : first
+}
+
+equality_compare_item = S op:('==') S p5:p5 {
+  return call(op, [p5])
+}
+/ S op:('!=' / '<>' / '~=') S p5:p5 {
+  return call('!=', [p5])
+}
+
+p5 = first:p4 second:(compare_item)* {
+  return second ? first.concat(second) : first
+}
+
+compare_item = S op:('<=' / '<' / '>=' / '>') S p4:p4 {
+  return call(op, [p4])
+}
+
+p4 = first:p3 second:(shift_item)* {
+  return second ? first.concat(second) : first
+}
+   
+shift_item = S op:('<<' / '>>') S p3:p3 {
+  return call(op, [p3])
+}
+
+p3 = first:p2 second:(addition_item)* {
+  return second ? first.concat(second) : first 
+}
+  
+addition_item = S op:('+' / '-') S p2:p2 {
+  return call(op, [p2])
+}
+
+p2 = first:p1 second:(multiplication_item)* {
+  return second ? first.concat(second) : first 
+}
+/ '!' p2:p2 {
+  return [call('!', [p2])]
+}
+
+multiplication_item = S op:('%' / '*' / '/') S p1:p1 {
+  return call(op, [p1])
+}
+    
+p1 = '(' S expression:expression S ')' {
+  return expression
+}
+/ '^' S name:IDENTIFIER {
+  return [call('awaitblock', [[ literal(name) ]])]
+}
+/ declaration:declaration_group {
+  return [call('Weiwo'), call('declareCFunctions:', [[literal(declaration)]]) ]
+}
+/ '-' S list:item_list {
+  return list.concat(call('weiwo_negate'))
+}
+/ item_list
+
+item_list  = first:first_item rest:rest_item* {
+  if (!Array.isArray(first)) {
+    first = [first]
+  }
+  if (rest) {
+    return first.concat(rest);
+  } 
+  else {
+    return first
+  }
+} 
+
+rest_item = message_call
+/ S '^' S operand:expression{
+  return call('^', [operand])
+}
+/ S '[' subscript:expression ']' {
+  return call('weiwo_getSubscript:', [subscript])
+}
+/ SPACE 'is' SPACE className:IDENTIFIER {
+  return call('is', [[ literal(className) ]])
+}
+
+message_call = '.' name:EX_IDENTIFIER args:expression_tuple? { 
+  return call(name, args)
 }
 
 /// Syntax - C clause switch
@@ -298,23 +376,6 @@ switch_default = 'default' S ':' S block:switch_block {
   return [block]
 }
 
-/// Syntax - C ++/--
-///////////////////////
-
-postfix_statement = name:IDENTIFIER op:('++'/'--') {
-  return call('updateSlot', [
-    [ literal(name) ],
-    [ call(name), call(op[0], [[ literal(1) ]]) ]
-  ])
-}
-
-/// Syntax - C function call
-///////////////////////
-
-function_call = name:IDENTIFIER tuple:expression_tuple? {
-  return call(name, tuple)
-}
-
 /// Syntax - OCS hook group
 ///////////////////////
 
@@ -350,77 +411,6 @@ main_call = '@main' S code_block:code_block {
 once_call = '@once' S key:IDENTIFIER? S code_block:code_block {
   const onceKey = key? [literal(key)] : [call('_cmd')]
   return call('once', [onceKey, code_block])
-}
-
-/// Syntax - OCS interpolated string
-///////////////////////
-
-interpolated_string = '$"' parts:interpolated_item* '"' {
-  if (parts && parts.length > 0) {
-    return [
-      call('sqaureBrackets', parts),
-      call('componentsJoinedByString:', [[ literal('') ]])
-    ]
-  }
-  else {
-    return''
-  }
-}
-
-interpolated_item = '{' value:expression '}' {
-  return value
-}
-/ chars:( ESCAPED_CHAR / [^\'"{}] )+ {
-  return [ literal(chars.join('')) ]
-}
-
-/// Syntax - OCS new keyword
-///////////////////////
-
-new_pointer = 'new' SPACE type:type_encoding {
-  return [
-    call('Weiwo'),
-    call('outArgument', [[ literal(type) ]])
-  ]
-}
-
-/// Syntax - Objective-C Container
-///////////////////////
-
-array_constructor = '@[' S_n args:expression_list? S_n (',')? S_n ']' {
-  return call('squareBrackets', args)
-}
-
-dictionary_constructor = '@{' S_n args:expression_list? S_n (',')? S_n '}' {
-  return call('curlyBrackets', args)
-}
-
-/// Syntax - Objective-C method call
-///////////////////////
-
-oc_call = '[' S_n target:expression S_n methodName:$('@'? IDENTIFIER) S_n ']' {
-  return target.concat(call(methodName))
-}
-/ '[' S_n target:expression S_n methodName:$('@'? IDENTIFIER ':') S_n first:expression rest:oc_rest_argument+ ']' {
-  const args = [first].concat(rest)
-  return target.concat(call(methodName + '...', args))
-}
-/ '[' S_n target:expression S_n pairs:oc_pair+ S_n ']' {
-  const methodName = pairs.map(pair => pair.label + ':').join('')
-  const args = pairs.map(pair => pair.arg)
-  return target.concat(call(methodName, args))
-}
-
-oc_rest_argument = S ',' S arg:expression {
-  return arg
-}
-
-message_call = '.' name:EX_IDENTIFIER args:expression_tuple? { 
-  return call(name, args)
-}
-
-oc_pair = S label:$('@'? IDENTIFIER) S ':' S arg:expression S_n {
-  return {label, arg}
 }
 
 /// Syntax - Objective-C block spec

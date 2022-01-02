@@ -130,6 +130,13 @@ for_loop_statement = 'for' S_n '(' S_n init:(define_statement / expression) S_n 
   )
 }
 
+/// Syntax - for-in statement
+///////////////////////
+
+for_in_statement = 'for' S_n '(' S name:IDENTIFIER S 'in' S container:expression S ')' S_n body:code_block {
+  return call('foreach', [[call(name)], container, body])
+}
+
 /// Syntax - switch statement
 ///////////////////////
 
@@ -182,13 +189,6 @@ switch_block = body:(code_block / body) {
 
 switch_default = 'default' S ':' S block:switch_block {
   return [block]
-}
-
-/// Syntax - for-in statement
-///////////////////////
-
-for_in_statement = 'for' S_n '(' S name:IDENTIFIER S 'in' S container:expression S ')' S_n body:code_block {
-  return call('foreach', [[call(name)], container, body])
 }
 
 /// Syntax - Expression
