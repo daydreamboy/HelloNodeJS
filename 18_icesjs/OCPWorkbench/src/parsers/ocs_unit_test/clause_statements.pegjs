@@ -62,6 +62,7 @@ statement = 'return' SPACE expression:expression {
 / while_statement
 / for_loop_statement
 / for_in_statement
+/ switch_statement
 / expression
 
 define_statement = type:type_encoding SPACE name:IDENTIFIER initializer:initializer? {
@@ -127,6 +128,60 @@ for_loop_statement = 'for' S_n '(' S_n init:(define_statement / expression) S_n 
       body,
     ]
   )
+}
+
+/// Syntax - switch statement
+///////////////////////
+
+switch_statement = 'switch' S_n value:expression S_n body:switch_body {
+  const { cases, default_case } = body
+  return call(
+    'switch',
+    [value].concat(body)
+  )
+}
+
+switch_body = '{' S_n cases:switch_case_list default_case:switch_default? S_n '}' {
+  if (default_case) {
+      return cases.concat(default_case)
+  }
+  else {
+      return cases
+  }
+}
+
+switch_case_list = case_pairs:switch_case+ {
+  const cases = []
+  for (const pair of case_pairs) {
+    cases.push([pair.case_value])
+    cases.push(pair.block)
+  }
+
+  return cases
+}
+
+switch_case = 'case' S case_value:literal S ':' S block:switch_block {
+  return {case_value, block}
+}
+
+switch_block = body:(code_block / body) {
+  while (true) {
+    const last = body[body.length-1]
+    if (last) {
+        if (last.name == ';' || last.name == 'break') {
+            body.pop()
+            continue
+        }
+    }
+
+    break
+  }
+
+  return body
+}
+
+switch_default = 'default' S ':' S block:switch_block {
+  return [block]
 }
 
 /// Syntax - for-in statement
@@ -222,10 +277,6 @@ first_item = literal
 /// once_call 
 / interpolated_string 
 / sizeof_expression
-/// while_statement 
-/// for_in_statement 
-/// for_loop_statement 
-/// switch_statement
 / array_constructor 
 / dictionary_constructor 
 / oc_call 
