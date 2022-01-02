@@ -124,6 +124,26 @@ address = hexaddress:HEXADECIMAL {
   return [call('$'), call('objectFromAddress:', [[ literal(hexaddress) ]])]
 }
 
+/// Syntax - OCS new keyword
+///////////////////////
+
+new_pointer = 'new' SPACE type:type_encoding {
+  return [
+    call('Weiwo'),
+    call('outArgument', [[ literal(type) ]])
+  ]
+}
+
+/// Syntax - C ++/--
+///////////////////////
+
+postfix_statement = name:IDENTIFIER op:('++'/'--') {
+  return call('updateSlot', [
+    [ literal(name) ],
+    [ call(name), call(op[0], [[ literal(1) ]]) ]
+  ])
+}
+
 /// Syntax - OCS interpolated string
 ///////////////////////
 
@@ -146,16 +166,6 @@ interpolated_item = '{' value:expression '}' {
   return [ literal(chars.join('')) ]
 }
 
-/// Syntax - OCS new keyword
-///////////////////////
-
-new_pointer = 'new' SPACE type:type_encoding {
-  return [
-    call('Weiwo'),
-    call('outArgument', [[ literal(type) ]])
-  ]
-}
-
 /// Syntax - Objective-C Container
 ///////////////////////
 
@@ -167,16 +177,6 @@ dictionary_constructor = '@{' S_n args:expression_list? S_n (',')? S_n '}' {
   return call('curlyBrackets', args)
 }
 
-/// Syntax - C ++/--
-///////////////////////
-
-postfix_statement = name:IDENTIFIER op:('++'/'--') {
-  return call('updateSlot', [
-    [ literal(name) ],
-    [ call(name), call(op[0], [[ literal(1) ]]) ]
-  ])
-}
-    
 /// Syntax - C function call
 ///////////////////////
 
