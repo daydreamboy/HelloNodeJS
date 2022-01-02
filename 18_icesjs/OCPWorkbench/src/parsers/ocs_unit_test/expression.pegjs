@@ -100,19 +100,27 @@ c_param_type = '...' { return '.' }
 / type:type_encoding (SPACE IDENTIFIER)? {
   return type
 }
-    
+
 first_item = literal 
 / protocol 
 / encode 
+/// main_call 
+/// once_call 
 / interpolated_string 
 / sizeof_expression
+/// while_statement 
+/// if_statement 
+/// for_in_statement 
+/// for_loop_statement 
+/// switch_statement
 / array_constructor 
 / dictionary_constructor 
 / oc_call 
+/ function_call
 / address 
 / new_pointer 
 / postfix_statement 
-/ function_call
+
 
 sizeof_expression = 'sizeof' S '(' S type:type_encoding S ')' S {
   return call('sizeof', [
