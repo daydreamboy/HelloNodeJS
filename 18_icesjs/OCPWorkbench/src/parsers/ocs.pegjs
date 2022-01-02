@@ -5,7 +5,6 @@
    */
   function call(name, args) {
     const obj = { name }
-    // @ts-ignore
     obj.args = args || undefined
 
     return obj
@@ -198,10 +197,22 @@ first_item = literal
 / switch_statement
 / function_call
 
+rest_item 
+    = message_call
+    / S '^' S operand:expression{
+        return call('^', [operand])
+    }
+    / S '[' subscript:expression ']' {
+    	return call('weiwo_getSubscript:', [subscript])
+    }
+    / SPACE 'is' SPACE className:IDENTIFIER {
+    	return call('is', [[ literal(className) ]])
+    }
+
 /// Syntax - C function extern
 ///////////////////////
 
-declaration_group = 'extern' S '"C"' S '{' S_n declarations:declarations* S_n '}' {
+declaration_group = 'extern' S '"C"' S '{' S_n declarations:declaration* S_n '}' {
   const map = {}
   for (const declaration of declarations) {
     map[declaration.name] = declaration.signature
@@ -216,7 +227,7 @@ declaration = returnType:type_encoding S name:IDENTIFIER types:c_param_type S_n 
   return { name, signature }
 }
 
-c_param_type = '(' S types:c_param_type_with_comma* S ')' {
+c_param_types = '(' S types:c_param_type_with_comma* S ')' {
   return types
 }
 
@@ -373,7 +384,7 @@ new_pointer = 'new' SPACE type:type_encoding {
   ]
 }
 
-/// Syntax - Objective-C literal
+/// Syntax - Objective-C Container
 ///////////////////////
 
 array_constructor = '@[' S_n args:expression_list? S_n (',')? S_n ']' {
@@ -390,7 +401,7 @@ dictionary_constructor = '@{' S_n args:expression_list? S_n (',')? S_n '}' {
 oc_call = '[' S_n target:expression S_n methodName:$('@'? IDENTIFIER) S_n ']' {
   return target.concat(call(methodName))
 }
-/ '[' S_n target.expression S_n methodName:$('@'? IDENTIFIER ':') S_n first:expression rest:oc_rest_argument+ ']' {
+/ '[' S_n target:expression S_n methodName:$('@'? IDENTIFIER ':') S_n first:expression rest:oc_rest_argument+ ']' {
   const args = [first].concat(rest)
   return target.concat(call(methodName + '...', args))
 }
@@ -402,6 +413,14 @@ oc_call = '[' S_n target:expression S_n methodName:$('@'? IDENTIFIER) S_n ']' {
 
 oc_rest_argument = S ',' S arg:expression {
   return arg
+}
+
+message_call = '.' name:EX_IDENTIFIER args:expression_tuple? { 
+  return call(name, args)
+}
+
+oc_pair = S label:$('@'? IDENTIFIER) S ':' S arg:expression S_n {
+  return {label, arg}
 }
 
 /// Syntax - Objective-C block spec
@@ -491,6 +510,8 @@ param_pair = type:type_encoding S name:IDENTIFIER COMMA? {
   return { type, name }
 }
 
+/// OCS Basic
+
 /// Syntax - Type Encoding
 ///////////////////////
 type_encoding = pointer_type / integer_encoding / string_encoding
@@ -555,6 +576,27 @@ SINGLE_QUOTE_STRING = SINGLE_QUOTE chars:(CHAR_IN_QUOTE / DOUBLE_QUOTE)* SINGLE_
   return chars.join('')
 }
 CHAR_IN_QUOTE = ESCAPED_CHAR / [^\'"]
+BOOLEAN = ( 'true' / 'YES' ) { return true }
+/ ( 'false' / 'NO' ) { return false }
+NULL = 'null' { return null }
+SELECTOR = '@selector' S '(' name:$([a-zA-Z0-9:]+) S ')' {
+  return name
+}
+AST = '@ast' code_block:code_block {
+  return code_block
+}
+METHODS = '@method' S_n '{' S_n methods:hook_method+ S_n '}' {
+  return methods
+}
+literal = value:(BOOLEAN / NULL / STRING / NUMBER / SELECTOR / AST / METHODS) {
+  return literal(value)
+}
+protocol = '@protocol' S '(' name:IDENTIFIER ')' {
+  return call('NSProtocolFromString', [[literal(name)]])
+}
+encode = '@encode' S '(' encoding:type_encoding ')' {
+  return literal(encoding)
+}
 
 /// Syntax - Assign
 ///////////////////////
