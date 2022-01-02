@@ -53,39 +53,48 @@ expression = 'await' S expression: expression {
 }
 / p12
 
-declaration_group 
-	= 'extern' S '"C"' S '{' S_n  declarations:declaration* S_n '}' {
-    	const map = {}
-    	for(const declaration of declarations){
-        	map[declaration.name] = declaration.signature
-        } 
-        
-        return map
-    }
-    
-declaration
-	= returnType:type_encoding S name:IDENTIFIER types:c_param_types S_n (';')? S_n {
-    	const paramsEncoding = types ? types.join('') : ''
-    	const signature = returnType + paramsEncoding
-        
-        return {name, signature}
-    }
+expression_tuple = '(' S_n list:expression_list? S_n ')' {
+  return list ? list : []
+}
 
-c_param_types
-	= '(' S types:c_param_type_with_comma* S ')' {
-    	return types
-    }
-    
-c_param_type_with_comma
-	= type:c_param_type COMMA? {
-    	return type
-    }
+expression_list = S_n first:expression rest:(rest_expression)* {
+  return rest ? [first].concat(rest) : [first]
+}
 
-c_param_type
-	= '...' { return '.'}
-    / type:type_encoding (SPACE IDENTIFIER)? {
-    	return type
-    }
+rest_expression = S_n ',' S_n expr:expression {
+  return expr
+}
+
+/// Syntax - C function extern
+///////////////////////
+
+declaration_group = 'extern' S '"C"' S '{' S_n declarations:declaration* S_n '}' {
+  const map = {}
+  for (const declaration of declarations) {
+    map[declaration.name] = declaration.signature
+  }
+  return map
+}
+
+declaration = returnType:type_encoding S name:IDENTIFIER types:c_param_type S_n (';')? S_n {
+  const paramsEncoding = types ? types.join('') : ''
+  const signature = returnType + paramsEncoding
+
+  return { name, signature }
+}
+
+c_param_types = '(' S types:c_param_type_with_comma* S ')' {
+  return types
+}
+
+c_param_type_with_comma = type:c_param_type COMMA? {
+  return type
+}
+
+c_param_type = '...' { return '.' }
+/ type:type_encoding (SPACE IDENTIFIER)? {
+  return type
+}
     
 first_item = literal 
 / protocol 
@@ -100,147 +109,99 @@ first_item = literal
 / postfix_statement 
 / function_call
 
-sizeof_expression
-    = 'sizeof' S '(' S type:type_encoding S ')' S {
-        return call('sizeof', [
-            [literal(type)]
-        ])
-    }
+sizeof_expression = 'sizeof' S '(' S type:type_encoding S ')' S {
+  return call('sizeof', [
+    [literal(type)]
+  ])
+}
 
-interpolated_string
-    = '$"' parts:interpolated_item* '"' {
-        if(parts && parts.length > 0){
-            return [
-                call(
-                    'squareBrackets',
-                    parts
-                ),
-                call('componentsJoinedByString:', [[ literal('') ]])
-            ]
-        }else{
-            return ''
-        }
-    }
+address = hexaddress:HEXADECIMAL {
+  return [call('$'), call('objectFromAddress:', [[ literal(hexaddress) ]])]
+}
 
-interpolated_item
-    = '{' value:expression '}' {
-        return value
-    }
-    / chars:(ESCAPED_CHAR / [^\'"{}] )+ {
-        return [literal(chars.join(''))]
-    }
+/// Syntax - OCS interpolated string
+///////////////////////
 
-new_pointer
-    = 'new' SPACE type:type_encoding {
-        return [
-            call('Weiwo'),
-            call('outArgument:', [[ literal(type) ]])
-        ]
-    }
+interpolated_string = '$"' parts:interpolated_item* '"' {
+  if (parts && parts.length > 0) {
+    return [
+      call('sqaureBrackets', parts),
+      call('componentsJoinedByString:', [[ literal('') ]])
+    ]
+  }
+  else {
+    return''
+  }
+}
+
+interpolated_item = '{' value:expression '}' {
+  return value
+}
+/ chars:( ESCAPED_CHAR / [^\'"{}] )+ {
+  return [ literal(chars.join('')) ]
+}
+
+/// Syntax - OCS new keyword
+///////////////////////
+
+new_pointer = 'new' SPACE type:type_encoding {
+  return [
+    call('Weiwo'),
+    call('outArgument', [[ literal(type) ]])
+  ]
+}
+
+/// Syntax - Objective-C Container
+///////////////////////
+
+array_constructor = '@[' S_n args:expression_list? S_n (',')? S_n ']' {
+  return call('squareBrackets', args)
+}
+
+dictionary_constructor = '@{' S_n args:expression_list? S_n (',')? S_n '}' {
+  return call('curlyBrackets', args)
+}
+
+/// Syntax - C ++/--
+///////////////////////
+
+postfix_statement = name:IDENTIFIER op:('++'/'--') {
+  return call('updateSlot', [
+    [ literal(name) ],
+    [ call(name), call(op[0], [[ literal(1) ]]) ]
+  ])
+}
     
-array_constructor
-    = '@[' S_n args:expression_list? S_n (',') ? S_n ']' {
-    	return call('squareBrackets', args)
-    }
+/// Syntax - C function call
+///////////////////////
 
-dictionary_constructor
-    = '@{' S_n args:expression_list? S_n (',') ? S_n '}' {
-    	return call('curlyBrackets', args)
-    }
+function_call = name:IDENTIFIER tuple:expression_tuple? {
+  return call(name, tuple)
+}
 
-postfix_statement
-    = name:IDENTIFIER op:('++'/'--') {
-        return call('updateSlot', [
-            [literal(name)],
-            [
-                call(name),
-                call(op[0], [[ literal(1) ]])
-            ]
-        ])
-    }
-    
-function_call	
-	= name:IDENTIFIER tuple:expression_tuple?{
-    	return call(name, tuple)
-    }
+/// Syntax - Objective-C method call
+///////////////////////
 
-oc_call
-	= '[' S_n target:expression S_n methodName:$('@'? IDENTIFIER) S_n ']'{
-    	return target.concat(call(methodName))
-    }
-    / '[' S_n target:expression S_n methodName:$('@'? IDENTIFIER ':' )  S_n first:expression rest:oc_rest_argument+ ']' {
-        const args = [first].concat(rest)
-        return target.concat(
-            call(methodName + '...', args)
-        )
-    }
-    / '[' S_n target:expression S_n pairs:oc_pair+ S_n ']' {
-    	const methodName = pairs.map(pair => pair.label + ':').join('')
-        const args = pairs.map(pair => pair.arg)
-        return target.concat(call(methodName, args))
-    }
+oc_call = '[' S_n target:expression S_n methodName:$('@'? IDENTIFIER) S_n ']' {
+  return target.concat(call(methodName))
+}
+/ '[' S_n target:expression S_n methodName:$('@'? IDENTIFIER ':') S_n first:expression rest:oc_rest_argument+ ']' {
+  const args = [first].concat(rest)
+  return target.concat(call(methodName + '...', args))
+}
+/ '[' S_n target:expression S_n pairs:oc_pair+ S_n ']' {
+  const methodName = pairs.map(pair => pair.label + ':').join('')
+  const args = pairs.map(pair => pair.arg)
+  return target.concat(call(methodName, args))
+}
 
-oc_rest_argument
-    = S ',' S arg:expression{
-        return arg
-    }
+oc_rest_argument = S ',' S arg:expression {
+  return arg
+}
 
-oc_pair
-	= S label:$('@'? IDENTIFIER) S ':' S arg:expression S_n{
-    	return {label, arg}
-    }
- 
-rest_item 
-    = message_call
-    / S '^' S operand:expression{
-        return call('^', [operand])
-    }
-    / S '[' subscript:expression ']' {
-    	return call('weiwo_getSubscript:', [subscript])
-    }
-    / SPACE 'is' SPACE className:IDENTIFIER {
-    	return call('is', [[ literal(className) ]])
-    }
-
-condition 
-	= S '(' S expr:expression S ')' S{
-    	return expr
-    }
-    
-address
-    = hexaddress:HEXADECIMAL {
-    	return [call('$'), call('objectFromAddress:', [[ literal(hexaddress) ]])]
-    }
-    
-param_list
-	= '(' S params:param_pair* S ')' {
-    	return params
-    }
-
-param_pair 
-	= type:type_encoding S name:IDENTIFIER COMMA? {
-    	return {type, name}
-    }
-
-message_call
-	= '.' name:EX_IDENTIFIER args:expression_tuple? { 
-    	return call(name, args)
-    }
-
-expression_tuple
-    = '(' S_n list:expression_list? S_n ')' {
-        return list ? list : []
-    }
-
-expression_list
-    = S_n first:expression rest:(rest_expression)* {
-        return rest ? [first].concat(rest) : [first]
-    }
-
-rest_expression
-    = S_n ',' S_n expr:expression {
-        return expr
-    }
+oc_pair = S label:$('@'? IDENTIFIER) S ':' S arg:expression S_n {
+  return {label, arg}
+}
 
 /// Syntax - OP priority group
 ///////////////////////
@@ -342,6 +303,21 @@ item_list  = first:first_item rest:rest_item* {
     return first
   }
 } 
+
+rest_item = message_call
+/ S '^' S operand:expression{
+  return call('^', [operand])
+}
+/ S '[' subscript:expression ']' {
+  return call('weiwo_getSubscript:', [subscript])
+}
+/ SPACE 'is' SPACE className:IDENTIFIER {
+  return call('is', [[ literal(className) ]])
+}
+
+message_call = '.' name:EX_IDENTIFIER args:expression_tuple? { 
+  return call(name, args)
+}
 
 /// Syntax - Type Encoding
 ///////////////////////
