@@ -269,9 +269,9 @@ c_param_type = '...' { return '.' }
 / type:type_encoding (SPACE IDENTIFIER)? {
   return type
 }
-    
+
 first_item = literal 
-/ postfix_statement 
+/ postfix_operator 
 / protocol 
 / encode 
 /// main_call 
@@ -284,6 +284,7 @@ first_item = literal
 / function_call
 / address 
 / new_pointer 
+
 
 sizeof_expression = 'sizeof' S '(' S type:type_encoding S ')' S {
   return call('sizeof', [
@@ -305,10 +306,20 @@ new_pointer = 'new' SPACE type:type_encoding {
   ]
 }
 
-/// Syntax - C ++/--
+/// Syntax - C postfix ++/--
 ///////////////////////
 
-postfix_statement = name:IDENTIFIER op:('++'/'--') {
+postfix_operator = name:IDENTIFIER op:('++'/'--') {
+  return call('updateSlot', [
+    [ literal(name) ],
+    [ call(name), call(op[0], [[ literal(1) ]]) ]
+  ])
+}
+
+/// Syntax - C prefix ++/--
+///////////////////////
+
+prefix_operator = op:('++'/'--') name:IDENTIFIER {
   return call('updateSlot', [
     [ literal(name) ],
     [ call(name), call(op[0], [[ literal(1) ]]) ]
@@ -443,7 +454,10 @@ addition_item = S op:('+' / '-') S p2:p2 {
   return call(op, [p2])
 }
 
-p2 = first:p1 second:(multiplication_item)* {
+p2 = first:prefix_operator {
+  return [first]
+}
+/ first:p1 second:(multiplication_item)* {
   return second ? first.concat(second) : first 
 }
 / '!' p2:p2 {
