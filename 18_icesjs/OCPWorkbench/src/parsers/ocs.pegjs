@@ -20,8 +20,178 @@
   }
 }
 
-ocs_file = remote_lib / js_lib / code_body
+start = body
 
+/// Syntax - Body
+///////////////////////
+
+code_block = '{' body:body '}' {
+  return body
+}
+
+body = S_n statements:statements? S_n {
+	return statements ? statements : []
+}
+
+/// Syntax - Statement
+///////////////////////
+
+statements = statement_list:statement+ {
+  let expr = []
+  for( const e of statement_list) {
+    expr = expr.concat(e)
+  }
+    
+  if (expr.length > 0 && expr[0].name == ';') {
+    expr.shift()
+  }
+  
+  if (expr.length > 0 && expr[expr.length-1].name == ';') {
+    expr.pop()
+  }
+  
+  return expr
+}
+
+statement = end_of_statement
+/ return_statement
+/ define_statement
+/ if_statement
+/ while_statement
+/ for_loop_statement
+/ for_in_statement
+/ switch_statement
+/ expression
+
+return_statement = 'return' SPACE expression:expression {
+  return call('return', [expression])
+}
+
+define_statement = type:type_encoding SPACE name:IDENTIFIER initializer:initializer? {
+  const args = [
+    [literal(type)],
+    [literal(name)],
+  ]
+
+  if (initializer) {
+    args.push(initializer)
+  }
+
+  return call('declare', args)
+}
+
+initializer = S ASSIGN_OP S value:expression {
+  return value
+}
+
+end_of_statement = COMMENT? (S [;\n] S)+ { 
+  return call(';')
+}
+
+/// Syntax - if statement
+///////////////////////
+
+if_statement = 'if' condition:condition body:code_block else_body:else_statement? {
+  const args = [condition, body]
+  if (else_body) {
+    args.push(else_body)
+  }
+  return call('if', args)
+}
+
+condition = S '(' S expr:expression S ')' S {
+  return expr
+}
+
+else_statement = 'else' S body:if_statement {
+  return [body]
+}
+/ 'else' S body:code_block {
+  return body
+}
+
+/// Syntax - while statement
+///////////////////////
+
+while_statement = 'while' condition:condition body:code_block {
+  return call('while', [ condition, body] )
+}
+
+/// Syntax - for statement
+///////////////////////
+
+for_loop_statement = 'for' S_n '(' S_n init:(define_statement / expression) S_n ';' S_n condition:expression S_n ';' S_n next:expression S_n ')' S_n body:code_block {
+  return call(
+    'for',
+    [
+      init,
+      condition,
+      next,
+      body,
+    ]
+  )
+}
+
+/// Syntax - for-in statement
+///////////////////////
+
+for_in_statement = 'for' S_n '(' S name:IDENTIFIER S 'in' S container:expression S ')' S_n body:code_block {
+  return call('foreach', [[call(name)], container, body])
+}
+
+/// Syntax - switch statement
+///////////////////////
+
+switch_statement = 'switch' S_n value:expression S_n body:switch_body {
+  const { cases, default_case } = body
+  return call(
+    'switch',
+    [value].concat(body)
+  )
+}
+
+switch_body = '{' S_n cases:switch_case_list default_case:switch_default? S_n '}' {
+  if (default_case) {
+      return cases.concat(default_case)
+  }
+  else {
+      return cases
+  }
+}
+
+switch_case_list = case_pairs:switch_case+ {
+  const cases = []
+  for (const pair of case_pairs) {
+    cases.push([pair.case_value])
+    cases.push(pair.block)
+  }
+
+  return cases
+}
+
+switch_case = 'case' S case_value:literal S ':' S block:switch_block {
+  return {case_value, block}
+}
+
+switch_block = body:(code_block / body) {
+  while (true) {
+    const last = body[body.length-1]
+    if (last) {
+        if (last.name == ';' || last.name == 'break') {
+            body.pop()
+            continue
+        }
+    }
+
+    break
+  }
+
+  return body
+}
+
+switch_default = 'default' S ':' S block:switch_block {
+  return [block]
+}
 
 /// Syntax - Expression
 ///////////////////////
@@ -101,19 +271,22 @@ c_param_type = '...' { return '.' }
 / type:type_encoding (SPACE IDENTIFIER)? {
   return type
 }
-    
+
 first_item = literal 
+/ postfix_operator 
 / protocol 
 / encode 
+/// main_call 
+/// once_call 
 / interpolated_string 
 / sizeof_expression
 / array_constructor 
 / dictionary_constructor 
 / oc_call 
+/ function_call
 / address 
 / new_pointer 
-/ postfix_statement 
-/ function_call
+
 
 sizeof_expression = 'sizeof' S '(' S type:type_encoding S ')' S {
   return call('sizeof', [
@@ -135,10 +308,20 @@ new_pointer = 'new' SPACE type:type_encoding {
   ]
 }
 
-/// Syntax - C ++/--
+/// Syntax - C postfix ++/--
 ///////////////////////
 
-postfix_statement = name:IDENTIFIER op:('++'/'--') {
+postfix_operator = name:IDENTIFIER op:('++'/'--') {
+  return call('updateSlot', [
+    [ literal(name) ],
+    [ call(name), call(op[0], [[ literal(1) ]]) ]
+  ])
+}
+
+/// Syntax - C prefix ++/--
+///////////////////////
+
+prefix_operator = op:('++'/'--') name:IDENTIFIER {
   return call('updateSlot', [
     [ literal(name) ],
     [ call(name), call(op[0], [[ literal(1) ]]) ]
@@ -273,7 +456,10 @@ addition_item = S op:('+' / '-') S p2:p2 {
   return call(op, [p2])
 }
 
-p2 = first:p1 second:(multiplication_item)* {
+p2 = first:prefix_operator {
+  return [first]
+}
+/ first:p1 second:(multiplication_item)* {
   return second ? first.concat(second) : first 
 }
 / '!' p2:p2 {
@@ -293,6 +479,11 @@ p1 = '(' S expression:expression S ')' {
 / declaration:declaration_group {
   return [call('Weiwo'), call('declareCFunctions:', [[literal(declaration)]]) ]
 }
+/*
+/ hook_group:hook_group{
+  return [call('Weiwo'), call('hookClass:', [[ literal(hook_group) ]])]
+}
+*/
 / '-' S list:item_list {
   return list.concat(call('weiwo_negate'))
 }
@@ -324,183 +515,6 @@ rest_item = message_call
 message_call = '.' name:EX_IDENTIFIER args:expression_tuple? { 
   return call(name, args)
 }
-
-/// Syntax - C clause switch
-///////////////////////
-
-switch_statement = 'switch' value:expression body:switch_body {
-  const { cases, default_case } = body
-  return call('switch', [value].concat(body))
-}
-
-switch_body = '{' S_n cases:switch_case_list default_case:switch_default? S_n '}' {
-  if (default_case) {
-    return cases.concat(default_case)
-  }
-  else {
-    return cases
-  }
-}
-
-switch_case_list = case_pairs:switch_case+ {
-  const cases = []
-  for (const pair of case_pairs) {
-    cases.push([pair.case_value])
-    cases.push(pair.block)
-  }
-
-  return cases
-}
-
-switch_case = 'case' S case_value:literal S ':' S block:switch_block {
-  return { case_value, block }
-}
-
-switch_block = body:(code_block / code_body) {
-  while (true) {
-    const last = body[body.length - 1]
-    if (last) {
-      if (last.name == ';' || last.name == 'break') {
-        body.pop()
-        continue
-      }
-    }
-
-    break
-  }
-
-  return body
-}
-
-switch_default = 'default' S ':' S block:switch_block {
-  return [block]
-}
-
-/// Syntax - OCS hook group
-///////////////////////
-
-hook_group = '@hook' SPACE className:IDENTIFIER SPACE_n methods:hook_method+ S_n '@end' {
-  return { className, methods }
-}
-
-hook_method = methodType:[+-] dummy_type parts:label_param_type+ body:code_block S_n {
-  const name = parts.map(e => e.label + ':').join('')
-  const paramNames = parts.map(e => e.paramName)
-  return { name, paramNames, methodType, body }
-}
-/ methodType:[+-] dummy_type name:IDENTIFIER S body:code_block S_n {
-  return { name, methodType, body }
-}
-
-label_param_type = label:IDENTIFIER S ':' S dummy_type S paramName:IDENTIFIER S_n {
-  return { label, paramName }
-}
-
-dummy_type = S '(' [^)]+ ')' S { return null }
-
-/// Syntax - OCS @main block
-///////////////////////
-
-main_call = '@main' S code_block:code_block {
-  return call('main_queue', [code_block])
-}
-
-/// Syntax - OCS @once block
-///////////////////////
-
-once_call = '@once' S key:IDENTIFIER? S code_block:code_block {
-  const onceKey = key? [literal(key)] : [call('_cmd')]
-  return call('once', [onceKey, code_block])
-}
-
-/// Syntax - Objective-C block spec
-///////////////////////
-
-block_spec = '^' S returnEncoding:type_encoding? S params:param_list? S body:code_block {
-  if (!returnEncoding) {
-    returnEncoding = 'v'
-  }
-  const paramsEncoding = params ? params.map(params => param.type).join('') : ''
-  const signature = returnEncoding + '@' + paramsEncoding
-  const paramNames = param ? param.map(pair => pair.name) : []
-  return {
-    type: 'block',
-    signature,
-    paramNames,
-    body
-  }
-}
-
-/// Syntax - function/block/method code block
-///////////////////////
-code_block = '{' body:code_body '}' {
-  return body
-}
-
-code_body = S_n statements:statements? S_n {
-  return statements ? statements : []
-}
-
-/// Syntax - Statement
-///////////////////////
-
-statements = statement_list:statement+ {
-  let expr = []
-  for (const e of statement_list) {
-    expr = expr.concat(e)
-  }
-
-  // Note: if the first element is useless, remove it
-  if (expr.length > 0 && expr[0].name = ';') {
-    expr.shift()
-  }
-
-  // Note: if the last element is useless, remove it
-  if (expr.length > 0 && expr[expr.length - 1].name = ';') {
-    expr.pop()
-  }
-
-  return expr
-}
-
-statement = 'return' SPACE expression:expression {
-  return call('return', [expression])
-}
-/ type:type_encoding SPACE name:IDENTIFIER initializer:initializer? {
-  const args = [
-    [literal(type)],
-    [literal(name)],
-  ]
-
-  if (initializer) {
-    args.push(initializer)
-  }
-
-  return call('declare', args)
-}
-/ end_of_statement
-/ expression
-
-initializer = S ASSIGN_OP S value:expression {
-  return value
-}
-
-end_of_statement = COMMENT? (S [;\n] S)+ {
-  return call(';')
-}
-
-/// Syntax - Parameter List
-///////////////////////
-
-param_list = '(' S params:param_pair* S ')' {
-  return params
-}
-
-param_pair = type:type_encoding S name:IDENTIFIER COMMA? {
-  return { type, name }
-}
-
-/// OCS Basic
 
 /// Syntax - Type Encoding
 ///////////////////////
@@ -572,13 +586,7 @@ NULL = 'null' { return null }
 SELECTOR = '@selector' S '(' name:$([a-zA-Z0-9:]+) S ')' {
   return name
 }
-AST = '@ast' code_block:code_block {
-  return code_block
-}
-METHODS = '@method' S_n '{' S_n methods:hook_method+ S_n '}' {
-  return methods
-}
-literal = value:(BOOLEAN / NULL / STRING / NUMBER / SELECTOR / AST / METHODS) {
+literal = value:(BOOLEAN / NULL / STRING / NUMBER / SELECTOR) {
   return literal(value)
 }
 protocol = '@protocol' S '(' name:IDENTIFIER ')' {
