@@ -102,24 +102,19 @@ c_param_type = '...' { return '.' }
 }
 
 first_item = literal 
+/ postfix_statement 
 / protocol 
 / encode 
 /// main_call 
 /// once_call 
 / interpolated_string 
 / sizeof_expression
-/// while_statement 
-/// if_statement 
-/// for_in_statement 
-/// for_loop_statement 
-/// switch_statement
 / array_constructor 
 / dictionary_constructor 
 / oc_call 
 / function_call
 / address 
 / new_pointer 
-/ postfix_statement 
 
 
 sizeof_expression = 'sizeof' S '(' S type:type_encoding S ')' S {
