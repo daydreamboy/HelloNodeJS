@@ -536,6 +536,9 @@ p1 = '(' S expression:expression S ')' {
 / '-' S list:item_list {
   return list.concat(call('weiwo_negate'))
 }
+/ spec:block_spec {
+  return [call('Weiwo'), call('createBlock:', [[literal(spec)]])]
+}
 / item_list
 
 item_list  = first:first_item rest:rest_item* {
