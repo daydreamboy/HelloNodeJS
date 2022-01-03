@@ -271,6 +271,7 @@ c_param_type = '...' { return '.' }
 }
     
 first_item = literal 
+/ postfix_statement 
 / protocol 
 / encode 
 /// main_call 
@@ -283,7 +284,6 @@ first_item = literal
 / function_call
 / address 
 / new_pointer 
-/ postfix_statement 
 
 sizeof_expression = 'sizeof' S '(' S type:type_encoding S ')' S {
   return call('sizeof', [
