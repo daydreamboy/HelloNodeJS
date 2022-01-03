@@ -53,17 +53,19 @@ statements = statement_list:statement+ {
   return expr
 }
 
-statement = 'return' SPACE expression:expression {
-  return call('return', [expression])
-}
+statement = end_of_statement
+/ return_statement
 / define_statement
-/ end_of_statement
 / if_statement
 / while_statement
 / for_loop_statement
 / for_in_statement
 / switch_statement
 / expression
+
+return_statement = 'return' SPACE expression:expression {
+  return call('return', [expression])
+}
 
 define_statement = type:type_encoding SPACE name:IDENTIFIER initializer:initializer? {
   const args = [
