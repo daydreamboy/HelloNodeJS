@@ -20,7 +20,56 @@
   }
 }
 
-start = body
+start = ocs_file
+
+/// Syntax - OCS
+///////////////////////
+
+ocs_file = remote_lib / body
+
+/// Syntax - @remotelib group 
+///////////////////////
+
+remote_lib = S_n '@remotelib' S_n functions:lib_function+ S_n '@end' S_n {
+    const blocks = functions.reduce(
+        (dict, function_spec) => {
+            dict[function_spec.name] = function_spec.spec
+            return dict
+        },
+        {}
+    )
+    return {blocks}
+}
+
+lib_function = S_n name:IDENTIFIER S ASSIGN_OP S spec:block_spec S_n {
+  return {name, spec}
+}
+
+block_spec = '^' S returnEncoding:type_encoding? params:param_list? S body:code_block {
+  if (!returnEncoding) {
+    returnEncoding = 'v'
+  }
+  const paramsEncoding = params ? params.map(param => param.type).join('') : ''
+  const signature = returnEncoding + '@' + paramsEncoding
+  const paramNames = params ? params.map(pair => pair.name) : []
+  return {
+    type: 'block',
+      signature,
+      paramNames,
+      body
+  }
+}
+
+/// Syntax - Parameter List
+///////////////////////
+
+param_list = '(' S params:param_pair* S ')' {
+  return params
+}
+
+param_pair = type:type_encoding S name:IDENTIFIER COMMA? {
+  return { type, name }
+}
 
 /// Syntax - Body
 ///////////////////////
