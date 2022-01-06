@@ -233,6 +233,24 @@ function test_expression_$_expression() {
     console.log(output); // [ '0x', [ '1', '2', '3' ] ]
 }
 
+function test_expression_and_sign_expression() {
+    LogTool.v(`--- ${DebugTool.currentFunctionName()} ---`);
+
+    let grammar;
+    let parser;
+    let output;
+    let input;
+
+    // Group 1
+    grammar = 'start = &"{" code_block; code_block = "{" [^{}]+ "}"';
+    parser = peg.generate(grammar);
+
+    // Case 1
+    input = '{a}';
+    output = parser.parse(input);
+    console.log(output);
+}
+
 function test_action_block() {
     LogTool.v(`--- ${DebugTool.currentFunctionName()} ---`);
 
@@ -290,6 +308,7 @@ test_expression_match_zero_or_more();
 test_expression_match_one_or_more();
 test_expression_match_zero_or_one();
 test_expression_$_expression();
+test_expression_and_sign_expression();
 test_action_block();
 test_action_block_optional_label();
 

@@ -302,7 +302,7 @@ PEG.js官方文档[^4]，提供下面一些parsing-expression的结构，如下
 | expression *                                                 | 重复匹配一个表达式，零次或多次。贪心匹配                     | start = "hello" *                                            |
 | expression +                                                 | 重复匹配一个表达式，至少1次或多次。贪心匹配                  | start = "hello" +                                            |
 | expression ?                                                 | 匹配一个表达式，0次或1次。                                   |                                                              |
-| & expression                                                 | TODO，没整明白                                               |                                                              |
+| & expression                                                 | 匹配一个表达式。如果匹配成功了，返回undefined，并且不吃掉输入流 | `start = &'{' code_block`<br/>`code_block = '{' [^{}]+ '}'`  |
 | ! expression                                                 | TODO，没整明白                                               |                                                              |
 | & { predicate }                                              | TODO，没整明白                                               |                                                              |
 | ! { predicate }                                              | TODO，没整明白                                               |                                                              |
@@ -337,9 +337,9 @@ PEG.js官方文档[^4]，提供下面一些parsing-expression的结构，如下
 
 
 
-### 常用解析表达式
+### (1) 常用解析表达式
 
-#### $ expression用法
+#### a. `$ expression`用法
 
 如果匹配expression，将匹配的文本返回，而不是匹配的结果。
 
@@ -367,6 +367,36 @@ function test_expression_$_expression() {
     console.log(output); // [ '0x', [ '1', '2', '3' ] ]
 }
 ```
+
+
+
+#### b. `& expression`用法
+
+匹配一个表达式。如果匹配成功了，返回undefined，并且不吃掉输入流.
+
+举个例子，如下
+
+```javascript
+function test_expression_and_sign_expression() {
+    LogTool.v(`--- ${DebugTool.currentFunctionName()} ---`);
+
+    let grammar;
+    let parser;
+    let output;
+    let input;
+
+    // Group 1
+    grammar = 'start = &"{" code_block; code_block = "{" [^{}]+ "}"';
+    parser = peg.generate(grammar);
+
+    // Case 1
+    input = '{a}';
+    output = parser.parse(input);
+    console.log(output);
+}
+```
+
+上面的例子中`start = &"{" code_block`中的`&"{"`，仅匹配`{`但是不吃掉这个字符。所以这个字符会被code_block规则匹配成功。
 
 
 
