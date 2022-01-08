@@ -805,6 +805,17 @@ assert.throws(fn[, error][, message])
 
 
 
+#### a. assert.deepEqual方法
+
+assert.deepEqual方法和assert.equal方法的区别是，前者是深度比较，即会递归对象的属性进行比较，而后者不会。
+
+举个例子，如下
+
+```javascript
+> assert.equal(['1'], ['1'], 'will throw error')
+> assert.deepEqual(['1'], ['1'], 'ok. They\'re equal')
+```
+
 
 
 

@@ -5,6 +5,7 @@ import {run as run4} from './test_NumberTool';
 import {run as run5} from './test_ObjectTool';
 import {run as run6} from './test_StringTool';
 import {run as run7} from './test_DebugTool';
+import {run as run8} from './test_PatternTool';
 
 run1();
 run2();
@@ -13,6 +14,7 @@ run4();
 run5();
 run6();
 run7();
+run8();
 console.log('---');
 console.log(typeof Math);
 console.log(typeof Object);
