@@ -20,7 +20,33 @@
   }
 }
 
-start = body
+start = hook_method
+
+/// Syntax - OCS Group
+///////////////////////
+
+hook_group = '@hook' SPACE className:IDENTIFIER SPACE_n methods:hook_method+ S_n '@end' {
+  hook_model = {className, methods}
+  return [call('Weiwo'), call('hookClass:', [[ literal(hook_model) ]])]
+}
+
+hook_method = methodType:[+-] S method_signature:$([^{}]+) S  & '{' body:code_block S_n {
+  // const name = parts.map(e => e.label + ':').join('')
+  // const paramNames = parts.map(e => e.paramName)
+  // return { name, paramNames, methodType }
+  return method_signature
+}
+
+dummy_type = S '(' [^)]+ ')' S { return null }
+
+main_group = '@main' S code_block:code_block {
+  return call('main_queue', [code_block])
+}
+
+once_group = '@once' S key:IDENTIFIER? S code_block:code_block {
+  const onceKey = key? [literal(key)] : [call('_cmd')]
+  return call('once', [ onceKey , code_block])
+}
 
 /// Syntax - Body
 ///////////////////////
