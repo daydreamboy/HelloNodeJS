@@ -1,3 +1,5 @@
+start = param_list
+
 /// Syntax - Parameter List
 ///////////////////////
 

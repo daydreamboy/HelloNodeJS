@@ -301,6 +301,162 @@ function test_action_block_optional_label() {
     console.log(output); // -2
 }
 
+function test_action_block_location_function() {
+    LogTool.v(`--- ${DebugTool.currentFunctionName()} ---`);
+
+    let grammar;
+    let parser;
+    let output;
+    let input;
+
+    // Group 1
+    grammar = String.raw`
+start = string:$(.+) {
+  let result = parseFloat(string);
+  if (isNaN(result)) {
+      let loc = location();
+      let startIndexInfo = 'start: offset: ' + loc.start.offset + ',line: ' + loc.start.line + ', column: ' + loc.start.column
+      let endIndexInfo = 'end: offset: ' + loc.end.offset + ',line: ' + loc.end.line + ', column: ' + loc.end.column
+      console.log(startIndexInfo);
+      console.log(endIndexInfo);
+        
+      return undefined
+  }
+  else {
+      return result
+  }
+}
+`;
+    parser = peg.generate(grammar);
+
+    // Case 1
+    input = 'abcd';
+    output = parser.parse(input);
+    console.log(output);
+}
+
+function test_action_block_expected_function() {
+    LogTool.v(`--- ${DebugTool.currentFunctionName()} ---`);
+
+    let grammar;
+    let parser;
+    let output;
+    let input;
+
+    // Group 1
+    grammar = String.raw`
+start = string:$(.+) {
+  let result = parseFloat(string);
+  if (isNaN(result)) {
+      expected("a numeric string")
+  }
+  else {
+      return result
+  }
+}
+`;
+    parser = peg.generate(grammar);
+
+    // Case 1
+    input = 'a';
+    try {
+        output = parser.parse(input);
+    }
+    catch (e) {
+        output = e.message;
+    }
+    console.log(output);
+
+    // Group 2
+    grammar = String.raw`
+start = string:$(.+) {
+  let result = parseFloat(string);
+  if (isNaN(result)) {
+    let loc = {
+      start: { offset: 1, line: 2, column: 3 },
+      end: { offset: 4, line: 5, column: 6 },
+    };
+    expected("a numeric string", loc)
+  }
+  else {
+    return result
+  }
+}
+`;
+    parser = peg.generate(grammar);
+
+    // Case 1
+    input = 'a';
+    try {
+        output = parser.parse(input);
+    }
+    catch (e) {
+        output = e.message + '\n' + JSON.stringify(e.location);
+    }
+    console.log(output);
+}
+
+function test_action_block_error_function() {
+    LogTool.v(`--- ${DebugTool.currentFunctionName()} ---`);
+
+    let grammar;
+    let parser;
+    let output;
+    let input;
+
+    // Group 1
+    grammar = String.raw`
+start = string:$(.+) {
+  let result = parseFloat(string);
+  if (isNaN(result)) {
+      error("a numeric string")
+  }
+  else {
+      return result
+  }
+}
+`;
+    parser = peg.generate(grammar);
+
+    // Case 1
+    input = 'a';
+    try {
+        output = parser.parse(input);
+    }
+    catch (e) {
+        output = e.message;
+    }
+    console.log(output);
+
+    // Group 2
+    grammar = String.raw`
+start = string:$(.+) {
+  let result = parseFloat(string);
+  if (isNaN(result)) {
+    let loc = {
+      start: { offset: 1, line: 2, column: 3 },
+      end: { offset: 4, line: 5, column: 6 },
+    };
+    error("a numeric string", loc)
+  }
+  else {
+    return result
+  }
+}
+`;
+    parser = peg.generate(grammar);
+
+    // Case 1
+    input = 'a';
+    try {
+        output = parser.parse(input);
+    }
+    catch (e) {
+        output = e.message + '\n' + JSON.stringify(e.location);
+    }
+    console.log(output);
+}
+
 test_literal();
 test_character_collection();
 test_subexpression();
@@ -311,4 +467,7 @@ test_expression_$_expression();
 test_expression_and_sign_expression();
 test_action_block();
 test_action_block_optional_label();
+test_action_block_location_function();
+test_action_block_expected_function();
+test_action_block_error_function();
 

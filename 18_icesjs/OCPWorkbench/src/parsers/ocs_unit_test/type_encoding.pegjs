@@ -1,3 +1,5 @@
+start = type_encoding
+
 /// Syntax - Type Encoding
 ///////////////////////
 type_encoding = pointer_type / integer_encoding / string_encoding

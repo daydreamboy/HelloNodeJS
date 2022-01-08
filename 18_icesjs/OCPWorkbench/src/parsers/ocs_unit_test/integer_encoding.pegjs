@@ -1,3 +1,5 @@
+start = integer_encoding
+
 integer_encoding = 'char' { return 'c' }
 / 'short' { return 's' }
 / 'int' { return 'i' }

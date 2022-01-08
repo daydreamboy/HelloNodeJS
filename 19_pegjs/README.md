@@ -402,7 +402,7 @@ function test_expression_and_sign_expression() {
 
 
 
-### 注释
+### (2) 注释
 
 可以使用`//`和`/*...*/`
 
@@ -410,7 +410,7 @@ function test_expression_and_sign_expression() {
 
 
 
-### 在初始化块中的JS代码
+### (3) 在初始化块中的JS代码
 
 在第一个规则之前，在初始化块中，可以定义JS函数和全局变量。这些函数和变量，可以在规则的action和{predicate}中可以访问到。
 
@@ -446,7 +446,7 @@ integer "integer"
 
 
 
-### Action块
+### (4) Action块
 
 在提供提到Action块的语法，如下
 
@@ -495,6 +495,8 @@ function test_action_block() {
 
 
 
+#### a. label
+
 Action块可以引用表达式上的label，但是如果label对应的表达式是可选的，则该label变量是null。
 
 举个例子，如下
@@ -523,6 +525,170 @@ function test_action_block_optional_label() {
     console.log(output); // -2
 }
 ```
+
+
+
+#### b. 内置函数
+
+Action块中可以访问PEG.js提供的内置函数，如下
+
+* location函数
+* expected函数
+* error函数
+
+
+
+##### location函数
+
+location函数返回下面的对象，如下
+
+```javascript
+{
+  start: { offset: 23, line: 5, column: 6 },
+  end:   { offset: 25, line: 5, column: 8 }
+}
+```
+
+用于标记匹配成功后的字符串的起始信息。
+
+举个例子，如下
+
+```javascript
+function test_action_block_location_function() {
+    LogTool.v(`--- ${DebugTool.currentFunctionName()} ---`);
+
+    let grammar;
+    let parser;
+    let output;
+    let input;
+
+    // Group 1
+    grammar = String.raw`
+start = string:$(.+) {
+  let result = parseFloat(string);
+  if (isNaN(result)) {
+      let loc = location();
+      let startIndexInfo = 'start: offset: ' + loc.start.offset + ',line: ' + loc.start.line + ', column: ' + loc.start.column
+      let endIndexInfo = 'end: offset: ' + loc.end.offset + ',line: ' + loc.end.line + ', column: ' + loc.end.column
+      console.log(startIndexInfo);
+      console.log(endIndexInfo);
+        
+      return undefined
+  }
+  else {
+      return result
+  }
+}
+`;
+    parser = peg.generate(grammar);
+
+    // Case 1
+    input = 'abcd';
+    output = parser.parse(input);
+    console.log(output);
+}
+```
+
+输入为abcd，输出结果，如下
+
+```shell
+--- test_action_block_location_function ---
+start: offset: 0,line: 1, column: 1
+end: offset: 4,line: 1, column: 5
+undefined
+```
+
+
+
+> 示例代码，见test_action_block_location_function函数
+
+
+
+##### expected函数
+
+expected函数，有两个参数
+
+* 第一个参数string，描述期望的内容
+
+* 第二个参数location函数返回的对象，是可选的
+
+使用expected函数，可以自定义报错信息和位置信息。
+
+举个例子，如下
+
+```javascript
+start = string:$(.+) {
+  let result = parseFloat(string);
+  if (isNaN(result)) {
+      expected("a numeric string")
+  }
+  else {
+      return result
+  }
+}
+```
+
+报错信息为“Line 1, column 1: Expected a numeric string but "abcd" found.”
+
+
+
+如果要修改location信息，可以构造location对象，然后当成第二个参数传递给expected函数。
+
+举个例子，如下
+
+```java
+start = string:$(.+) {
+  let result = parseFloat(string);
+  if (isNaN(result)) {
+    let loc = {
+      start: { offset: 1, line: 2, column: 3 },
+      end: { offset: 4, line: 5, column: 6 },
+    };
+    expected("a numeric string", loc)
+  }
+  else {
+    return result
+  }
+}
+```
+
+
+
+> 示例代码，见test_action_block_expected_function函数
+
+
+
+##### error函数
+
+error函数和expected函数，签名是一样的，只是报错格式不一样而已
+
+举个例子，如下
+
+```javascript
+start = string:$(.+) {
+  let result = parseFloat(string);
+  if (isNaN(result)) {
+      error("a numeric string")
+  }
+  else {
+      return result
+  }
+}
+```
+
+输入为abcd，输出结果，如下
+
+```javascript
+a numeric string
+```
+
+而expected函数，对应输出结果，如下
+
+```javascript
+Expected a numeric string but "a" found.
+```
+
+
 
 
 
