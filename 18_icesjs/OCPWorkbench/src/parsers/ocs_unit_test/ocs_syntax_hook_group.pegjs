@@ -18,6 +18,43 @@
   function literal(value) {
     return { literal: value }
   }
+
+  /**
+    Get balanced ()
+  */
+  function captureBalancedMarkedString(string, markerStart, markerEnd, includeMarker = false) {
+        if (typeof string != 'string' || typeof markerStart != 'string' || typeof markerEnd != 'string') {
+            return null;
+        }
+
+        let balancedStrings = [];
+        let balanceLevel = 0;
+        let balanceGroupStart = -1;
+        let index = 0;
+        for (const char of string) {
+            if (char === markerStart) {
+                balanceLevel++;
+                if (balanceLevel == 1) {
+                    balanceGroupStart = (includeMarker ? index : index + 1);
+                }
+            }
+            else if (char === markerEnd) {
+                if (balanceLevel == 1) {
+                    // Note: the range of substring is [start, end)
+                    let balancedString = string.substring(balanceGroupStart, (includeMarker ? index + 1 : index));
+                    balancedStrings.push(balancedString);
+                }
+                // Note: if markerEnd more than markerStart, just ignore it and not change balanceLevel to negative
+                if (balanceLevel > 0) {
+                    balanceLevel--;
+                }
+            }
+
+            index++;
+        }
+
+        return balancedStrings
+    }
 }
 
 start = hook_method
@@ -31,6 +68,11 @@ hook_group = '@hook' SPACE className:IDENTIFIER SPACE_n methods:hook_method+ S_n
 }
 
 hook_method = methodType:[+-] S method_signature:$([^{}]+) S  & '{' body:code_block S_n {
+  let balancedStrings = captureBalancedMarkedString(method_signature, '(', ')', true);
+  if (balancedStrings.length == 0) {
+    expected("the string should match OC method signature")
+  }
+
   // const name = parts.map(e => e.label + ':').join('')
   // const paramNames = parts.map(e => e.paramName)
   // return { name, paramNames, methodType }

@@ -87,6 +87,17 @@ class StringTool {
 
         return variable.length != 0;
     }
+
+    /**
+     *
+     * @param {String } string
+     * @param {Object} range
+     * @param {String} replacement
+     * @returns {*}
+     */
+    static replaceSubstringInRange(string, range, replacement) {
+        return string.substring(0, range.location) + replacement + string.substring(range.location + range.length);
+    }
 }
 
 export default StringTool;

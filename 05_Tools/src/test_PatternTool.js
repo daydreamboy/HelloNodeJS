@@ -1,6 +1,7 @@
 import PatternTool from "../library/PatternTool";
 import LogTool from "../library/LogTool";
 import DebugTool from "../library/DebugTool";
+import StringTool from "../library/StringTool";
 
 const assert = require('assert').strict;
 
@@ -63,9 +64,49 @@ function test_captureBalancedMarkedString() {
     assert.deepEqual(output, [ ], 'not equal');
 }
 
+function test_parse_oc_method_signature() {
+    LogTool.v(`--- ${DebugTool.currentFunctionName()} ---`);
+    let output;
+
+    // Case 1
+    let input = "- (void)presentViewController : (UIViewController *) viewControllerToPresent animated:(BOOL)flag completion:(void (^)(void))completion ";
+    output = PatternTool.parseOCMethodSignature(input);
+    console.log(output)
+
+    // Case 2
+    input = "(void)presentViewController ";
+    output = PatternTool.parseOCMethodSignature(input);
+    console.log(output)
+
+    // Case 3
+    input = "(void)presentViewControllerWithCompletion : (void (^)(void)) completion  ";
+    output = PatternTool.parseOCMethodSignature(input);
+    console.log(output)
+
+    // Case 3
+    input = String.raw`
+ - (void (^)(void)) presentViewController : (UIViewController *) viewControllerToPresent
+                     animated : (BOOL) flag
+                   completion : (void (^)(void))completion
+`;
+    output = PatternTool.parseOCMethodSignature(input);
+    console.log(output)
+    console.log('---------')
+
+    // Case 4
+    input = String.raw`
+ - (void (^)(void)) presentViewController : (UIViewController *)
+                     animated : (BOOL)
+                   completion : (void (^)(void))completion
+`;
+    output = PatternTool.parseOCMethodSignature(input);
+    console.log(output)
+}
+
 function run() {
     LogTool.d('*** PatternTool testing ***')
     test_captureBalancedMarkedString();
+    test_parse_oc_method_signature();
 }
 
 export { run };
