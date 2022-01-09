@@ -55,6 +55,66 @@
 
         return balancedStrings
     }
+
+    function replaceSubstringInRange(string, range, replacement) {
+        return string.substring(0, range.location) + replacement + string.substring(range.location + range.length);
+    }
+
+    function parseOCMethodSignature(string) {
+        if (typeof string != 'string') {
+            return null;
+        }
+
+        // Note: do trim
+        string = string.trim();
+
+        let typeParts = captureBalancedMarkedString(string, '(', ')', true);
+
+        if (typeParts.length == 0) {
+            return null
+        }
+
+        let returnTypePart = typeParts.shift()
+        let rangeOfReturnTypePart = { location: string.indexOf(returnTypePart), length: returnTypePart.length }
+        let rangeOfMethodTypePart = { location: 0, length: rangeOfReturnTypePart.location }
+        let methodType = string.substring(rangeOfMethodTypePart.location, rangeOfMethodTypePart.location + rangeOfMethodTypePart.length).trim();
+        let signatureName = replaceSubstringInRange(string, { location: 0, length: rangeOfReturnTypePart.location + rangeOfReturnTypePart.length }, '')
+        let signatureKeys = []
+        let argTypes = typeParts
+        let argNames = []
+
+        if (signatureName.indexOf(':') != -1) {
+            for (const typePart of typeParts) {
+                let key = signatureName.substring(0, signatureName.indexOf(':'))
+                signatureKeys.push(key.trim())
+
+                let argTypeRange = { location: signatureName.indexOf(typePart), length: typePart.length }
+                let removeRange = { location: 0, length: argTypeRange.location + argTypeRange.length  }
+                signatureName = replaceSubstringInRange(signatureName, removeRange, '')
+                // Note: only trim prefix
+                signatureName = signatureName.trimStart()
+                // Note: find the position of the first white space
+                let indexOfFirstWhitespace = signatureName.search(/[\s]/)
+                if (indexOfFirstWhitespace != -1) {
+                    let argName = signatureName.substring(0, indexOfFirstWhitespace)
+                    argNames.push(argName.trim())
+                    signatureName = replaceSubstringInRange(signatureName, { location: 0, length: indexOfFirstWhitespace }, '')
+                }
+                else {
+                    argNames.push(signatureName.trim())
+                    signatureName = replaceSubstringInRange(signatureName, { location: 0, length: signatureName.length }, '')
+                }
+            }
+        }
+        else {
+            signatureName = signatureName.trim()
+        }
+
+        // Note: when signatureKeys has only one element, signatureKeys.join(':') will return a string without `:`
+        let selector = signatureKeys.length > 0 ? (signatureKeys.join(':') + ':') : signatureName;
+
+        return { methodType, returnTypePart, signatureName, signatureKeys, argTypes, argNames, selector, originalString: string }
+    }
 }
 
 start = hook_method
@@ -73,10 +133,16 @@ hook_method = methodType:[+-] S method_signature:$([^{}]+) S  & '{' body:code_bl
     expected("the string should match OC method signature")
   }
 
-  // const name = parts.map(e => e.label + ':').join('')
-  // const paramNames = parts.map(e => e.paramName)
-  // return { name, paramNames, methodType }
-  return method_signature
+  let signatureInfo = parseOCMethodSignature(methodType + method_signature)
+
+  const name = signatureInfo.selector
+  const paramNames = signatureInfo.argNames
+  if (paramNames.length > 0) {
+    return {name, paramNames, methodType, body}
+  }
+  else {
+    return {name, methodType, body}
+  }
 }
 
 dummy_type = S '(' [^)]+ ')' S { return null }
