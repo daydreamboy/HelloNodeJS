@@ -122,6 +122,8 @@ start = hook_method
 /// Syntax - OCS Group
 ///////////////////////
 
+ocs_group = hook_group / main_group / once_group
+
 hook_group = '@hook' SPACE className:IDENTIFIER SPACE_n methods:hook_method+ S_n '@end' {
   hook_model = {className, methods}
   return [call('Weiwo'), call('hookClass:', [[ literal(hook_model) ]])]
@@ -410,8 +412,6 @@ first_item = literal
 / postfix_operator 
 / protocol 
 / encode 
-/// main_call 
-/// once_call 
 / interpolated_string 
 / sizeof_expression
 / array_constructor 
@@ -613,14 +613,10 @@ p1 = '(' S expression:expression S ')' {
 / declaration:declaration_group {
   return [call('Weiwo'), call('declareCFunctions:', [[literal(declaration)]]) ]
 }
-/*
-/ hook_group:hook_group{
-  return [call('Weiwo'), call('hookClass:', [[ literal(hook_group) ]])]
-}
-*/
 / '-' S list:item_list {
   return list.concat(call('weiwo_negate'))
 }
+/ ocs_group
 / item_list
 
 item_list  = first:first_item rest:rest_item* {
