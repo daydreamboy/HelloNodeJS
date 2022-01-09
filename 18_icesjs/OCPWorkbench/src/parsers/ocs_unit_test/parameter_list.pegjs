@@ -3,7 +3,7 @@ start = param_list
 /// Syntax - Parameter List
 ///////////////////////
 
-param_list = '(' S params:param_pair* S ')' {
+param_list = '(' S params:('void' / param_pair*) S ')' {
   return params
 }
 
