@@ -117,7 +117,7 @@
     }
 }
 
-start = hook_method
+start = ocs_group
 
 /// Syntax - OCS Group
 ///////////////////////
@@ -150,12 +150,12 @@ hook_method = methodType:[+-] S method_signature:$([^{}]+) S  & '{' body:code_bl
 dummy_type = S '(' [^)]+ ')' S { return null }
 
 main_group = '@main' S code_block:code_block {
-  return call('main_queue', [code_block])
+  return [ call('main_queue', [code_block]) ]
 }
 
 once_group = '@once' S key:IDENTIFIER? S code_block:code_block {
   const onceKey = key? [literal(key)] : [call('_cmd')]
-  return call('once', [ onceKey , code_block])
+  return [ call('once', [ onceKey , code_block]) ]
 }
 
 /// Syntax - Body
