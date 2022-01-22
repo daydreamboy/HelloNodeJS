@@ -23,101 +23,217 @@
     Get balanced ()
   */
   function captureBalancedMarkedString(string, markerStart, markerEnd, includeMarker = false) {
-    if (typeof string != 'string' || typeof markerStart != 'string' || typeof markerEnd != 'string') {
-        return null;
-    }
-
-    let balancedStrings = [];
-    let balanceLevel = 0;
-    let balanceGroupStart = -1;
-    let index = 0;
-    for (const char of string) {
-        if (char === markerStart) {
-            balanceLevel++;
-            if (balanceLevel == 1) {
-                balanceGroupStart = (includeMarker ? index : index + 1);
-            }
-        }
-        else if (char === markerEnd) {
-            if (balanceLevel == 1) {
-                // Note: the range of substring is [start, end)
-                let balancedString = string.substring(balanceGroupStart, (includeMarker ? index + 1 : index));
-                balancedStrings.push(balancedString);
-            }
-            // Note: if markerEnd more than markerStart, just ignore it and not change balanceLevel to negative
-            if (balanceLevel > 0) {
-                balanceLevel--;
-            }
+        if (typeof string != 'string' || typeof markerStart != 'string' || typeof markerEnd != 'string') {
+            return null;
         }
 
-        index++;
+        let balancedStrings = [];
+        let balanceLevel = 0;
+        let balanceGroupStart = -1;
+        let index = 0;
+        for (const char of string) {
+            if (char === markerStart) {
+                balanceLevel++;
+                if (balanceLevel == 1) {
+                    balanceGroupStart = (includeMarker ? index : index + 1);
+                }
+            }
+            else if (char === markerEnd) {
+                if (balanceLevel == 1) {
+                    // Note: the range of substring is [start, end)
+                    let balancedString = string.substring(balanceGroupStart, (includeMarker ? index + 1 : index));
+                    balancedStrings.push(balancedString);
+                }
+                // Note: if markerEnd more than markerStart, just ignore it and not change balanceLevel to negative
+                if (balanceLevel > 0) {
+                    balanceLevel--;
+                }
+            }
+
+            index++;
+        }
+
+        return balancedStrings
     }
 
-    return balancedStrings
+    function replaceSubstringInRange(string, range, replacement) {
+        return string.substring(0, range.location) + replacement + string.substring(range.location + range.length);
+    }
+
+    function parseOCMethodSignature(string) {
+        if (typeof string != 'string') {
+            return null;
+        }
+
+        // Note: do trim
+        string = string.trim();
+
+        let typeParts = captureBalancedMarkedString(string, '(', ')', true);
+
+        if (typeParts.length == 0) {
+            return null
+        }
+
+        let returnTypePart = typeParts.shift()
+        let rangeOfReturnTypePart = { location: string.indexOf(returnTypePart), length: returnTypePart.length }
+        let rangeOfMethodTypePart = { location: 0, length: rangeOfReturnTypePart.location }
+        let methodType = string.substring(rangeOfMethodTypePart.location, rangeOfMethodTypePart.location + rangeOfMethodTypePart.length).trim();
+        let signatureName = replaceSubstringInRange(string, { location: 0, length: rangeOfReturnTypePart.location + rangeOfReturnTypePart.length }, '')
+        let signatureKeys = []
+        let argTypes = typeParts
+        let argNames = []
+
+        if (signatureName.indexOf(':') != -1) {
+            for (const typePart of typeParts) {
+                let key = signatureName.substring(0, signatureName.indexOf(':'))
+                signatureKeys.push(key.trim())
+
+                let argTypeRange = { location: signatureName.indexOf(typePart), length: typePart.length }
+                let removeRange = { location: 0, length: argTypeRange.location + argTypeRange.length  }
+                signatureName = replaceSubstringInRange(signatureName, removeRange, '')
+                // Note: only trim prefix
+                signatureName = signatureName.trimStart()
+                // Note: find the position of the first white space
+                let indexOfFirstWhitespace = signatureName.search(/[\s]/)
+                if (indexOfFirstWhitespace != -1) {
+                    let argName = signatureName.substring(0, indexOfFirstWhitespace)
+                    argNames.push(argName.trim())
+                    signatureName = replaceSubstringInRange(signatureName, { location: 0, length: indexOfFirstWhitespace }, '')
+                }
+                else {
+                    argNames.push(signatureName.trim())
+                    signatureName = replaceSubstringInRange(signatureName, { location: 0, length: signatureName.length }, '')
+                }
+            }
+        }
+        else {
+            signatureName = signatureName.trim()
+        }
+
+        // Note: when signatureKeys has only one element, signatureKeys.join(':') will return a string without `:`
+        let selector = signatureKeys.length > 0 ? (signatureKeys.join(':') + ':') : signatureName;
+
+        return { methodType, returnTypePart, signatureName, signatureKeys, argTypes, argNames, selector, originalString: string }
+    }
+}
+
+start = js_lib
+
+/// Syntax - OCS JSLib Group
+///////////////////////
+
+
+js_lib = S_n '@jslib' S_n jscode:jscode+ S_n '@end' S_n {
+  return jscode.join("\n")
+}
+
+jscode = S_n '@jscode' jscode_lines:jscode_line+ '@end' S_n {
+  return jscode_lines.join("\n")
+}
+/ func:lib_function {
+  const {name, spec} = func
+  const {paramNames} = spec
+  const blockParamsString = paramNames ? paramNames.join(', ') : ''
+  spec.name = name
+  const ast = JSON.stringify(spec)
+
+  const allParamNames = paramNames ? paramNames : []
+  allParamNames.push('_spec = 0')
+  const paramNamesString = allParamNames.join(', ')
+
+  return `export async function ${name}(${paramNamesString}){\n\treturn await Weiwo.vm(_spec).callBlock(\n\t\t${ast},\n\t\t[${blockParamsString}],\n\t\tWeiwo.ContainerAsValue\n\t)\n}`
+}
+
+jscode_line = $([^@]+)
+
+/// Syntax - OCS RemoteLib Group
+///////////////////////
+
+remote_lib = S_n '@remotelib' S_n functions:lib_function+ S_n '@end' S_n {
+  const blocks = functions.reduce(
+    (dict, function_spec) => {
+      dict[function_spec.name] = function_spec.spec
+      return dict
+    },
+    {}
+    )
+    return {blocks}
+}
+
+lib_function = S_n name:IDENTIFIER S ASSIGN_OP S spec:block_spec S_n{
+  return {name, spec}
+}
+
+/// Syntax - OC Block
+///////////////////////
+
+block_spec = '^' S returnEncoding:type_encoding? S params:param_list? S body:code_block {
+  if (!returnEncoding) {
+    returnEncoding = 'v'
   }
-
-  function replaceSubstringInRange(string, range, replacement) {
-    return string.substring(0, range.location) + replacement + string.substring(range.location + range.length);
-  }
-
-  function parseOCMethodSignature(string) {
-    if (typeof string != 'string') {
-        return null;
-    }
-
-    // Note: do trim
-    string = string.trim();
-
-    let typeParts = captureBalancedMarkedString(string, '(', ')', true);
-
-    if (typeParts.length == 0) {
-        return null
-    }
-
-    let returnTypePart = typeParts.shift()
-    let rangeOfReturnTypePart = { location: string.indexOf(returnTypePart), length: returnTypePart.length }
-    let rangeOfMethodTypePart = { location: 0, length: rangeOfReturnTypePart.location }
-    let methodType = string.substring(rangeOfMethodTypePart.location, rangeOfMethodTypePart.location + rangeOfMethodTypePart.length).trim();
-    let signatureName = replaceSubstringInRange(string, { location: 0, length: rangeOfReturnTypePart.location + rangeOfReturnTypePart.length }, '')
-    let signatureKeys = []
-    let argTypes = typeParts
-    let argNames = []
-
-    if (signatureName.indexOf(':') != -1) {
-        for (const typePart of typeParts) {
-            let key = signatureName.substring(0, signatureName.indexOf(':'))
-            signatureKeys.push(key.trim())
-
-            let argTypeRange = { location: signatureName.indexOf(typePart), length: typePart.length }
-            let removeRange = { location: 0, length: argTypeRange.location + argTypeRange.length  }
-            signatureName = replaceSubstringInRange(signatureName, removeRange, '')
-            // Note: only trim prefix
-            signatureName = signatureName.trimStart()
-            // Note: find the position of the first white space
-            let indexOfFirstWhitespace = signatureName.search(/[\s]/)
-            if (indexOfFirstWhitespace != -1) {
-                let argName = signatureName.substring(0, indexOfFirstWhitespace)
-                argNames.push(argName.trim())
-                signatureName = replaceSubstringInRange(signatureName, { location: 0, length: indexOfFirstWhitespace }, '')
-            }
-            else {
-                argNames.push(signatureName.trim())
-                signatureName = replaceSubstringInRange(signatureName, { location: 0, length: signatureName.length }, '')
-            }
-        }
-    }
-    else {
-        signatureName = signatureName.trim()
-    }
-
-    // Note: when signatureKeys has only one element, signatureKeys.join(':') will return a string without `:`
-    let selector = signatureKeys.length > 0 ? (signatureKeys.join(':') + ':') : signatureName;
-
-    return { methodType, returnTypePart, signatureName, signatureKeys, argTypes, argNames, selector, originalString: string }
+  const paramsEncoding = params ? params.map(param => param.type).join('') : ''
+  const signature = returnEncoding + '@' + paramsEncoding
+  const paramNames = params ? params.map(pair => pair.name) : []
+  return {
+    type: 'block',
+    signature,
+    paramNames,
+    body
   }
 }
 
-start = body
+/// Syntax - Parameter List
+///////////////////////
+
+param_list = '(' S params:('void' / param_pair*) S ')' {
+  if (params === 'void') {
+    return undefined
+  }
+  return params
+}
+
+param_pair = type:type_encoding S name:IDENTIFIER COMMA? {
+  return { type, name }
+}
+
+/// Syntax - OCS Group
+///////////////////////
+
+ocs_group = hook_group / main_group / once_group
+
+hook_group = '@hook' SPACE className:IDENTIFIER SPACE_n methods:hook_method+ S_n '@end' {
+  let hook_model = {className, methods}
+  return [call('Weiwo'), call('hookClass:', [[ literal(hook_model) ]])]
+}
+
+hook_method = methodType:[+-] S method_signature:$([^{}]+) S  & '{' body:code_block S_n {
+  let balancedStrings = captureBalancedMarkedString(method_signature, '(', ')', true);
+  if (balancedStrings.length == 0) {
+    expected("the string should match OC method signature")
+  }
+
+  let signatureInfo = parseOCMethodSignature(methodType + method_signature)
+
+  const name = signatureInfo.selector
+  const paramNames = signatureInfo.argNames
+  if (paramNames.length > 0) {
+    return {name, paramNames, methodType, body}
+  }
+  else {
+    return {name, methodType, body}
+  }
+}
+
+dummy_type = S '(' [^)]+ ')' S { return null }
+
+main_group = '@main' S code_block:code_block {
+  return [ call('main_queue', [code_block]) ]
+}
+
+once_group = '@once' S key:IDENTIFIER? S code_block:code_block {
+  const onceKey = key? [literal(key)] : [call('_cmd')]
+  return [ call('once', [ onceKey , code_block]) ]
+}
 
 /// Syntax - Body
 ///////////////////////
@@ -373,7 +489,6 @@ first_item = literal
 / postfix_operator 
 / protocol 
 / encode 
-/// main_call 
 / interpolated_string 
 / sizeof_expression
 / array_constructor 
@@ -446,45 +561,6 @@ interpolated_item = '{' value:expression '}' {
   return [ literal(chars.join('')) ]
 }
 
-/// Syntax - OCS Group
-///////////////////////
-
-ocs_group = hook_group / main_group / once_group
-
-hook_group = '@hook' SPACE className:IDENTIFIER SPACE_n methods:hook_method+ S_n '@end' {
-  let hook_model = {className, methods}
-  return [call('Weiwo'), call('hookClass:', [[ literal(hook_model) ]])]
-}
-
-hook_method = methodType:[+-] S method_signature:$([^{}]+) S  & '{' body:code_block S_n {
-  let balancedStrings = captureBalancedMarkedString(method_signature, '(', ')', true);
-  if (balancedStrings.length == 0) {
-    expected("the string should match OC method signature")
-  }
-
-  let signatureInfo = parseOCMethodSignature(methodType + method_signature)
-
-  const name = signatureInfo.selector
-  const paramNames = signatureInfo.argNames
-  if (paramNames.length > 0) {
-    return {name, paramNames, methodType, body}
-  }
-  else {
-    return {name, methodType, body}
-  }
-}
-
-dummy_type = S '(' [^)]+ ')' S { return null }
-
-main_group = '@main' S code_block:code_block {
-  return [ call('main_queue', [code_block]) ]
-}
-
-once_group = '@once' S key:IDENTIFIER? S code_block:code_block {
-  const onceKey = key? [literal(key)] : [call('_cmd')]
-  return [ call('once', [ onceKey , code_block]) ]
-}
-
 /// Syntax - Objective-C Container
 ///////////////////////
 
@@ -494,38 +570,6 @@ array_constructor = '@[' S_n args:expression_list? S_n (',')? S_n ']' {
 
 dictionary_constructor = '@{' S_n args:expression_list? S_n (',')? S_n '}' {
   return call('curlyBrackets', args)
-}
-
-/// Syntax - OC Block
-///////////////////////
-
-block_spec = '^' S returnEncoding:type_encoding? S params:param_list? S body:code_block {
-  if (!returnEncoding) {
-    returnEncoding = 'v'
-  }
-  const paramsEncoding = params ? params.map(param => param.type).join('') : ''
-  const signature = returnEncoding + '@' + paramsEncoding
-  const paramNames = params ? params.map(pair => pair.name) : []
-  return {
-    type: 'block',
-    signature,
-    paramNames,
-    body
-  }
-}
-
-/// Syntax - Parameter List
-///////////////////////
-
-param_list = '(' S params:('void' / param_pair*) S ')' {
-  if (params === 'void') {
-    return undefined
-  }
-  return params
-}
-
-param_pair = type:type_encoding S name:IDENTIFIER COMMA? {
-  return { type, name }
 }
 
 /// Syntax - C function call
@@ -563,13 +607,7 @@ oc_pair = S label:$('@'? IDENTIFIER) S ':' S arg:expression S_n {
 ///////////////////////
 
 p12 = first:p11 second:(concat_item)* {
-  try {
-    return second ? first.concat(second) : first
-  } 
-  catch (error) {
-    expected('p12 rule: ' + error)
-    return undefined
-  }
+  return second ? first.concat(second) : first
 }
     
 concat_item = S '..' S p11:p11 {
@@ -577,13 +615,7 @@ concat_item = S '..' S p11:p11 {
 }
 
 p11 = first:p10 second:(or_item)* {
-  try {
-    return second ? first.concat(second) : first
-  } 
-  catch (error) {
-    expected('p11 rule: ' + error)
-    return undefined
-  }
+  return second ? first.concat(second) : first
 }
 
 or_item = S (('or' SPACE) / '||') S p10:p10 {
@@ -591,13 +623,7 @@ or_item = S (('or' SPACE) / '||') S p10:p10 {
 }
 
 p10 = first:p9 second:(and_item)* {
-  try {
-    return second ? first.concat(second) : first
-  } 
-  catch (error) {
-    expected('p10 rule: ' + error)
-    return undefined
-  }
+  return second ? first.concat(second) : first
 }
 
 and_item = S (('and' SPACE) / '&&') S p9:p9 {
@@ -607,13 +633,7 @@ and_item = S (('and' SPACE) / '&&') S p9:p9 {
 p9 = p6
 
 p6 = first:p5 second:(equality_compare_item)* {
-  try {
-    return second ? first.concat(second) : first
-  } 
-  catch (error) {
-    expected('p6 rule: ' + error)
-    return undefined
-  }
+  return second ? first.concat(second) : first
 }
 
 equality_compare_item = S op:('==') S p5:p5 {
@@ -624,13 +644,7 @@ equality_compare_item = S op:('==') S p5:p5 {
 }
 
 p5 = first:p4 second:(compare_item)* {
-  try {
-    return second ? first.concat(second) : first
-  } 
-  catch (error) {
-    expected('p5 rule: ' + error)
-    return undefined
-  }
+  return second ? first.concat(second) : first
 }
 
 compare_item = S op:('<=' / '<' / '>=' / '>') S p4:p4 {
@@ -638,13 +652,7 @@ compare_item = S op:('<=' / '<' / '>=' / '>') S p4:p4 {
 }
 
 p4 = first:p3 second:(shift_item)* {
-  try {
-    return second ? first.concat(second) : first
-  } 
-  catch (error) {
-    expected('p4 rule: ' + error)
-    return undefined
-  }
+  return second ? first.concat(second) : first
 }
    
 shift_item = S op:('<<' / '>>') S p3:p3 {
@@ -652,13 +660,7 @@ shift_item = S op:('<<' / '>>') S p3:p3 {
 }
 
 p3 = first:p2 second:(addition_item)* {
-  try {
-    return second ? first.concat(second) : first 
-  } 
-  catch (error) {
-    expected('p3 rule: ' + error)
-    return undefined
-  }
+  return second ? first.concat(second) : first 
 }
   
 addition_item = S op:('+' / '-') S p2:p2 {
@@ -669,13 +671,7 @@ p2 = first:prefix_operator {
   return [first]
 }
 / first:p1 second:(multiplication_item)* {
-  try {
-    return second ? first.concat(second) : first 
-  } 
-  catch (error) {
-    expected('p2 rule: ' + error)
-    return undefined
-  }
+  return second ? first.concat(second) : first 
 }
 / '!' p2:p2 {
   return [call('!', [p2])]
@@ -697,11 +693,6 @@ p1 = '(' S expression:expression S ')' {
 / declaration:declaration_group {
   return [call('Weiwo'), call('declareCFunctions:', [[literal(declaration)]]) ]
 }
-/*
-/ hook_group:hook_group{
-  return [call('Weiwo'), call('hookClass:', [[ literal(hook_group) ]])]
-}
-*/
 / '-' S list:item_list {
   return list.concat(call('weiwo_negate'))
 }
@@ -709,20 +700,14 @@ p1 = '(' S expression:expression S ')' {
 / item_list
 
 item_list  = first:first_item rest:rest_item* {
-  try {
-    if (!Array.isArray(first)) {
-      first = [first]
-    }
-    if (rest) {
-      return first.concat(rest);
-    } 
-    else {
-      return first
-    }
+  if (!Array.isArray(first)) {
+    first = [first]
+  }
+  if (rest) {
+    return first.concat(rest);
   } 
-  catch (error) {
-    expected('item_list rule: ' + error)
-    return undefined
+  else {
+    return first
   }
 }
 

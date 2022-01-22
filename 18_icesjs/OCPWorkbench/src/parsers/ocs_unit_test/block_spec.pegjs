@@ -639,6 +639,9 @@ multiplication_item = S op:('%' / '*' / '/') S p1:p1 {
 p1 = '(' S expression:expression S ')' {
   return expression
 }
+/ spec:block_spec {
+  return [call('Weiwo'), call('createBlock:', [[literal(spec)]])]
+}
 / '^' S name:IDENTIFIER {
   return [call('awaitblock', [[ literal(name) ]])]
 }
