@@ -3,7 +3,7 @@
   /**
     Create an object like {name: xxx, args: yyy}
    */
-  function call(name, args) {
+  function createCall(name, args) {
     const obj = { name }
     if (args) {
       obj.args = args
@@ -15,7 +15,7 @@
   /**
     Create a literal object like {literal: xxx}
    */
-  function literal(value) {
+  function createLiteral(value) {
     return { literal: value }
   }
 
@@ -202,7 +202,7 @@ ocs_group = hook_group / main_group / once_group / method_group
 
 hook_group = '@hook' SPACE className:IDENTIFIER SPACE_n methods:hook_method+ S_n '@end' {
   let hook_model = {className, methods}
-  return [call('Weiwo'), call('hookClass:', [[ literal(hook_model) ]])]
+  return [createCall('Weiwo'), createCall('hookClass:', [[ createLiteral(hook_model) ]])]
 }
 
 hook_method = methodType:[+-] S method_signature:$([^{}]+) S  & '{' body:code_block S_n {
@@ -226,16 +226,16 @@ hook_method = methodType:[+-] S method_signature:$([^{}]+) S  & '{' body:code_bl
 dummy_type = S '(' [^)]+ ')' S { return null }
 
 main_group = '@main' S code_block:code_block {
-  return [ call('main_queue', [code_block]) ]
+  return [ createCall('main_queue', [code_block]) ]
 }
 
 once_group = '@once' S key:IDENTIFIER? S code_block:code_block {
-  const onceKey = key? [literal(key)] : [call('_cmd')]
-  return [ call('once', [ onceKey , code_block]) ]
+  const onceKey = key? [createLiteral(key)] : [createCall('_cmd')]
+  return [ createCall('once', [ onceKey , code_block]) ]
 }
 
 method_group = '@methods' S_n '{' S_n methods:hook_method+ S_n '}' {
-  return [ literal(methods) ]
+  return [ createLiteral(methods) ]
 }
 
 /// Syntax - Body
@@ -280,20 +280,20 @@ statement = end_of_statement
 / expression
 
 return_statement = 'return' SPACE expression:expression {
-  return call('return', [expression])
+  return createCall('return', [expression])
 }
 
 define_statement = type:type_encoding SPACE name:IDENTIFIER initializer:initializer? {
   const args = [
-    [literal(type)],
-    [literal(name)],
+    [createLiteral(type)],
+    [createLiteral(name)],
   ]
 
   if (initializer) {
     args.push(initializer)
   }
 
-  return call('declare', args)
+  return createCall('declare', args)
 }
 
 initializer = S ASSIGN_OP S value:expression {
@@ -301,7 +301,7 @@ initializer = S ASSIGN_OP S value:expression {
 }
 
 end_of_statement = COMMENT? (S [;\n] S)+ { 
-  return call(';')
+  return createCall(';')
 }
 
 /// Syntax - if statement
@@ -312,7 +312,7 @@ if_statement = 'if' condition:condition body:code_block else_body:else_statement
   if (else_body) {
     args.push(else_body)
   }
-  return call('if', args)
+  return createCall('if', args)
 }
 
 condition = S '(' S expr:expression S ')' S {
@@ -330,14 +330,14 @@ else_statement = 'else' S body:if_statement {
 ///////////////////////
 
 while_statement = 'while' condition:condition body:code_block {
-  return call('while', [ condition, body] )
+  return createCall('while', [ condition, body] )
 }
 
 /// Syntax - for statement
 ///////////////////////
 
 for_loop_statement = 'for' S_n '(' S_n init:(define_statement / expression) S_n ';' S_n condition:expression S_n ';' S_n next:expression S_n ')' S_n body:code_block {
-  return call(
+  return createCall(
     'for',
     [
       init,
@@ -352,7 +352,7 @@ for_loop_statement = 'for' S_n '(' S_n init:(define_statement / expression) S_n 
 ///////////////////////
 
 for_in_statement = 'for' S_n '(' S name:IDENTIFIER S 'in' S container:expression S ')' S_n body:code_block {
-  return call('foreach', [[call(name)], container, body])
+  return createCall('foreach', [[createCall(name)], container, body])
 }
 
 /// Syntax - switch statement
@@ -360,7 +360,7 @@ for_in_statement = 'for' S_n '(' S name:IDENTIFIER S 'in' S container:expression
 
 switch_statement = 'switch' S_n value:expression S_n body:switch_body {
   const { cases, default_case } = body
-  return call(
+  return createCall(
     'switch',
     [value].concat(body)
   )
@@ -425,7 +425,7 @@ expression_tuple = '(' S_n list:expression_list? S_n ')' {
 }
 
 expression = 'await' S expression: expression {
-  return [call('await'), [expression]]
+  return [createCall('await'), [expression]]
 }
 / lvalue:p12 S assign_op:ASSIGN_OP S rvalue:expression {
   const last = lvalue.pop()
@@ -433,7 +433,7 @@ expression = 'await' S expression: expression {
   if (name) {
     if (name == 'weiwo_getSubscript:') {
       return lvalue.concat(
-        call('weiwo_setSubcript:value:', [
+        createCall('weiwo_setSubcript:value:', [
           last.args[0],
           rvalue
         ])
@@ -441,19 +441,19 @@ expression = 'await' S expression: expression {
     }
     else {
       return lvalue.concat(
-        call(assign_op, [ [literal(name)], rvalue])
+        createCall(assign_op, [ [createLiteral(name)], rvalue])
       )
     }
   }
 }
 / key:STRING S ':' S value:expression {
-  return [ literal(key), call(':', [value]) ]
+  return [ createLiteral(key), createCall(':', [value]) ]
 }
 / condition:p12 S '?' S trueValue:p12 S ':' S falseValue:p12 {
-  return [ call('if', [condition, trueValue, falseValue]) ]
+  return [ createCall('if', [condition, trueValue, falseValue]) ]
 }
 / condition:p12 S '?:' S falseValue:p12 {
-  return condition.concat(call('?:', [falseValue]))
+  return condition.concat(createCall('?:', [falseValue]))
 }
 / p12
 
@@ -503,13 +503,13 @@ first_item = literal
 
 
 sizeof_expression = 'sizeof' S '(' S type:type_encoding S ')' S {
-  return call('sizeof', [
-    [literal(type)]
+  return createCall('sizeof', [
+    [createLiteral(type)]
   ])
 }
 
 address = hexaddress:HEXADECIMAL {
-  return [call('$'), call('objectFromAddress:', [[ literal(hexaddress) ]])]
+  return [createCall('$'), createCall('objectFromAddress:', [[ createLiteral(hexaddress) ]])]
 }
 
 /// Syntax - OCS new keyword
@@ -517,8 +517,8 @@ address = hexaddress:HEXADECIMAL {
 
 new_pointer = 'new' SPACE type:type_encoding {
   return [
-    call('Weiwo'),
-    call('outArgument', [[ literal(type) ]])
+    createCall('Weiwo'),
+    createCall('outArgument', [[ createLiteral(type) ]])
   ]
 }
 
@@ -526,9 +526,9 @@ new_pointer = 'new' SPACE type:type_encoding {
 ///////////////////////
 
 postfix_operator = name:IDENTIFIER op:('++'/'--') {
-  return call('updateSlot', [
-    [ literal(name) ],
-    [ call(name), call(op[0], [[ literal(1) ]]) ]
+  return createCall('updateSlot', [
+    [ createLiteral(name) ],
+    [ createCall(name), createCall(op[0], [[ createLiteral(1) ]]) ]
   ])
 }
 
@@ -536,9 +536,9 @@ postfix_operator = name:IDENTIFIER op:('++'/'--') {
 ///////////////////////
 
 prefix_operator = op:('++'/'--') name:IDENTIFIER {
-  return call('updateSlot', [
-    [ literal(name) ],
-    [ call(name), call(op[0], [[ literal(1) ]]) ]
+  return createCall('updateSlot', [
+    [ createLiteral(name) ],
+    [ createCall(name), createCall(op[0], [[ createLiteral(1) ]]) ]
   ])
 }
 
@@ -548,8 +548,8 @@ prefix_operator = op:('++'/'--') name:IDENTIFIER {
 interpolated_string = '$"' parts:interpolated_item* '"' {
   if (parts && parts.length > 0) {
     return [
-      call('sqaureBrackets', parts),
-      call('componentsJoinedByString:', [[ literal('') ]])
+      createCall('sqaureBrackets', parts),
+      createCall('componentsJoinedByString:', [[ createLiteral('') ]])
     ]
   }
   else {
@@ -561,41 +561,41 @@ interpolated_item = '{' value:expression '}' {
   return value
 }
 / chars:( ESCAPED_CHAR / [^\'"{}] )+ {
-  return [ literal(chars.join('')) ]
+  return [ createLiteral(chars.join('')) ]
 }
 
 /// Syntax - Objective-C Container
 ///////////////////////
 
 array_constructor = '@[' S_n args:expression_list? S_n (',')? S_n ']' {
-  return call('squareBrackets', args)
+  return createCall('squareBrackets', args)
 }
 
 dictionary_constructor = '@{' S_n args:expression_list? S_n (',')? S_n '}' {
-  return call('curlyBrackets', args)
+  return createCall('curlyBrackets', args)
 }
 
 /// Syntax - C function call
 ///////////////////////
 
 function_call = name:IDENTIFIER tuple:expression_tuple? {
-  return call(name, tuple)
+  return createCall(name, tuple)
 }
 
 /// Syntax - Objective-C method call
 ///////////////////////
 
 oc_call = '[' S_n target:expression S_n methodName:$('@'? IDENTIFIER) S_n ']' {
-  return target.concat(call(methodName))
+  return target.concat(createCall(methodName))
 }
 / '[' S_n target:expression S_n methodName:$('@'? IDENTIFIER ':') S_n first:expression rest:oc_rest_argument+ ']' {
   const args = [first].concat(rest)
-  return target.concat(call(methodName + '...', args))
+  return target.concat(createCall(methodName + '...', args))
 }
 / '[' S_n target:expression S_n pairs:oc_pair+ S_n ']' {
   const methodName = pairs.map(pair => pair.label + ':').join('')
   const args = pairs.map(pair => pair.arg)
-  return target.concat(call(methodName, args))
+  return target.concat(createCall(methodName, args))
 }
 
 oc_rest_argument = S ',' S arg:expression {
@@ -614,7 +614,7 @@ p12 = first:p11 second:(concat_item)* {
 }
     
 concat_item = S '..' S p11:p11 {
-  return call('..', [p11])
+  return createCall('..', [p11])
 }
 
 p11 = first:p10 second:(or_item)* {
@@ -622,7 +622,7 @@ p11 = first:p10 second:(or_item)* {
 }
 
 or_item = S (('or' SPACE) / '||') S p10:p10 {
-  return call('||', [p10])
+  return createCall('||', [p10])
 }
 
 p10 = first:p9 second:(and_item)* {
@@ -630,7 +630,7 @@ p10 = first:p9 second:(and_item)* {
 }
 
 and_item = S (('and' SPACE) / '&&') S p9:p9 {
-  return call('&&', [p9])
+  return createCall('&&', [p9])
 }
  
 p9 = p6
@@ -640,10 +640,10 @@ p6 = first:p5 second:(equality_compare_item)* {
 }
 
 equality_compare_item = S op:('==') S p5:p5 {
-  return call(op, [p5])
+  return createCall(op, [p5])
 }
 / S op:('!=' / '<>' / '~=') S p5:p5 {
-  return call('!=', [p5])
+  return createCall('!=', [p5])
 }
 
 p5 = first:p4 second:(compare_item)* {
@@ -651,7 +651,7 @@ p5 = first:p4 second:(compare_item)* {
 }
 
 compare_item = S op:('<=' / '<' / '>=' / '>') S p4:p4 {
-  return call(op, [p4])
+  return createCall(op, [p4])
 }
 
 p4 = first:p3 second:(shift_item)* {
@@ -659,7 +659,7 @@ p4 = first:p3 second:(shift_item)* {
 }
    
 shift_item = S op:('<<' / '>>') S p3:p3 {
-  return call(op, [p3])
+  return createCall(op, [p3])
 }
 
 p3 = first:p2 second:(addition_item)* {
@@ -667,7 +667,7 @@ p3 = first:p2 second:(addition_item)* {
 }
   
 addition_item = S op:('+' / '-') S p2:p2 {
-  return call(op, [p2])
+  return createCall(op, [p2])
 }
 
 p2 = first:prefix_operator {
@@ -677,27 +677,27 @@ p2 = first:prefix_operator {
   return second ? first.concat(second) : first 
 }
 / '!' p2:p2 {
-  return [call('!', [p2])]
+  return [createCall('!', [p2])]
 }
 
 multiplication_item = S op:('%' / '*' / '/') S p1:p1 {
-  return call(op, [p1])
+  return createCall(op, [p1])
 }
     
 p1 = '(' S expression:expression S ')' {
   return expression
 }
 / spec:block_spec {
-  return [call('Weiwo'), call('createBlock:', [[literal(spec)]])]
+  return [createCall('Weiwo'), createCall('createBlock:', [[createLiteral(spec)]])]
 }
 / '^' S name:IDENTIFIER {
-  return [call('awaitblock', [[ literal(name) ]])]
+  return [createCall('awaitblock', [[ createLiteral(name) ]])]
 }
 / declaration:declaration_group {
-  return [call('Weiwo'), call('declareCFunctions:', [[literal(declaration)]]) ]
+  return [createCall('Weiwo'), createCall('declareCFunctions:', [[createLiteral(declaration)]]) ]
 }
 / '-' S list:item_list {
-  return list.concat(call('weiwo_negate'))
+  return list.concat(createCall('weiwo_negate'))
 }
 / ocs_group
 / item_list
@@ -716,17 +716,17 @@ item_list  = first:first_item rest:rest_item* {
 
 rest_item = message_call
 / S '^' S operand:expression{
-  return call('^', [operand])
+  return createCall('^', [operand])
 }
 / S '[' subscript:expression ']' {
-  return call('weiwo_getSubscript:', [subscript])
+  return createCall('weiwo_getSubscript:', [subscript])
 }
 / SPACE 'is' SPACE className:IDENTIFIER {
-  return call('is', [[ literal(className) ]])
+  return createCall('is', [[ createLiteral(className) ]])
 }
 
 message_call = '.' name:EX_IDENTIFIER args:expression_tuple? { 
-  return call(name, args)
+  return createCall(name, args)
 }
 
 /// Syntax - Type Encoding
@@ -800,13 +800,13 @@ SELECTOR = '@selector' S '(' name:$([a-zA-Z0-9:]+) S ')' {
   return name
 }
 literal = value:(BOOLEAN / NULL / STRING / NUMBER / SELECTOR) {
-  return literal(value)
+  return createLiteral(value)
 }
 protocol = '@protocol' S '(' name:IDENTIFIER ')' {
-  return call('NSProtocolFromString', [[literal(name)]])
+  return createCall('NSProtocolFromString', [[createLiteral(name)]])
 }
 encode = '@encode' S '(' encoding:type_encoding ')' {
-  return literal(encoding)
+  return createLiteral(encoding)
 }
 
 /// Syntax - Assign
