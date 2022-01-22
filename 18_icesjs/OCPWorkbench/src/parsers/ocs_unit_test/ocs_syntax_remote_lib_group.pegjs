@@ -175,7 +175,7 @@ param_pair = type:type_encoding S name:IDENTIFIER COMMA? {
 ocs_group = hook_group / main_group / once_group
 
 hook_group = '@hook' SPACE className:IDENTIFIER SPACE_n methods:hook_method+ S_n '@end' {
-  hook_model = {className, methods}
+  let hook_model = {className, methods}
   return [call('Weiwo'), call('hookClass:', [[ literal(hook_model) ]])]
 }
 
