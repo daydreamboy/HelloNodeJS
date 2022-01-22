@@ -125,7 +125,7 @@ start = hook_method
 ocs_group = hook_group / main_group / once_group
 
 hook_group = '@hook' SPACE className:IDENTIFIER SPACE_n methods:hook_method+ S_n '@end' {
-  hook_model = {className, methods}
+  let hook_model = {className, methods}
   return [call('Weiwo'), call('hookClass:', [[ literal(hook_model) ]])]
 }
 
@@ -388,7 +388,7 @@ declaration_group = 'extern' S '"C"' S '{' S_n declarations:declaration* S_n '}'
   return map
 }
 
-declaration = returnType:type_encoding S name:IDENTIFIER types:c_param_type S_n (';')? S_n {
+declaration = returnType:type_encoding S name:IDENTIFIER types:c_param_types S_n (';')? S_n {
   const paramsEncoding = types ? types.join('') : ''
   const signature = returnType + paramsEncoding
 
