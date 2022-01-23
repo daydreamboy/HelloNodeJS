@@ -126,14 +126,14 @@ code_block = '{' body:body '}' {
   return body
 }
 
-body = S_n statements:statements? S_n {
-	return statements ? statements : []
+body = S_n statement_list:statement_list? S_n {
+	return statement_list ? statement_list : []
 }
 
-/// Syntax - Statement
+/// Syntax - Statement List
 ///////////////////////
 
-statements = statement_list:statement+ {
+statement_list = statement_list:statement+ {
   let expr = []
   for( const e of statement_list) {
     expr = expr.concat(e)
