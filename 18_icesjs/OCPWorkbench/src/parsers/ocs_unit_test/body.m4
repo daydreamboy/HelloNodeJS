@@ -1,7 +1,11 @@
 syscmd(`cat ../ocs_components/ocs_utility_function.pegjs')dnl
 
 
-start = expression
+start = body
+
+syscmd(`cat ../ocs_components/ocs_body.pegjs')
+
+syscmd(`cat ../ocs_components/ocs_statement_list.pegjs')
 
 syscmd(`cat ../ocs_components/ocs_expression_list_or_tuple.pegjs')
 
