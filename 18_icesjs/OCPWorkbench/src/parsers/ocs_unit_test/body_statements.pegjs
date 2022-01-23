@@ -110,7 +110,7 @@
         signatureName = signatureName.trim()
     }
 
-    // Note: when signatureKeys has only one element, signatureKeys.join(':') will return a string without `:`
+    // Note: when signatureKeys has only one element, signatureKeys.join(':') will return a string without ":"
     let selector = signatureKeys.length > 0 ? (signatureKeys.join(':') + ':') : signatureName;
 
     return { methodType, returnTypePart, signatureName, signatureKeys, argTypes, argNames, selector, originalString: string }
