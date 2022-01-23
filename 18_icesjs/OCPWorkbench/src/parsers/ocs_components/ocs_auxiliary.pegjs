@@ -9,8 +9,11 @@ SINGLE_SPACE_OR_NEWLINE = (SINGLE_SPACE / "\n") { return null }
 S = SINGLE_SPACE* { return null }
 // Separator with newline
 S_n = SINGLE_SPACE_OR_NEWLINE* { return null }
+// Comma
 COMMA = S_n ',' S_n
+// Space
 SPACE = SINGLE_SPACE+ { return null }
+// Space with newline
 SPACE_n = SINGLE_SPACE_OR_NEWLINE+ { return null }
 
 // Special Single Char

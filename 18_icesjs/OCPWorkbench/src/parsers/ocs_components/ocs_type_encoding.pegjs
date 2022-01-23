@@ -1,11 +1,8 @@
 /// Syntax - Type Encoding
 ///////////////////////
-type_encoding = pointer_type / integer_encoding / string_encoding
-/ 'float' { return 'f' }
-/ ('double' / 'CGFloat') { return 'd' }
-/ 'long' S_n 'double' { return 'D' }
+type_encoding = pointer_type / string_encoding / float_encoding / integer_encoding
 / ('bool' / 'BOOL') { return 'B' }
-/ ('string' / 'const' S_n 'char' S_n '*') { return '*' }
+/ ('string' / 'const' SPACE 'char' SPACE '*') { return '*' }
 / 'pointer' { return '^v' }
 / 'Class' SPACE { return '#' }
 / 'SEL' { return ':' } 
@@ -14,6 +11,7 @@ type_encoding = pointer_type / integer_encoding / string_encoding
 / 'NSInteger' { return 'q' }
 / ('NSUInteger' / 'size_t') { return 'Q' }
 / 'NSRange' { return '{_NSRange=QQ}' }
+/ 'CGFloat' { return 'd' }
 / 'CGSize' { return '{CGSize=dd}' }
 / 'CGPoint' { return '{CGPoint=dd}' }
 / 'CGRect' { return '{CGRect={CGPoint=dd}{CGSize=dd}}' }
@@ -23,16 +21,21 @@ type_encoding = pointer_type / integer_encoding / string_encoding
 
 integer_encoding = 'short' { return 's' }
 / 'int' { return 'i' }
-/ 'long' extra:(SPACE_n 'long')? {
-  //return extra ? 'q' : 'l'
+/ 'long' (SPACE 'long')? {
   return 'q'
 }
-/ 'unsigned' SPACE_n encoding:integer_encoding {
+/ 'unsigned' SPACE encoding:integer_encoding {
   return encoding.toUpperCase()
 }
 
-string_encoding = 'char' { return 'c' }
+float_encoding = 'float' { return 'f' }
+/ ('double') { return 'd' }
+/ 'long' SPACE 'double' { return 'D' }
 
+string_encoding = 'char' { return 'c' }
+/ 'unsigned' SPACE 'char' { return 'C' }
+
+// pointer_type
 pointer_type = integer_pointer_type / string_pointer_type / void_pointer_type
 integer_pointer_type = 'short' SPACE? '*' { return '^s' }
 / 'int' SPACE? '*' { return '^i' }
