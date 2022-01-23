@@ -116,32 +116,55 @@
   }
 }
 
-start = block_spec
+start = ocs_group
 
-/// Syntax - OC Block
+/// Syntax - OCS Group
 ///////////////////////
-block_spec = '^' S returnEncoding:type_encoding? S params:block_param_list? S body:code_block {
-  if (!returnEncoding) {
-    returnEncoding = 'v'
+ocs_group = hook_group / main_group / once_group / method_group
+
+hook_group = '@hook' SPACE className:IDENTIFIER SPACE_n methods:hook_method+ S_n '@end' {
+  let hook_model = {className, methods}
+  return [createCall('Weiwo'), createCall('hookClass:', [[ createLiteral(hook_model) ]])]
+}
+
+hook_method = methodType:[+-] S method_signature:$([^{}]+) S  & '{' body:code_block S_n {
+  let balancedStrings = captureBalancedMarkedString(method_signature, '(', ')', true);
+  if (balancedStrings.length == 0) {
+    expected("the string should match OC method signature")
   }
-  const paramsEncoding = params ? params.map(param => param.type).join('') : ''
-  const signature = returnEncoding + '@' + paramsEncoding
-  const paramNames = params ? params.map(pair => pair.name) : []
-  return {
-    type: 'block',
-    signature,
-    paramNames,
-    body
+
+  let signatureInfo = parseOCMethodSignature(methodType + method_signature)
+
+  const name = signatureInfo.selector
+  const paramNames = signatureInfo.argNames
+  if (paramNames.length > 0) {
+    return {name, paramNames, methodType, body}
+  }
+  else {
+    return {name, methodType, body}
   }
 }
+
+dummy_type = S '(' [^)]+ ')' S { return null }
+
+main_group = '@main' S code_block:code_block {
+  return [ createCall('main_queue', [code_block]) ]
+}
+
+once_group = '@once' S key:IDENTIFIER? S code_block:code_block {
+  const onceKey = key? [createLiteral(key)] : [createCall('_cmd')]
+  return [ createCall('once', [ onceKey , code_block]) ]
+}
+
+method_group = '@methods' S_n '{' S_n methods:hook_method+ S_n '}' {
+  return [ createLiteral(methods) ]
+}
+
 
 /// Syntax - Expression p1
 ///////////////////////
 p1 = '(' S expression:expression S ')' {
   return expression
-}
-/ spec:block_spec {
-  return [createCall('Weiwo'), createCall('createBlock:', [[createLiteral(spec)]])]
 }
 / '^' S name:IDENTIFIER {
   return [createCall('awaitblock', [[ createLiteral(name) ]])]
@@ -152,21 +175,8 @@ p1 = '(' S expression:expression S ')' {
 / '-' S list:item_list {
   return list.concat(createCall('weiwo_negate'))
 }
+/ ocs_group
 / item_list
-
-/// Syntax - Parameter List
-///////////////////////
-
-block_param_list = '(' S params:('void' / block_param_pair*) S ')' {
-  if (params === 'void') {
-    return undefined
-  }
-  return params
-}
-
-block_param_pair = type:type_encoding S name:IDENTIFIER COMMA? {
-  return { type, name }
-}
 
 /// Syntax - Body
 ///////////////////////

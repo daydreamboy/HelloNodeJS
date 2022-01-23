@@ -1,13 +1,11 @@
 syscmd(`cat ../ocs_components/01_ocs_utility_function.pegjs')dnl
 
 
-start = block_spec
+start = ocs_group
 
-syscmd(`cat ../ocs_components/07_ocs_block_spec.pegjs')
+syscmd(`cat ../ocs_components/07_ocs_group.pegjs')
 
-syscmd(`cat ../ocs_components/07_ocs_block_spec_expression_p1.pegjs')
-
-syscmd(`cat ../ocs_components/03_ocs_block_parameter_list.pegjs')
+syscmd(`cat ../ocs_components/07_ocs_group_expression_p1.pegjs')
 
 syscmd(`cat ../ocs_components/06_ocs_body.pegjs')
 

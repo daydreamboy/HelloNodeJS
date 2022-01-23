@@ -1,11 +1,13 @@
 syscmd(`cat ../ocs_components/01_ocs_utility_function.pegjs')dnl
 
 
-start = block_spec
+start = body
+
+syscmd(`cat ../ocs_components/07_ocs_group.pegjs')
+
+syscmd(`cat ../ocs_components/08_ocs_body_expression_p1.pegjs')
 
 syscmd(`cat ../ocs_components/07_ocs_block_spec.pegjs')
-
-syscmd(`cat ../ocs_components/07_ocs_block_spec_expression_p1.pegjs')
 
 syscmd(`cat ../ocs_components/03_ocs_block_parameter_list.pegjs')
 
@@ -17,7 +19,7 @@ syscmd(`cat ../ocs_components/05_ocs_expression_list_or_tuple.pegjs')
 
 syscmd(`cat ../ocs_components/04_ocs_expression.pegjs')
 
-// #syscmd(`cat ../ocs_components/04_ocs_expression_p1.pegjs')
+// # syscmd(`cat ../ocs_components/04_ocs_expression_p1.pegjs')
 
 syscmd(`cat ../ocs_components/03_ocs_literal_type.pegjs')
 
