@@ -1,6 +1,5 @@
 /// Syntax - Auxiliary
 ///////////////////////
-
 COMMENT = '//' [^\n]+
 SINGLE_SPACE = (" " / "\t" / COMMENT) { return null }
 SINGLE_SPACE_OR_NEWLINE = (SINGLE_SPACE / "\n") { return null }

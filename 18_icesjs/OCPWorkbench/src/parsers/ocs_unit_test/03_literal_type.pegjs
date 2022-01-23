@@ -234,7 +234,6 @@ EX_IDENTIFIER = $( [$a-zA-Z_:] [$a-zA-Z_0-9:]* ('...')? )
 
 /// Syntax - Auxiliary
 ///////////////////////
-
 COMMENT = '//' [^\n]+
 SINGLE_SPACE = (" " / "\t" / COMMENT) { return null }
 SINGLE_SPACE_OR_NEWLINE = (SINGLE_SPACE / "\n") { return null }
@@ -266,3 +265,4 @@ ESCAPED_CHAR = BACKSLASH char:. {
     default: return char
   }
 }
+

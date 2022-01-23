@@ -116,7 +116,7 @@
   }
 }
 
-start = expression_list / expression_tuple
+start = expression
 
 /// Syntax - Expression List or Tuple
 ///////////////////////
@@ -493,11 +493,6 @@ message_call = '.' name:EX_IDENTIFIER args:expression_tuple? {
   return createCall(name, args)
 }
 
-/// Syntax - Assign
-///////////////////////
-ASSIGN_OP = ':=' { return 'setSlot' }
-/ '=' { return 'updateSlot' }
-
 /// Syntax - Literal Type
 ///////////////////////
 literal = value:(BOOLEAN / NULL / STRING / NUMBER / SELECTOR) {
@@ -612,9 +607,13 @@ void_pointer_type = 'void' SPACE? '*' { return '^v' }
 IDENTIFIER = $( [$a-zA-Z_] [$a-zA-Z_0-9]* )
 EX_IDENTIFIER = $( [$a-zA-Z_:] [$a-zA-Z_0-9:]* ('...')? )
 
+/// Syntax - Assign
+///////////////////////
+ASSIGN_OP = ':=' { return 'setSlot' }
+/ '=' { return 'updateSlot' }
+
 /// Syntax - Auxiliary
 ///////////////////////
-
 COMMENT = '//' [^\n]+
 SINGLE_SPACE = (" " / "\t" / COMMENT) { return null }
 SINGLE_SPACE_OR_NEWLINE = (SINGLE_SPACE / "\n") { return null }
@@ -646,3 +645,4 @@ ESCAPED_CHAR = BACKSLASH char:. {
     default: return char
   }
 }
+

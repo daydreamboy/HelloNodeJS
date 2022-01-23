@@ -1,4 +1,18 @@
-start = type_encoding
+start = block_param_list
+
+/// Syntax - Parameter List
+///////////////////////
+
+block_param_list = '(' S params:('void' / block_param_pair*) S ')' {
+  if (params === 'void') {
+    return undefined
+  }
+  return params
+}
+
+block_param_pair = type:type_encoding S name:IDENTIFIER COMMA? {
+  return { type, name }
+}
 
 /// Syntax - Type Encoding
 ///////////////////////
@@ -67,7 +81,6 @@ EX_IDENTIFIER = $( [$a-zA-Z_:] [$a-zA-Z_0-9:]* ('...')? )
 
 /// Syntax - Auxiliary
 ///////////////////////
-
 COMMENT = '//' [^\n]+
 SINGLE_SPACE = (" " / "\t" / COMMENT) { return null }
 SINGLE_SPACE_OR_NEWLINE = (SINGLE_SPACE / "\n") { return null }
@@ -99,3 +112,4 @@ ESCAPED_CHAR = BACKSLASH char:. {
     default: return char
   }
 }
+
