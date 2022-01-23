@@ -7,8 +7,8 @@ const colors = require('colors');
 
 const assert_equal = (parser, input, expected, resetCounter = false) => {
   // @see https://stackoverflow.com/a/1535650
-  if (typeof assert_equal.counter == 'undefined' || resetCounter) {
-    assert_equal.counter = 0;
+  if (typeof assert_equal.count == 'undefined' || resetCounter) {
+    assert_equal.count = 0;
   }
 
   if (typeof assert_equal.successCount == 'undefined' || resetCounter) {
@@ -19,7 +19,7 @@ const assert_equal = (parser, input, expected, resetCounter = false) => {
     assert_equal.failureCount = 0;
   }
 
-  let counter = ++assert_equal.counter;
+  let counter = ++assert_equal.count;
   let output;
   try {
     output = parser.parse(input);
@@ -43,7 +43,7 @@ const assert_equal = (parser, input, expected, resetCounter = false) => {
 }
 
 const assert_equal_summary = () => {
-  LogTool.v(`Summary: `.blue +
+  LogTool.v(`Summary: ${assert_equal.count} cases, `.blue +
     `${assert_equal.successCount} successes`.green +
     ', '.blue +
     (assert_equal.failureCount ? `${assert_equal.failureCount} failures`.red : `${assert_equal.failureCount} failures`.green));
@@ -117,6 +117,38 @@ const test_type_encoding = () => {
   input = 'void   *';
   assert_equal(parser, input, '^v');
 
+  // signed integer pointer types
+  input = 'char *';
+  assert_equal(parser, input, '*');
+
+  input = 'short *';
+  assert_equal(parser, input, '^s');
+
+  input = 'int *';
+  assert_equal(parser, input, '^i');
+
+  input = 'long *';
+  assert_equal(parser, input, '^q');
+
+  input = 'long long *';
+  assert_equal(parser, input, '^q');
+
+  // unsigned integer pointer types
+  input = 'unsigned char *';
+  assert_equal(parser, input, '*');
+
+  input = 'unsigned short *';
+  assert_equal(parser, input, '^S');
+
+  input = 'unsigned int *';
+  assert_equal(parser, input, '^I');
+
+  input = 'unsigned long *';
+  assert_equal(parser, input, '^Q');
+
+  input = 'unsigned long long *';
+  assert_equal(parser, input, '^Q');
+
   // Group 2: Objective-C Scalar types
   input = 'BOOL';
   assert_equal(parser, input, 'B');
@@ -130,8 +162,38 @@ const test_type_encoding = () => {
   input = 'CGFloat';
   assert_equal(parser, input, 'd');
 
-  input = 'CGFloat';
-  assert_equal(parser, input, 'd');
+  input = 'Class';
+  assert_equal(parser, input, '#');
+
+  input = 'id';
+  assert_equal(parser, input, '@');
+
+  input = 'SEL';
+  assert_equal(parser, input, ':');
+
+  input = 'IMP';
+  assert_equal(parser, input, '^?');
+
+  input = 'Tests_typeEncoding*';
+  assert_equal(parser, input, '@');
+
+  input = 'Tests_typeEncoding *';
+  assert_equal(parser, input, '@');
+
+  input = 'NSRange';
+  assert_equal(parser, input, '{_NSRange=QQ}');
+
+  input = 'CGSize';
+  assert_equal(parser, input, '{CGSize=dd}');
+
+  input = 'CGPoint';
+  assert_equal(parser, input, '{CGPoint=dd}');
+
+  input = 'CGRect';
+  assert_equal(parser, input, '{CGRect={CGPoint=dd}{CGSize=dd}}');
+
+  input = 'UIEdgeInsets';
+  assert_equal(parser, input, '{UIEdgeInsets=dddd}');
 
   assert_equal_summary();
   LogTool.v(`--- Finish Testing ${DebugTool.currentFunctionName()} ---`);

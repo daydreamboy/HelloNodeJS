@@ -15,9 +15,10 @@ cpp_type_encoding = 'bool' { return 'B' }
 / 'string' { return '*' }
 
 // Objective types
-objective_c_type_encoding = 'Class' SPACE { return '#' }
+objective_c_type_encoding = 'Class' { return '#' }
 / 'BOOL' { return 'B' }
 / 'SEL' { return ':' } 
+/ 'IMP' { return '^?' } 
 / 'id' ('<' type_encoding '>')? { return '@' }
 / 'NSInteger' { return 'q' }
 / 'NSUInteger' { return 'Q' }
