@@ -498,7 +498,7 @@ dictionary_constructor = '@{' S_n args:expression_list? S_n (',')? S_n '}' {
 /// Syntax - OC Block
 ///////////////////////
 
-block_spec = '^' S returnEncoding:type_encoding? S params:param_list? S body:code_block {
+block_spec = '^' S returnEncoding:type_encoding? S params:block_param_list? S body:code_block {
   if (!returnEncoding) {
     returnEncoding = 'v'
   }
@@ -516,7 +516,7 @@ block_spec = '^' S returnEncoding:type_encoding? S params:param_list? S body:cod
 /// Syntax - Parameter List
 ///////////////////////
 
-param_list = '(' S params:('void' / param_pair*) S ')' {
+block_param_list = '(' S params:('void' / param_pair*) S ')' {
   if (params === 'void') {
     return undefined
   }
