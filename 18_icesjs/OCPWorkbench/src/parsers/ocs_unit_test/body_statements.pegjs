@@ -121,21 +121,19 @@ start = body
 
 /// Syntax - Body
 ///////////////////////
+body = S_n statement_list:statement_list? S_n {
+	return statement_list ? statement_list : []
+}
 
 code_block = '{' body:body '}' {
   return body
 }
 
-body = S_n statement_list:statement_list? S_n {
-	return statement_list ? statement_list : []
-}
-
 /// Syntax - Statement List
 ///////////////////////
-
 statement_list = statement_list:statement+ {
   let expr = []
-  for( const e of statement_list) {
+  for (const e of statement_list) {
     expr = expr.concat(e)
   }
     
@@ -187,7 +185,6 @@ end_of_statement = COMMENT? (S [;\n] S)+ {
 
 /// Syntax - if statement
 ///////////////////////
-
 if_statement = 'if' condition:condition body:code_block else_body:else_statement? {
   const args = [condition, body]
   if (else_body) {
@@ -209,14 +206,12 @@ else_statement = 'else' S body:if_statement {
 
 /// Syntax - while statement
 ///////////////////////
-
 while_statement = 'while' condition:condition body:code_block {
   return createCall('while', [ condition, body] )
 }
 
 /// Syntax - for statement
 ///////////////////////
-
 for_loop_statement = 'for' S_n '(' S_n init:(define_statement / expression) S_n ';' S_n condition:expression S_n ';' S_n next:expression S_n ')' S_n body:code_block {
   return createCall(
     'for',
@@ -231,14 +226,12 @@ for_loop_statement = 'for' S_n '(' S_n init:(define_statement / expression) S_n 
 
 /// Syntax - for-in statement
 ///////////////////////
-
 for_in_statement = 'for' S_n '(' S name:IDENTIFIER S 'in' S container:expression S ')' S_n body:code_block {
   return createCall('foreach', [[createCall(name)], container, body])
 }
 
 /// Syntax - switch statement
 ///////////////////////
-
 switch_statement = 'switch' S_n value:expression S_n body:switch_body {
   const { cases, default_case } = body
   return createCall(
@@ -290,7 +283,7 @@ switch_default = 'default' S ':' S block:switch_block {
   return [block]
 }
 
-/// Syntax - Expression
+/// Syntax - Expression List or Tuple
 ///////////////////////
 
 expression_list = S_n first:expression rest:(rest_expression)* {
@@ -305,6 +298,8 @@ expression_tuple = '(' S_n list:expression_list? S_n ')' {
   return list ? list : []
 }
 
+/// Syntax - Expression
+///////////////////////
 expression = 'await' S expression: expression {
   return [createCall('await'), [expression]]
 }
@@ -701,11 +696,6 @@ p1 = '(' S expression:expression S ')' {
 / declaration:declaration_group {
   return [createCall('Weiwo'), createCall('declareCFunctions:', [[createLiteral(declaration)]]) ]
 }
-/*
-/ hook_group:hook_group{
-  return [createCall('Weiwo'), createCall('hookClass:', [[ createLiteral(hook_group) ]])]
-}
-*/
 / '-' S list:item_list {
   return list.concat(createCall('weiwo_negate'))
 }

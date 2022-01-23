@@ -1,4 +1,4 @@
-/// Syntax - Expression
+/// Syntax - Expression List or Tuple
 ///////////////////////
 
 expression_list = S_n first:expression rest:(rest_expression)* {
