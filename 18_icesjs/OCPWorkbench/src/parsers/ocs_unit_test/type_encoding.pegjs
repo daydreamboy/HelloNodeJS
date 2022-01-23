@@ -2,16 +2,27 @@ start = type_encoding
 
 /// Syntax - Type Encoding
 ///////////////////////
-type_encoding = pointer_type / string_encoding / float_encoding / integer_encoding
-/ ('bool' / 'BOOL') { return 'B' }
-/ ('string' / 'const' SPACE 'char' SPACE '*') { return '*' }
+// match order: C、CPP、Objective-C
+type_encoding = c_type_encoding / cpp_type_encoding / objective_c_type_encoding
+
+// C types
+c_type_encoding = pointer_type / string_encoding / float_encoding / integer_encoding
+/ 'size_t' { return 'Q' }
+/ 'const' SPACE 'char' SPACE '*' { return '*' }
 / 'pointer' { return '^v' }
-/ 'Class' SPACE { return '#' }
+/ 'void' { return 'v' }
+
+// C++ types
+cpp_type_encoding = 'bool' { return 'B' }
+/ 'string' { return '*' }
+
+// Objective types
+objective_c_type_encoding = 'Class' SPACE { return '#' }
+/ 'BOOL' { return 'B' }
 / 'SEL' { return ':' } 
 / 'id' ('<' type_encoding '>')? { return '@' }
-/ 'void' { return 'v' }
 / 'NSInteger' { return 'q' }
-/ ('NSUInteger' / 'size_t') { return 'Q' }
+/ 'NSUInteger' { return 'Q' }
 / 'NSRange' { return '{_NSRange=QQ}' }
 / 'CGFloat' { return 'd' }
 / 'CGSize' { return '{CGSize=dd}' }

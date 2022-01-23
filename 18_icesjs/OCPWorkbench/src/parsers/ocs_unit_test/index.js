@@ -42,6 +42,13 @@ const assert_equal = (parser, input, expected, resetCounter = false) => {
   }
 }
 
+const assert_equal_summary = () => {
+  LogTool.v(`Summary: `.blue +
+    `${assert_equal.successCount} successes`.green +
+    ', '.blue +
+    (assert_equal.failureCount ? `${assert_equal.failureCount} failures`.red : `${assert_equal.failureCount} failures`.green));
+}
+
 const test_type_encoding = () => {
   LogTool.v(`--- Testing ${DebugTool.currentFunctionName()} ---`);
 
@@ -52,7 +59,7 @@ const test_type_encoding = () => {
   const grammar = buffer.toString();
   const parser = peg.generate(grammar);
 
-  // Group1: Scalar C types
+  // Group 1: Scalar C types
   // signed integer types
   input = 'char';
   assert_equal(parser, input, 'c');
@@ -99,6 +106,10 @@ const test_type_encoding = () => {
   input = 'void';
   assert_equal(parser, input, 'v');
 
+  // other C types
+  input = 'size_t';
+  assert_equal(parser, input, 'Q');
+
   // pointer type
   input = 'void *';
   assert_equal(parser, input, '^v');
@@ -106,10 +117,23 @@ const test_type_encoding = () => {
   input = 'void   *';
   assert_equal(parser, input, '^v');
 
-  LogTool.v(`Summary: `.blue +
-    `${assert_equal.successCount} successes`.green +
-    ', '.blue +
-    (assert_equal.failureCount ? `${assert_equal.failureCount} failures`.red : `${assert_equal.failureCount} failures`.green));
+  // Group 2: Objective-C Scalar types
+  input = 'BOOL';
+  assert_equal(parser, input, 'B');
+
+  input = 'NSInteger';
+  assert_equal(parser, input, 'q');
+
+  input = 'NSUInteger';
+  assert_equal(parser, input, 'Q');
+
+  input = 'CGFloat';
+  assert_equal(parser, input, 'd');
+
+  input = 'CGFloat';
+  assert_equal(parser, input, 'd');
+
+  assert_equal_summary();
   LogTool.v(`--- Finish Testing ${DebugTool.currentFunctionName()} ---`);
 }
 
