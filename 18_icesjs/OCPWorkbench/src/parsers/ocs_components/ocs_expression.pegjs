@@ -188,7 +188,13 @@ oc_pair = S label:$('@'? IDENTIFIER) S ':' S arg:expression S_n {
 ///////////////////////
 
 p12 = first:p11 second:(concat_item)* {
-  return second ? first.concat(second) : first
+  try {
+    return second ? first.concat(second) : first
+  } 
+  catch (error) {
+    expected('p12 rule: ' + error)
+    return undefined
+  }
 }
     
 concat_item = S '..' S p11:p11 {
@@ -196,7 +202,13 @@ concat_item = S '..' S p11:p11 {
 }
 
 p11 = first:p10 second:(or_item)* {
-  return second ? first.concat(second) : first
+  try {
+    return second ? first.concat(second) : first
+  } 
+  catch (error) {
+    expected('p11 rule: ' + error)
+    return undefined
+  }
 }
 
 or_item = S (('or' SPACE) / '||') S p10:p10 {
@@ -204,7 +216,13 @@ or_item = S (('or' SPACE) / '||') S p10:p10 {
 }
 
 p10 = first:p9 second:(and_item)* {
-  return second ? first.concat(second) : first
+  try {
+    return second ? first.concat(second) : first
+  } 
+  catch (error) {
+    expected('p10 rule: ' + error)
+    return undefined
+  }
 }
 
 and_item = S (('and' SPACE) / '&&') S p9:p9 {
@@ -214,7 +232,13 @@ and_item = S (('and' SPACE) / '&&') S p9:p9 {
 p9 = p6
 
 p6 = first:p5 second:(equality_compare_item)* {
-  return second ? first.concat(second) : first
+  try {
+    return second ? first.concat(second) : first
+  } 
+  catch (error) {
+    expected('p6 rule: ' + error)
+    return undefined
+  }
 }
 
 equality_compare_item = S op:('==') S p5:p5 {
@@ -225,7 +249,13 @@ equality_compare_item = S op:('==') S p5:p5 {
 }
 
 p5 = first:p4 second:(compare_item)* {
-  return second ? first.concat(second) : first
+  try {
+    return second ? first.concat(second) : first
+  } 
+  catch (error) {
+    expected('p5 rule: ' + error)
+    return undefined
+  }
 }
 
 compare_item = S op:('<=' / '<' / '>=' / '>') S p4:p4 {
@@ -233,7 +263,13 @@ compare_item = S op:('<=' / '<' / '>=' / '>') S p4:p4 {
 }
 
 p4 = first:p3 second:(shift_item)* {
-  return second ? first.concat(second) : first
+  try {
+    return second ? first.concat(second) : first
+  } 
+  catch (error) {
+    expected('p4 rule: ' + error)
+    return undefined
+  }
 }
    
 shift_item = S op:('<<' / '>>') S p3:p3 {
@@ -241,7 +277,13 @@ shift_item = S op:('<<' / '>>') S p3:p3 {
 }
 
 p3 = first:p2 second:(addition_item)* {
-  return second ? first.concat(second) : first 
+  try {
+    return second ? first.concat(second) : first 
+  } 
+  catch (error) {
+    expected('p3 rule: ' + error)
+    return undefined
+  }
 }
   
 addition_item = S op:('+' / '-') S p2:p2 {
@@ -252,7 +294,13 @@ p2 = first:prefix_operator {
   return [first]
 }
 / first:p1 second:(multiplication_item)* {
-  return second ? first.concat(second) : first 
+  try {
+    return second ? first.concat(second) : first 
+  } 
+  catch (error) {
+    expected('p2 rule: ' + error)
+    return undefined
+  }
 }
 / '!' p2:p2 {
   return [createCall('!', [p2])]
@@ -282,14 +330,20 @@ p1 = '(' S expression:expression S ')' {
 / item_list
 
 item_list  = first:first_item rest:rest_item* {
-  if (!Array.isArray(first)) {
-    first = [first]
-  }
-  if (rest) {
-    return first.concat(rest);
+  try {
+    if (!Array.isArray(first)) {
+      first = [first]
+    }
+    if (rest) {
+      return first.concat(rest);
+    } 
+    else {
+      return first
+    }
   } 
-  else {
-    return first
+  catch (error) {
+    expected('item_list rule: ' + error)
+    return undefined
   }
 } 
 
