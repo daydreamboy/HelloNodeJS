@@ -18,7 +18,12 @@ jscode = S_n '@jscode' jscode_lines:jscode_line+ '@end' S_n {
   allParamNames.push('_spec = 0')
   const paramNamesString = allParamNames.join(', ')
 
-  return `export async function ${name}(${paramNamesString}){\n\treturn await Weiwo.vm(_spec).callBlock(\n\t\t${ast},\n\t\t[${blockParamsString}],\n\t\tWeiwo.ContainerAsValue\n\t)\n}`
+  return `export async function ${name}(${paramNamesString}) {
+  return await Weiwo.vm(_spec).callBlock(
+    ${ast},
+    [${blockParamsString}],
+    Weiwo.ContainerAsValue
+  )}`
 }
 
 jscode_line = $([^@]+)
