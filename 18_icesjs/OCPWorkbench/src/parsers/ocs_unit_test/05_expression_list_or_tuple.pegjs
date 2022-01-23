@@ -23,7 +23,7 @@
   */
   function captureBalancedMarkedString(string, markerStart, markerEnd, includeMarker = false) {
     if (typeof string != 'string' || typeof markerStart != 'string' || typeof markerEnd != 'string') {
-        return null;
+      return null;
     }
 
     let balancedStrings = [];
@@ -31,25 +31,25 @@
     let balanceGroupStart = -1;
     let index = 0;
     for (const char of string) {
-        if (char === markerStart) {
-            balanceLevel++;
-            if (balanceLevel == 1) {
-                balanceGroupStart = (includeMarker ? index : index + 1);
-            }
+      if (char === markerStart) {
+        balanceLevel++;
+        if (balanceLevel == 1) {
+          balanceGroupStart = (includeMarker ? index : index + 1);
         }
-        else if (char === markerEnd) {
-            if (balanceLevel == 1) {
-                // Note: the range of substring is [start, end)
-                let balancedString = string.substring(balanceGroupStart, (includeMarker ? index + 1 : index));
-                balancedStrings.push(balancedString);
-            }
-            // Note: if markerEnd more than markerStart, just ignore it and not change balanceLevel to negative
-            if (balanceLevel > 0) {
-                balanceLevel--;
-            }
+      }
+      else if (char === markerEnd) {
+        if (balanceLevel == 1) {
+          // Note: the range of substring is [start, end)
+          let balancedString = string.substring(balanceGroupStart, (includeMarker ? index + 1 : index));
+          balancedStrings.push(balancedString);
         }
+        // Note: if markerEnd more than markerStart, just ignore it and not change balanceLevel to negative
+        if (balanceLevel > 0) {
+          balanceLevel--;
+        }
+      }
 
-        index++;
+      index++;
     }
 
     return balancedStrings
@@ -61,7 +61,7 @@
 
   function parseOCMethodSignature(string) {
     if (typeof string != 'string') {
-        return null;
+      return null;
     }
 
     // Note: do trim
@@ -83,30 +83,30 @@
     let argNames = []
 
     if (signatureName.indexOf(':') != -1) {
-        for (const typePart of typeParts) {
-            let key = signatureName.substring(0, signatureName.indexOf(':'))
-            signatureKeys.push(key.trim())
+      for (const typePart of typeParts) {
+        let key = signatureName.substring(0, signatureName.indexOf(':'))
+        signatureKeys.push(key.trim())
 
-            let argTypeRange = { location: signatureName.indexOf(typePart), length: typePart.length }
-            let removeRange = { location: 0, length: argTypeRange.location + argTypeRange.length  }
-            signatureName = replaceSubstringInRange(signatureName, removeRange, '')
-            // Note: only trim prefix
-            signatureName = signatureName.trimStart()
-            // Note: find the position of the first white space
-            let indexOfFirstWhitespace = signatureName.search(/[\s]/)
-            if (indexOfFirstWhitespace != -1) {
-                let argName = signatureName.substring(0, indexOfFirstWhitespace)
-                argNames.push(argName.trim())
-                signatureName = replaceSubstringInRange(signatureName, { location: 0, length: indexOfFirstWhitespace }, '')
-            }
-            else {
-                argNames.push(signatureName.trim())
-                signatureName = replaceSubstringInRange(signatureName, { location: 0, length: signatureName.length }, '')
-            }
+        let argTypeRange = { location: signatureName.indexOf(typePart), length: typePart.length }
+        let removeRange = { location: 0, length: argTypeRange.location + argTypeRange.length  }
+        signatureName = replaceSubstringInRange(signatureName, removeRange, '')
+        // Note: only trim prefix
+        signatureName = signatureName.trimStart()
+        // Note: find the position of the first white space
+        let indexOfFirstWhitespace = signatureName.search(/[\s]/)
+        if (indexOfFirstWhitespace != -1) {
+          let argName = signatureName.substring(0, indexOfFirstWhitespace)
+          argNames.push(argName.trim())
+          signatureName = replaceSubstringInRange(signatureName, { location: 0, length: indexOfFirstWhitespace }, '')
         }
+        else {
+          argNames.push(signatureName.trim())
+          signatureName = replaceSubstringInRange(signatureName, { location: 0, length: signatureName.length }, '')
+        }
+      }
     }
     else {
-        signatureName = signatureName.trim()
+      signatureName = signatureName.trim()
     }
 
     // Note: when signatureKeys has only one element, signatureKeys.join(':') will return a string without ":"
