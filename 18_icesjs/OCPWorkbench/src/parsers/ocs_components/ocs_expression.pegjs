@@ -319,11 +319,6 @@ p1 = '(' S expression:expression S ')' {
 / declaration:declaration_group {
   return [createCall('Weiwo'), createCall('declareCFunctions:', [[createLiteral(declaration)]]) ]
 }
-/*
-/ hook_group:hook_group{
-  return [createCall('Weiwo'), createCall('hookClass:', [[ createLiteral(hook_group) ]])]
-}
-*/
 / '-' S list:item_list {
   return list.concat(createCall('weiwo_negate'))
 }
