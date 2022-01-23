@@ -20,6 +20,11 @@ const test_literal_type = () => {
     literal: 123
   }, true);
 
+  input = '0x10';
+  assert_deepEqual(parser, input, {
+    literal: '0x10'
+  });
+
   // float
   input = '3.14';
   assert_deepEqual(parser, input, {
@@ -35,6 +40,49 @@ const test_literal_type = () => {
   input = '\'string\'';
   assert_deepEqual(parser, input, {
     literal: "string"
+  });
+
+  input = '@"oc string"';
+  assert_deepEqual(parser, input, {
+    literal: "oc string"
+  });
+
+  // Group 3: boolean literal
+  input = 'YES';
+  assert_deepEqual(parser, input, {
+    literal: true
+  });
+
+  input = 'true';
+  assert_deepEqual(parser, input, {
+    literal: true
+  });
+
+  input = 'NO';
+  assert_deepEqual(parser, input, {
+    literal: false
+  });
+
+  input = 'false';
+  assert_deepEqual(parser, input, {
+    literal: false
+  });
+
+  // Group 4: null
+  input = 'null';
+  assert_deepEqual(parser, input, {
+    literal: null
+  });
+
+  input = 'nil';
+  assert_deepEqual(parser, input, {
+    literal: null
+  });
+
+  // Group 5: @selector
+  input = '@selector(a)';
+  assert_deepEqual(parser, input, {
+    literal: 'a'
   });
 
   assert_equal_summary();

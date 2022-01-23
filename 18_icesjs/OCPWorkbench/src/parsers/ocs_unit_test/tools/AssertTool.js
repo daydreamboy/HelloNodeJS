@@ -13,19 +13,19 @@ const assert_deepEqual = (parser, input, expected, resetCounter = false) => {
 
 const assert_equal_x = (parser, input, expected, deepEqual = false, resetCounter = false) => {
   // @see https://stackoverflow.com/a/1535650
-  if (typeof assert_equal.count == 'undefined' || resetCounter) {
-    assert_equal.count = 0;
+  if (typeof assert_equal_x.count == 'undefined' || resetCounter) {
+    assert_equal_x.count = 0;
   }
 
-  if (typeof assert_equal.successCount == 'undefined' || resetCounter) {
-    assert_equal.successCount = 0;
+  if (typeof assert_equal_x.successCount == 'undefined' || resetCounter) {
+    assert_equal_x.successCount = 0;
   }
 
-  if (typeof assert_equal.failureCount == 'undefined' || resetCounter) {
-    assert_equal.failureCount = 0;
+  if (typeof assert_equal_x.failureCount == 'undefined' || resetCounter) {
+    assert_equal_x.failureCount = 0;
   }
 
-  let counter = ++assert_equal.count;
+  let counter = ++assert_equal_x.count;
   let output;
   try {
     output = parser.parse(input);
@@ -38,7 +38,7 @@ const assert_equal_x = (parser, input, expected, deepEqual = false, resetCounter
     let success = `Case ${counter}: ${input}\n> Passed`;
     console.log(success.green);
 
-    ++assert_equal.successCount;
+    ++assert_equal_x.successCount;
   }
   catch (e) {
     if (e instanceof parser.SyntaxError) {
@@ -49,15 +49,15 @@ const assert_equal_x = (parser, input, expected, deepEqual = false, resetCounter
     }
     console.log(output.red);
 
-    ++assert_equal.failureCount;
+    ++assert_equal_x.failureCount;
   }
 }
 
 const assert_equal_summary = () => {
-  LogTool.v(`Summary: ${assert_equal.count} cases, `.blue +
-    `${assert_equal.successCount} successes`.green +
+  LogTool.v(`Summary: ${assert_equal_x.count} cases, `.blue +
+    `${assert_equal_x.successCount} successes`.green +
     ', '.blue +
-    (assert_equal.failureCount ? `${assert_equal.failureCount} failures`.red : `${assert_equal.failureCount} failures`.green));
+    (assert_equal_x.failureCount ? `${assert_equal_x.failureCount} failures`.red : `${assert_equal_x.failureCount} failures`.green));
 }
 
 export {assert_equal, assert_deepEqual, assert_equal_summary};
