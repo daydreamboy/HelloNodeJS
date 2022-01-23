@@ -7,6 +7,8 @@ syscmd(`cat ../ocs_components/05_ocs_expression_list_or_tuple.pegjs')
 
 syscmd(`cat ../ocs_components/04_ocs_expression.pegjs')
 
+syscmd(`cat ../ocs_components/04_ocs_expression_p1.pegjs')
+
 syscmd(`cat ../ocs_components/03_ocs_literal_type.pegjs')
 
 syscmd(`cat ../ocs_components/02_ocs_type_encoding.pegjs')

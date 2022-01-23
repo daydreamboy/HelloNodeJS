@@ -116,7 +116,38 @@
   }
 }
 
-start = body
+start = block_spec
+
+/// Syntax - OC Block
+///////////////////////
+block_spec = '^' S returnEncoding:type_encoding? S params:block_param_list? S body:code_block {
+  if (!returnEncoding) {
+    returnEncoding = 'v'
+  }
+  const paramsEncoding = params ? params.map(param => param.type).join('') : ''
+  const signature = returnEncoding + '@' + paramsEncoding
+  const paramNames = params ? params.map(pair => pair.name) : []
+  return {
+    type: 'block',
+    signature,
+    paramNames,
+    body
+  }
+}
+
+/// Syntax - Parameter List
+///////////////////////
+
+block_param_list = '(' S params:('void' / block_param_pair*) S ')' {
+  if (params === 'void') {
+    return undefined
+  }
+  return params
+}
+
+block_param_pair = type:type_encoding S name:IDENTIFIER COMMA? {
+  return { type, name }
+}
 
 /// Syntax - Body
 ///////////////////////
@@ -643,10 +674,15 @@ message_call = '.' name:EX_IDENTIFIER args:expression_tuple? {
   return createCall(name, args)
 }
 
+// #syscmd(`cat ../ocs_components/04_ocs_expression_p1.pegjs')
+
 /// Syntax - Expression p1
 ///////////////////////
 p1 = '(' S expression:expression S ')' {
   return expression
+}
+/ spec:block_spec {
+  return [createCall('Weiwo'), createCall('createBlock:', [[createLiteral(spec)]])]
 }
 / '^' S name:IDENTIFIER {
   return [createCall('awaitblock', [[ createLiteral(name) ]])]

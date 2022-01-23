@@ -8,3 +8,4 @@ m4 03_block_parameter_list.m4 > 03_block_parameter_list.pegjs
 m4 04_expression.m4 > 04_expression.pegjs
 m4 05_expression_list_or_tuple.m4 > 05_expression_list_or_tuple.pegjs
 m4 06_body.m4 > 06_body.pegjs
+m4 07_block_spec.m4 > 07_block_spec.pegjs
