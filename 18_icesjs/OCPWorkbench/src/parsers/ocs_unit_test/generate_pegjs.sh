@@ -12,3 +12,5 @@ m4 07_block_spec.m4 > 07_block_spec.pegjs
 m4 07_ocs_group.m4 > 07_ocs_group.pegjs
 m4 08_body_final.m4 > 08_body_final.pegjs
 m4 09_ocs_remotelib_jslib.m4 > 09_ocs_remotelib_jslib.pegjs
+
+m4 ../ocs.m4 > ../ocs.pegjs

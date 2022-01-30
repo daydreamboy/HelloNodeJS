@@ -1,4 +1,3 @@
-// This file uses typescript editor
 {
   /**
     Create an object like {name: xxx, args: yyy}
@@ -24,7 +23,7 @@
   */
   function captureBalancedMarkedString(string, markerStart, markerEnd, includeMarker = false) {
     if (typeof string != 'string' || typeof markerStart != 'string' || typeof markerEnd != 'string') {
-        return null;
+      return null;
     }
 
     let balancedStrings = [];
@@ -32,25 +31,25 @@
     let balanceGroupStart = -1;
     let index = 0;
     for (const char of string) {
-        if (char === markerStart) {
-            balanceLevel++;
-            if (balanceLevel == 1) {
-                balanceGroupStart = (includeMarker ? index : index + 1);
-            }
+      if (char === markerStart) {
+        balanceLevel++;
+        if (balanceLevel == 1) {
+          balanceGroupStart = (includeMarker ? index : index + 1);
         }
-        else if (char === markerEnd) {
-            if (balanceLevel == 1) {
-                // Note: the range of substring is [start, end)
-                let balancedString = string.substring(balanceGroupStart, (includeMarker ? index + 1 : index));
-                balancedStrings.push(balancedString);
-            }
-            // Note: if markerEnd more than markerStart, just ignore it and not change balanceLevel to negative
-            if (balanceLevel > 0) {
-                balanceLevel--;
-            }
+      }
+      else if (char === markerEnd) {
+        if (balanceLevel == 1) {
+          // Note: the range of substring is [start, end)
+          let balancedString = string.substring(balanceGroupStart, (includeMarker ? index + 1 : index));
+          balancedStrings.push(balancedString);
         }
+        // Note: if markerEnd more than markerStart, just ignore it and not change balanceLevel to negative
+        if (balanceLevel > 0) {
+          balanceLevel--;
+        }
+      }
 
-        index++;
+      index++;
     }
 
     return balancedStrings
@@ -62,7 +61,7 @@
 
   function parseOCMethodSignature(string) {
     if (typeof string != 'string') {
-        return null;
+      return null;
     }
 
     // Note: do trim
@@ -84,33 +83,33 @@
     let argNames = []
 
     if (signatureName.indexOf(':') != -1) {
-        for (const typePart of typeParts) {
-            let key = signatureName.substring(0, signatureName.indexOf(':'))
-            signatureKeys.push(key.trim())
+      for (const typePart of typeParts) {
+        let key = signatureName.substring(0, signatureName.indexOf(':'))
+        signatureKeys.push(key.trim())
 
-            let argTypeRange = { location: signatureName.indexOf(typePart), length: typePart.length }
-            let removeRange = { location: 0, length: argTypeRange.location + argTypeRange.length  }
-            signatureName = replaceSubstringInRange(signatureName, removeRange, '')
-            // Note: only trim prefix
-            signatureName = signatureName.trimStart()
-            // Note: find the position of the first white space
-            let indexOfFirstWhitespace = signatureName.search(/[\s]/)
-            if (indexOfFirstWhitespace != -1) {
-                let argName = signatureName.substring(0, indexOfFirstWhitespace)
-                argNames.push(argName.trim())
-                signatureName = replaceSubstringInRange(signatureName, { location: 0, length: indexOfFirstWhitespace }, '')
-            }
-            else {
-                argNames.push(signatureName.trim())
-                signatureName = replaceSubstringInRange(signatureName, { location: 0, length: signatureName.length }, '')
-            }
+        let argTypeRange = { location: signatureName.indexOf(typePart), length: typePart.length }
+        let removeRange = { location: 0, length: argTypeRange.location + argTypeRange.length  }
+        signatureName = replaceSubstringInRange(signatureName, removeRange, '')
+        // Note: only trim prefix
+        signatureName = signatureName.trimStart()
+        // Note: find the position of the first white space
+        let indexOfFirstWhitespace = signatureName.search(/[\s]/)
+        if (indexOfFirstWhitespace != -1) {
+          let argName = signatureName.substring(0, indexOfFirstWhitespace)
+          argNames.push(argName.trim())
+          signatureName = replaceSubstringInRange(signatureName, { location: 0, length: indexOfFirstWhitespace }, '')
         }
+        else {
+          argNames.push(signatureName.trim())
+          signatureName = replaceSubstringInRange(signatureName, { location: 0, length: signatureName.length }, '')
+        }
+      }
     }
     else {
-        signatureName = signatureName.trim()
+      signatureName = signatureName.trim()
     }
 
-    // Note: when signatureKeys has only one element, signatureKeys.join(':') will return a string without `:`
+    // Note: when signatureKeys has only one element, signatureKeys.join(':') will return a string without ":"
     let selector = signatureKeys.length > 0 ? (signatureKeys.join(':') + ':') : signatureName;
 
     return { methodType, returnTypePart, signatureName, signatureKeys, argTypes, argNames, selector, originalString: string }
@@ -121,7 +120,6 @@ start = remote_lib / js_lib / body
 
 /// Syntax - OCS JSLib Group
 ///////////////////////
-
 js_lib = S_n '@jslib' S_n jscode:jscode+ S_n '@end' S_n {
   return jscode.join("\n")
 }
@@ -140,14 +138,18 @@ jscode = S_n '@jscode' jscode_lines:jscode_line+ '@end' S_n {
   allParamNames.push('_spec = 0')
   const paramNamesString = allParamNames.join(', ')
 
-  return `export async function ${name}(${paramNamesString}){\n\treturn await Weiwo.vm(_spec).callBlock(\n\t\t${ast},\n\t\t[${blockParamsString}],\n\t\tWeiwo.ContainerAsValue\n\t)\n}`
+  return `export async function ${name}(${paramNamesString}) {
+  return await Weiwo.vm(_spec).callBlock(
+    ${ast},
+    [${blockParamsString}],
+    Weiwo.ContainerAsValue
+  )}`
 }
 
 jscode_line = $([^@]+)
 
 /// Syntax - OCS RemoteLib Group
 ///////////////////////
-
 remote_lib = S_n '@remotelib' S_n functions:lib_function+ S_n '@end' S_n {
   const blocks = functions.reduce(
     (dict, function_spec) => {
@@ -159,27 +161,119 @@ remote_lib = S_n '@remotelib' S_n functions:lib_function+ S_n '@end' S_n {
     return {blocks}
 }
 
-lib_function = S_n name:IDENTIFIER S ASSIGN_OP S spec:block_spec S_n{
+lib_function = S_n name:IDENTIFIER S ASSIGN_OP S spec:block_spec S_n {
   return {name, spec}
+}
+
+/// Syntax - OCS Group
+///////////////////////
+ocs_group = hook_group / main_group / once_group / method_group
+
+hook_group = '@hook' SPACE className:IDENTIFIER SPACE_n methods:hook_method+ S_n '@end' {
+  let hook_model = {className, methods}
+  return [createCall('Weiwo'), createCall('hookClass:', [[ createLiteral(hook_model) ]])]
+}
+
+hook_method = methodType:[+-] S method_signature:$([^{}]+) S  & '{' body:code_block S_n {
+  let balancedStrings = captureBalancedMarkedString(method_signature, '(', ')', true);
+  if (balancedStrings.length == 0) {
+    expected("the string should match OC method signature")
+  }
+
+  let signatureInfo = parseOCMethodSignature(methodType + method_signature)
+
+  const name = signatureInfo.selector
+  const paramNames = signatureInfo.argNames
+  if (paramNames.length > 0) {
+    return {name, paramNames, methodType, body}
+  }
+  else {
+    return {name, methodType, body}
+  }
+}
+
+dummy_type = S '(' [^)]+ ')' S { return null }
+
+main_group = '@main' S code_block:code_block {
+  return [ createCall('main_queue', [code_block]) ]
+}
+
+once_group = '@once' S key:IDENTIFIER? S code_block:code_block {
+  const onceKey = key? [createLiteral(key)] : [createCall('_cmd')]
+  return [ createCall('once', [ onceKey , code_block]) ]
+}
+
+method_group = '@methods' S_n '{' S_n methods:hook_method+ S_n '}' {
+  return [ createLiteral(methods) ]
+}
+
+
+/// Syntax - Expression p1
+///////////////////////
+p1 = '(' S expression:expression S ')' {
+  return expression
+}
+/ spec:block_spec {
+  return [createCall('Weiwo'), createCall('createBlock:', [[createLiteral(spec)]])]
+}
+/ '^' S name:IDENTIFIER {
+  return [createCall('awaitblock', [[ createLiteral(name) ]])]
+}
+/ declaration:declaration_group {
+  return [createCall('Weiwo'), createCall('declareCFunctions:', [[createLiteral(declaration)]]) ]
+}
+/ '-' S list:item_list {
+  return list.concat(createCall('weiwo_negate'))
+}
+/ ocs_group
+/ item_list
+
+/// Syntax - OC Block
+///////////////////////
+block_spec = '^' S returnEncoding:type_encoding? S params:block_param_list? S body:code_block {
+  if (!returnEncoding) {
+    returnEncoding = 'v'
+  }
+  const paramsEncoding = params ? params.map(param => param.type).join('') : ''
+  const signature = returnEncoding + '@' + paramsEncoding
+  const paramNames = params ? params.map(pair => pair.name) : []
+  return {
+    type: 'block',
+    signature,
+    paramNames,
+    body
+  }
+}
+
+/// Syntax - Parameter List
+///////////////////////
+
+block_param_list = '(' S params:('void' / block_param_pair*) S ')' {
+  if (params === 'void') {
+    return undefined
+  }
+  return params
+}
+
+block_param_pair = type:type_encoding S name:IDENTIFIER COMMA? {
+  return { type, name }
 }
 
 /// Syntax - Body
 ///////////////////////
+body = S_n statement_list:statement_list? S_n {
+	return statement_list ? statement_list : []
+}
 
 code_block = '{' body:body '}' {
   return body
 }
 
-body = S_n statements:statements? S_n {
-	return statements ? statements : []
-}
-
-/// Syntax - Statement
+/// Syntax - Statement List
 ///////////////////////
-
-statements = statement_list:statement+ {
+statement_list = statement_list:statement+ {
   let expr = []
-  for( const e of statement_list) {
+  for (const e of statement_list) {
     expr = expr.concat(e)
   }
     
@@ -231,7 +325,6 @@ end_of_statement = COMMENT? (S [;\n] S)+ {
 
 /// Syntax - if statement
 ///////////////////////
-
 if_statement = 'if' condition:condition body:code_block else_body:else_statement? {
   const args = [condition, body]
   if (else_body) {
@@ -253,14 +346,12 @@ else_statement = 'else' S body:if_statement {
 
 /// Syntax - while statement
 ///////////////////////
-
 while_statement = 'while' condition:condition body:code_block {
   return createCall('while', [ condition, body] )
 }
 
 /// Syntax - for statement
 ///////////////////////
-
 for_loop_statement = 'for' S_n '(' S_n init:(define_statement / expression) S_n ';' S_n condition:expression S_n ';' S_n next:expression S_n ')' S_n body:code_block {
   return createCall(
     'for',
@@ -275,14 +366,12 @@ for_loop_statement = 'for' S_n '(' S_n init:(define_statement / expression) S_n 
 
 /// Syntax - for-in statement
 ///////////////////////
-
 for_in_statement = 'for' S_n '(' S name:IDENTIFIER S 'in' S container:expression S ')' S_n body:code_block {
   return createCall('foreach', [[createCall(name)], container, body])
 }
 
 /// Syntax - switch statement
 ///////////////////////
-
 switch_statement = 'switch' S_n value:expression S_n body:switch_body {
   const { cases, default_case } = body
   return createCall(
@@ -334,7 +423,7 @@ switch_default = 'default' S ':' S block:switch_block {
   return [block]
 }
 
-/// Syntax - Expression
+/// Syntax - Expression List or Tuple
 ///////////////////////
 
 expression_list = S_n first:expression rest:(rest_expression)* {
@@ -349,6 +438,9 @@ expression_tuple = '(' S_n list:expression_list? S_n ')' {
   return list ? list : []
 }
 
+
+/// Syntax - Expression
+///////////////////////
 expression = 'await' S expression: expression {
   return [createCall('await'), [expression]]
 }
@@ -418,6 +510,7 @@ first_item = literal
 / protocol 
 / encode 
 /// main_call 
+/// once_call 
 / interpolated_string 
 / sizeof_expression
 / array_constructor 
@@ -479,7 +572,7 @@ interpolated_string = '$"' parts:interpolated_item* '"' {
     ]
   }
   else {
-    return''
+    return ''
   }
 }
 
@@ -488,49 +581,6 @@ interpolated_item = '{' value:expression '}' {
 }
 / chars:( ESCAPED_CHAR / [^\'"{}] )+ {
   return [ createLiteral(chars.join('')) ]
-}
-
-/// Syntax - OCS Group
-///////////////////////
-
-ocs_group = hook_group / main_group / once_group / method_group
-
-hook_group = '@hook' SPACE className:IDENTIFIER SPACE_n methods:hook_method+ S_n '@end' {
-  let hook_model = {className, methods}
-  return [createCall('Weiwo'), createCall('hookClass:', [[ createLiteral(hook_model) ]])]
-}
-
-hook_method = methodType:[+-] S method_signature:$([^{}]+) S  & '{' body:code_block S_n {
-  let balancedStrings = captureBalancedMarkedString(method_signature, '(', ')', true);
-  if (balancedStrings.length == 0) {
-    expected("the string should match OC method signature")
-  }
-
-  let signatureInfo = parseOCMethodSignature(methodType + method_signature)
-
-  const name = signatureInfo.selector
-  const paramNames = signatureInfo.argNames
-  if (paramNames.length > 0) {
-    return {name, paramNames, methodType, body}
-  }
-  else {
-    return {name, methodType, body}
-  }
-}
-
-dummy_type = S '(' [^)]+ ')' S { return null }
-
-main_group = '@main' S code_block:code_block {
-  return [ createCall('main_queue', [code_block]) ]
-}
-
-once_group = '@once' S key:IDENTIFIER? S code_block:code_block {
-  const onceKey = key? [createLiteral(key)] : [createCall('_cmd')]
-  return [ createCall('once', [ onceKey , code_block]) ]
-}
-
-method_group = '@methods' S_n '{' S_n methods:hook_method+ S_n '}' {
-  return [ createLiteral(methods) ]
 }
 
 /// Syntax - Objective-C Container
@@ -542,38 +592,6 @@ array_constructor = '@[' S_n args:expression_list? S_n (',')? S_n ']' {
 
 dictionary_constructor = '@{' S_n args:expression_list? S_n (',')? S_n '}' {
   return createCall('curlyBrackets', args)
-}
-
-/// Syntax - OC Block
-///////////////////////
-
-block_spec = '^' S returnEncoding:type_encoding? S params:param_list? S body:code_block {
-  if (!returnEncoding) {
-    returnEncoding = 'v'
-  }
-  const paramsEncoding = params ? params.map(param => param.type).join('') : ''
-  const signature = returnEncoding + '@' + paramsEncoding
-  const paramNames = params ? params.map(pair => pair.name) : []
-  return {
-    type: 'block',
-    signature,
-    paramNames,
-    body
-  }
-}
-
-/// Syntax - Parameter List
-///////////////////////
-
-param_list = '(' S params:('void' / param_pair*) S ')' {
-  if (params === 'void') {
-    return undefined
-  }
-  return params
-}
-
-param_pair = type:type_encoding S name:IDENTIFIER COMMA? {
-  return { type, name }
 }
 
 /// Syntax - C function call
@@ -732,29 +750,6 @@ p2 = first:prefix_operator {
 multiplication_item = S op:('%' / '*' / '/') S p1:p1 {
   return createCall(op, [p1])
 }
-    
-p1 = '(' S expression:expression S ')' {
-  return expression
-}
-/ spec:block_spec {
-  return [createCall('Weiwo'), createCall('createBlock:', [[createLiteral(spec)]])]
-}
-/ '^' S name:IDENTIFIER {
-  return [createCall('awaitblock', [[ createLiteral(name) ]])]
-}
-/ declaration:declaration_group {
-  return [createCall('Weiwo'), createCall('declareCFunctions:', [[createLiteral(declaration)]]) ]
-}
-/*
-/ hook_group:hook_group{
-  return [createCall('Weiwo'), createCall('hookClass:', [[ createLiteral(hook_group) ]])]
-}
-*/
-/ '-' S list:item_list {
-  return list.concat(createCall('weiwo_negate'))
-}
-/ ocs_group
-/ item_list
 
 item_list  = first:first_item rest:rest_item* {
   try {
@@ -772,7 +767,7 @@ item_list  = first:first_item rest:rest_item* {
     expected('item_list rule: ' + error)
     return undefined
   }
-}
+} 
 
 rest_item = message_call
 / S '^' S operand:expression{
@@ -789,22 +784,83 @@ message_call = '.' name:EX_IDENTIFIER args:expression_tuple? {
   return createCall(name, args)
 }
 
+// # syscmd(`cat ../ocs_components/04_ocs_expression_p1.pegjs')
+
+/// Syntax - Literal Type
+///////////////////////
+literal = value:(BOOLEAN / NULL / STRING / NUMBER / SELECTOR) {
+  return createLiteral(value)
+}
+
+// number
+NUMBER = FLOAT / INTEGER / HEXADECIMAL
+
+// float
+FLOAT = str:$( ('-')?  [0-9]+ '.' [0-9]+ ) { return parseFloat(str) }
+
+// integer
+INTEGER = str:$( ('-')? [0-9]+) (! 'x') { return parseInt(str) }
+HEXADECIMAL = $( '0x' [a-fA-F0-9]+ )
+
+// string
+STRING = DOUBLE_QUOTE_STRING / SINGLE_QUOTE_STRING
+DOUBLE_QUOTE_STRING = '@'? S DOUBLE_QUOTE chars:(CHAR_IN_QUOTE / SINGLE_QUOTE) * DOUBLE_QUOTE {
+  return chars.join('')
+}
+SINGLE_QUOTE_STRING = SINGLE_QUOTE chars:(CHAR_IN_QUOTE / DOUBLE_QUOTE)* SINGLE_QUOTE {
+  return chars.join('')
+}
+CHAR_IN_QUOTE = ESCAPED_CHAR / [^\'"]
+
+// boolean
+BOOLEAN = ( 'true' / 'YES' ) { return true }
+/ ( 'false' / 'NO' ) { return false }
+
+// null
+NULL = 'null' { return null }
+/ 'nil'  { return null }
+
+// @selector
+SELECTOR = '@selector' S '(' name:$([a-zA-Z0-9:]+) S ')' {
+  return name
+}
+
+// @protocol
+protocol = '@protocol' S '(' name:IDENTIFIER ')' {
+  return createCall('NSProtocolFromString', [[createLiteral(name)]])
+}
+
+// @encode
+encode = '@encode' S '(' encoding:type_encoding ')' {
+  return createLiteral(encoding)
+}
+
 /// Syntax - Type Encoding
 ///////////////////////
-type_encoding = pointer_type / integer_encoding / string_encoding
-/ 'float' { return 'f' }
-/ ('double' / 'CGFloat') { return 'd' }
-/ 'long' S_n 'double' { return 'D' }
-/ ('bool' / 'BOOL') { return 'B' }
-/ ('string' / 'const' S_n 'char' S_n '*') { return '*' }
+// match order: C、CPP、Objective-C
+type_encoding = c_type_encoding / cpp_type_encoding / objective_c_type_encoding
+
+// C types
+c_type_encoding = pointer_type / string_encoding / float_encoding / integer_encoding
+/ 'size_t' { return 'Q' }
+/ 'const' SPACE 'char' SPACE '*' { return '*' }
 / 'pointer' { return '^v' }
-/ 'Class' SPACE { return '#' }
-/ 'SEL' { return ':' } 
-/ 'id' ('<' type_encoding '>')? { return '@' }
 / 'void' { return 'v' }
+
+// C++ types
+cpp_type_encoding = 'bool' { return 'B' }
+/ 'string' { return '*' }
+
+// Objective types
+objective_c_type_encoding = 'Class' { return '#' }
+/ 'BOOL' { return 'B' }
+/ 'SEL' { return ':' } 
+/ 'IMP' { return '^?' } 
+/ 'id' ('<' type_encoding '>')? { return '@' }
 / 'NSInteger' { return 'q' }
-/ ('NSUInteger' / 'size_t') { return 'Q' }
+/ 'NSUInteger' { return 'Q' }
 / 'NSRange' { return '{_NSRange=QQ}' }
+/ 'CGFloat' { return 'd' }
 / 'CGSize' { return '{CGSize=dd}' }
 / 'CGPoint' { return '{CGPoint=dd}' }
 / 'CGRect' { return '{CGRect={CGPoint=dd}{CGSize=dd}}' }
@@ -814,16 +870,21 @@ type_encoding = pointer_type / integer_encoding / string_encoding
 
 integer_encoding = 'short' { return 's' }
 / 'int' { return 'i' }
-/ 'long' extra:(SPACE_n 'long')? {
-  //return extra ? 'q' : 'l'
+/ 'long' (SPACE 'long')? {
   return 'q'
 }
-/ 'unsigned' SPACE_n encoding:integer_encoding {
+/ 'unsigned' SPACE encoding:integer_encoding {
   return encoding.toUpperCase()
 }
 
-string_encoding = 'char' { return 'c' }
+float_encoding = 'float' { return 'f' }
+/ ('double') { return 'd' }
+/ 'long' SPACE 'double' { return 'D' }
 
+string_encoding = 'char' { return 'c' }
+/ 'unsigned' SPACE 'char' { return 'C' }
+
+// pointer_type
 pointer_type = integer_pointer_type / string_pointer_type / void_pointer_type
 integer_pointer_type = 'short' SPACE? '*' { return '^s' }
 / 'int' SPACE? '*' { return '^i' }
@@ -834,50 +895,18 @@ integer_pointer_type = 'short' SPACE? '*' { return '^s' }
 string_pointer_type = ('unsigned' SPACE)? 'char' SPACE? '*' { return '*' }
 void_pointer_type = 'void' SPACE? '*' { return '^v' }
 
+/// Syntax - Assign
+///////////////////////
+ASSIGN_OP = ':=' { return 'setSlot' }
+/ '=' { return 'updateSlot' }
+
 /// Syntax - Identifier
 ///////////////////////
 IDENTIFIER = $( [$a-zA-Z_] [$a-zA-Z_0-9]* )
 EX_IDENTIFIER = $( [$a-zA-Z_:] [$a-zA-Z_0-9:]* ('...')? )
 
-/// Syntax - Data Type
-///////////////////////
-NUMBER = FLOAT / INTEGER / HEXADECIMAL
-FLOAT = str:$( ('-')?  [0-9]+ '.' [0-9]+ ) { return parseFloat(str) }
-INTEGER = str:$( ('-')? [0-9]+) (! 'x') { return parseInt(str) }
-HEXADECIMAL = $( '0x' [a-fA-F0-9]+ )
-STRING = DOUBLE_QUOTE_STRING / SINGLE_QUOTE_STRING
-DOUBLE_QUOTE_STRING = '@'? S DOUBLE_QUOTE chars:(CHAR_IN_QUOTE / SINGLE_QUOTE) * DOUBLE_QUOTE {
-  return chars.join('')
-}
-SINGLE_QUOTE_STRING = SINGLE_QUOTE chars:(CHAR_IN_QUOTE / DOUBLE_QUOTE)* SINGLE_QUOTE {
-  return chars.join('')
-}
-CHAR_IN_QUOTE = ESCAPED_CHAR / [^\'"]
-BOOLEAN = ( 'true' / 'YES' ) { return true }
-/ ( 'false' / 'NO' ) { return false }
-NULL = 'null' { return null }
-SELECTOR = '@selector' S '(' name:$([a-zA-Z0-9:]+) S ')' {
-  return name
-}
-literal = value:(BOOLEAN / NULL / STRING / NUMBER / SELECTOR) {
-  return createLiteral(value)
-}
-protocol = '@protocol' S '(' name:IDENTIFIER ')' {
-  return createCall('NSProtocolFromString', [[createLiteral(name)]])
-}
-encode = '@encode' S '(' encoding:type_encoding ')' {
-  return createLiteral(encoding)
-}
-
-/// Syntax - Assign
-///////////////////////
-
-ASSIGN_OP = ':=' { return 'setSlot' }
-/ '=' { return 'updateSlot' }
-
 /// Syntax - Auxiliary
 ///////////////////////
-
 COMMENT = '//' [^\n]+
 SINGLE_SPACE = (" " / "\t" / COMMENT) { return null }
 SINGLE_SPACE_OR_NEWLINE = (SINGLE_SPACE / "\n") { return null }
@@ -886,8 +915,11 @@ SINGLE_SPACE_OR_NEWLINE = (SINGLE_SPACE / "\n") { return null }
 S = SINGLE_SPACE* { return null }
 // Separator with newline
 S_n = SINGLE_SPACE_OR_NEWLINE* { return null }
+// Comma
 COMMA = S_n ',' S_n
+// Space
 SPACE = SINGLE_SPACE+ { return null }
+// Space with newline
 SPACE_n = SINGLE_SPACE_OR_NEWLINE+ { return null }
 
 // Special Single Char
@@ -906,3 +938,4 @@ ESCAPED_CHAR = BACKSLASH char:. {
     default: return char
   }
 }
+

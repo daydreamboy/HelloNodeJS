@@ -41,6 +41,6 @@ remote_lib = S_n '@remotelib' S_n functions:lib_function+ S_n '@end' S_n {
     return {blocks}
 }
 
-lib_function = S_n name:IDENTIFIER S ASSIGN_OP S spec:block_spec S_n{
+lib_function = S_n name:IDENTIFIER S ASSIGN_OP S spec:block_spec S_n {
   return {name, spec}
 }

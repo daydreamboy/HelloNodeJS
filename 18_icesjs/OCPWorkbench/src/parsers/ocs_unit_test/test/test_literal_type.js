@@ -9,7 +9,7 @@ const test_literal_type = () => {
 
   let input;
 
-  const buffer = fs.readFileSync('./literal_type.pegjs');
+  const buffer = fs.readFileSync('./03_literal_type.pegjs');
   const grammar = buffer.toString();
   const parser = peg.generate(grammar);
 

@@ -9,7 +9,7 @@ const test_block_parameter_list = () => {
 
   let input;
 
-  const buffer = fs.readFileSync('./block_parameter_list.pegjs');
+  const buffer = fs.readFileSync('./03_block_parameter_list.pegjs');
   const grammar = buffer.toString();
   const parser = peg.generate(grammar);
 

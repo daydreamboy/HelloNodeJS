@@ -10,7 +10,7 @@ const test_type_encoding = () => {
   let input;
 
   // @see https://melvingeorge.me/blog/get-all-the-contents-from-file-as-string-nodejs
-  const buffer = fs.readFileSync('./type_encoding.pegjs');
+  const buffer = fs.readFileSync('./02_type_encoding.pegjs');
   const grammar = buffer.toString();
   const parser = peg.generate(grammar);
 
