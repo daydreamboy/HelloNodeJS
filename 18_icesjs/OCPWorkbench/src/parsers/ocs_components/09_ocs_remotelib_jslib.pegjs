@@ -4,7 +4,7 @@ js_lib = S_n '@jslib' S_n jscode:jscode+ S_n '@end' S_n {
   return jscode.join("\n")
 }
 
-jscode = S_n '@jscode' jscode_lines:jscode_line+ '@end' S_n {
+jscode = S_n '@jscode' S_n jscode_lines:jscode_line+ '@end' S_n {
   return jscode_lines.join("\n")
 }
 / func:lib_function {
@@ -18,12 +18,8 @@ jscode = S_n '@jscode' jscode_lines:jscode_line+ '@end' S_n {
   allParamNames.push('_spec = 0')
   const paramNamesString = allParamNames.join(', ')
 
-  return `export async function ${name}(${paramNamesString}) {
-  return await Weiwo.vm(_spec).callBlock(
-    ${ast},
-    [${blockParamsString}],
-    Weiwo.ContainerAsValue
-  )}`
+  // Note: use \n instead of literal line wrap, make js code more tidy
+  return `export async function ${name}(${paramNamesString}) {\n  return await Weiwo.vm(_spec).callBlock(\n    ${ast},\n    [${blockParamsString}],\n    Weiwo.ContainerAsValue\n)}\n`
 }
 
 jscode_line = $([^@]+)

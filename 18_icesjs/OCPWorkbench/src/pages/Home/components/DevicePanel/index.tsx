@@ -1,6 +1,6 @@
 import {Component, FunctionComponent} from "react";
 import {axios} from "@ice/runtime";
-import {setupHomePageDataFunctions} from "@/services/ocs-homePage";
+import {setupHomePageDataFunctions} from "@/services/ocs-workbench";
 import Weiwo from "@/weiwo";
 import {Loading, Close, Apple, Android} from "@icon-park/react";
 import {Button, Tag} from "@alifd/next";

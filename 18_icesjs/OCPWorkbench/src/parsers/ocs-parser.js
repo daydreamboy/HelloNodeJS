@@ -164,12 +164,8 @@ function peg$parse(input, options) {
         allParamNames.push('_spec = 0')
         const paramNamesString = allParamNames.join(', ')
 
-        return `export async function ${name}(${paramNamesString}) {
-        return await Weiwo.vm(_spec).callBlock(
-          ${ast},
-          [${blockParamsString}],
-          Weiwo.ContainerAsValue
-        )}`
+        // Note: use \n instead of literal line wrap, make js code more tidy
+        return `export async function ${name}(${paramNamesString}) {\n  return await Weiwo.vm(_spec).callBlock(\n    ${ast},\n    [${blockParamsString}],\n    Weiwo.ContainerAsValue\n)}\n`
       },
       peg$c9 = /^[^@]/,
       peg$c10 = peg$classExpectation(["@"], true, false),
@@ -1165,7 +1161,7 @@ function peg$parse(input, options) {
   }
 
   function peg$parsejscode() {
-    var s0, s1, s2, s3, s4, s5;
+    var s0, s1, s2, s3, s4, s5, s6;
 
     s0 = peg$currPos;
     s1 = peg$parseS_n();
@@ -1178,30 +1174,36 @@ function peg$parse(input, options) {
         if (peg$silentFails === 0) { peg$fail(peg$c6); }
       }
       if (s2 !== peg$FAILED) {
-        s3 = [];
-        s4 = peg$parsejscode_line();
-        if (s4 !== peg$FAILED) {
-          while (s4 !== peg$FAILED) {
-            s3.push(s4);
-            s4 = peg$parsejscode_line();
-          }
-        } else {
-          s3 = peg$FAILED;
-        }
+        s3 = peg$parseS_n();
         if (s3 !== peg$FAILED) {
-          if (input.substr(peg$currPos, 4) === peg$c2) {
-            s4 = peg$c2;
-            peg$currPos += 4;
+          s4 = [];
+          s5 = peg$parsejscode_line();
+          if (s5 !== peg$FAILED) {
+            while (s5 !== peg$FAILED) {
+              s4.push(s5);
+              s5 = peg$parsejscode_line();
+            }
           } else {
             s4 = peg$FAILED;
-            if (peg$silentFails === 0) { peg$fail(peg$c3); }
           }
           if (s4 !== peg$FAILED) {
-            s5 = peg$parseS_n();
+            if (input.substr(peg$currPos, 4) === peg$c2) {
+              s5 = peg$c2;
+              peg$currPos += 4;
+            } else {
+              s5 = peg$FAILED;
+              if (peg$silentFails === 0) { peg$fail(peg$c3); }
+            }
             if (s5 !== peg$FAILED) {
-              peg$savedPos = s0;
-              s1 = peg$c7(s3);
-              s0 = s1;
+              s6 = peg$parseS_n();
+              if (s6 !== peg$FAILED) {
+                peg$savedPos = s0;
+                s1 = peg$c7(s4);
+                s0 = s1;
+              } else {
+                peg$currPos = s0;
+                s0 = peg$FAILED;
+              }
             } else {
               peg$currPos = s0;
               s0 = peg$FAILED;
