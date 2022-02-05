@@ -1,7 +1,7 @@
 import {Component, FunctionComponent} from "react";
 import {axios} from "@ice/runtime";
 import {setupHomePageDataFunctions} from "@/services/weiwo/builtin-patches";
-import Weiwo from "@/services/weiwo";
+import Weiwo from "@/weiwo";
 import {Loading, Close, Apple, Android} from "@icon-park/react";
 import {Button, Tag} from "@alifd/next";
 import React from 'react';

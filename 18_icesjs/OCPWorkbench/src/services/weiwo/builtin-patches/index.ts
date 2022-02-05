@@ -1,4 +1,4 @@
-import Weiwo from "@/services/weiwo";
+import Weiwo from "@/weiwo";
 
 export async function setupHomePageDataFunctions(_spec = 0) {
 

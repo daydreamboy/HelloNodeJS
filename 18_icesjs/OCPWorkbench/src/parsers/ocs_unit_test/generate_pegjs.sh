@@ -14,5 +14,5 @@ m4 08_body_final.m4 > 08_body_final.pegjs
 m4 09_ocs_remotelib_jslib.m4 > 09_ocs_remotelib_jslib.pegjs
 
 m4 ../ocs.m4 > ../ocs.pegjs
-pegjs -o ../ocs.js ../ocs.pegjs
+pegjs -o ../ocs-parser.js ../ocs.pegjs
 ruby fix_ocs_module.rb

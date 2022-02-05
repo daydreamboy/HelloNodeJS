@@ -1,2 +1,3 @@
-target_folder = 'src/lib'
+target_file = 'src/services/weiwo/builtin-patches/index.ts'
+source_file = 'src/parsers/builtin-patches/ocs_builtin_patches.ocs'
 

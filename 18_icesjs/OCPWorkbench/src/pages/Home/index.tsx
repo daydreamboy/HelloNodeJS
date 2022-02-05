@@ -8,8 +8,8 @@ import {
   History,
   Refresh,
 } from '@icon-park/react';
-import Weiwo from '../../services/weiwo';
-import { setStateAsync } from "@/services/weiwo/utils";
+import Weiwo from '../../weiwo';
+import { setStateAsync } from "@/weiwo/utils";
 
 type HomeState = {
   deviceIPs: string[]

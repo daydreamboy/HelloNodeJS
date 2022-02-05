@@ -1569,7 +1569,7 @@ node或nodemon命令使用`-r`选项来预加载dotenv/config模块
 
 
 
-### （6）typescript[^13]
+### (6) typescript[^13]
 
 typescript提供tsc命令，用于编译ts文件，输出js文件。
 
@@ -1624,6 +1624,23 @@ let message: string = 'typescript!';
 
 hello(message)
 ```
+
+> 示例工程，见06_typescript
+
+执行下面命令，如下
+
+```shell
+// 用于编译ts文件，生成同名的js文件
+$ tsc
+// 用于编译ts文件，生成同名的js文件，并执行index.js文件
+$ tsc && node index.js
+```
+
+
+
+
+
+
 
 
 
@@ -2613,7 +2630,7 @@ $ which uglifyjs
 别名：npm um \<package\>      
 说明：卸载npm包
 
-```
+```shell
 $ npm uninstall underscore
 npm WARN 01_helloworld@1.0.0 No description
 npm WARN 01_helloworld@1.0.0 No repository field.
@@ -3063,6 +3080,16 @@ $ npm install --save --legacy-peer-deps
 
 
 
+### 6、常见问题
+
+#### (1) mjs文件和js文件的区别[^33]
+
+mjs文件表示采用ECMAScript module，是ES6 module文件。使用import和export方式
+
+cjs文件表示采用CommonJS module，使用require和module.exports方式
+
+Node.js将`.cjs`文件当成CommonJS module；将`.mjs`文件当前ECMAScript module；将`.js`文件当成default module，即CommonJS module，除非在package.json在指定`"type": "module"`，则认为是ECMAScript module。
+
 
 
 
@@ -3116,6 +3143,8 @@ $ npm install --save --legacy-peer-deps
 [^31]:https://stackoverflow.com/questions/61291633/expressjs-is-return-error-err-module-not-found-if-i-import-the-file-without-j
 
 [^32]:https://stackoverflow.com/questions/6645559/node-assert-throws-not-catching-exception
+
+[^33]:https://stackoverflow.com/questions/57492546/what-is-the-difference-between-js-and-mjs-files
 
 
 
