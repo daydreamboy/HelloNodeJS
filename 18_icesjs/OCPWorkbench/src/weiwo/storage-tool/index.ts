@@ -14,10 +14,10 @@ class StorageTool {
     if (typeof window == 'object') {
       const JSONString = window.localStorage.getItem(key)
       if (JSONString) {
-        const stringArray = JSON.parse(JSONString)
-        if (Array.isArray(stringArray)) {
+        const strings = JSON.parse(JSONString)
+        if (Array.isArray(strings) && strings.length != 0) {
           // @see https://stackoverflow.com/questions/11246758/how-to-get-unique-values-in-an-array
-          return [... new Set(stringArray)];
+          return [... new Set(strings)];
         }
       }
     }
