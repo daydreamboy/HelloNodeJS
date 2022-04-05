@@ -403,7 +403,7 @@ expression = 'await' S expression: expression {
   if (name) {
     if (name == 'weiwo_getSubscript:') {
       return lvalue.concat(
-        createCall('weiwo_setSubcript:value:', [
+        createCall('weiwo_setSubscript:value:', [
           last.args[0],
           rvalue
         ])
