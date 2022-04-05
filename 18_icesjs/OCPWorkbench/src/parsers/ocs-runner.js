@@ -9,10 +9,10 @@ function read_file(io_file) {
   return io_file == '-' ? fs.readFileSync(0).toString() : fs.readFileSync(io_file).toString()
 }
 
-function compile_to_ast(io_connect) {
+function compile_to_ast(ocs_code) {
   let ast = null;
   try {
-    ast = OcsParser.parse(io_connect);
+    ast = OcsParser.parse(ocs_code);
   }
   catch (e) {
     process.stderr.write(e.message + '\n');
