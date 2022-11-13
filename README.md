@@ -2181,7 +2181,7 @@ TypeScript是强类型的JavaScript代码，经过编译后，变成纯JavaScrip
 
 
 
-### （1）基本数据类型
+### (1) 基本数据类型
 
 * Boolean
 
@@ -2420,17 +2420,7 @@ let strLength: number = (someValue as string).length;
 
 
 
-
-
-
-
-
-
-TypeScript语法介绍如下
-
-
-
-### （1）函数
+### (2) 函数
 
 TypeScript的函数签名都必须声明参数和返回值类型。例如
 
@@ -2445,7 +2435,7 @@ function filterByTerm(input: string, searchTerm: string): string {
 
 
 
-### （2）变量
+### (3) 变量
 
 TypeScript中的变量需要声明类型，如下
 
@@ -2464,7 +2454,7 @@ const aConst: string = 'Hello';
 
 
 
-### （3）接口（interface）
+### (4) 接口（interface）
 
 TypeScript用interface来定义接口，例如
 
@@ -2506,7 +2496,7 @@ interface Link {
 
 
 
-### （4）实例
+### (5) 实例
 
 初始化类的实例，可以直接用map赋值。例如
 
@@ -2550,7 +2540,7 @@ console.log(tom.printDetails())
 
 
 
-### （5）别名
+### (6) 别名
 
 TypeScript支持别名，使用`type`关键词来定义。例如
 
@@ -2561,7 +2551,23 @@ type Links = Array<Link>
 
 > 示例代码，见xx_type_alias.ts
 
+说明
 
+> 有时候type和Interface可以混用，但是最好要区分它们的含义。举个例子[^34]，如下
+>
+> ```typescript
+> interface Point {
+>     x: number;
+>     y: number;
+> }
+> 
+> type Point = {
+>     x: number;
+>     y: number;
+> };
+> ```
+>
+> 
 
 
 
@@ -3145,6 +3151,8 @@ Node.js将`.cjs`文件当成CommonJS module；将`.mjs`文件当前ECMAScript mo
 [^32]:https://stackoverflow.com/questions/6645559/node-assert-throws-not-catching-exception
 
 [^33]:https://stackoverflow.com/questions/57492546/what-is-the-difference-between-js-and-mjs-files
+
+[^34]:https://stackoverflow.com/a/37233777
 
 
 
