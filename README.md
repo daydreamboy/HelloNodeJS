@@ -4,21 +4,21 @@
 
 ## 1、Node.js开发
 
-​       [Node.js](https://nodejs.org/en/)，是基于Chrome V8 JavaScript引擎的JS运行时环境。这个运行时不依赖于Web浏览器，因此在安装Node.js的操作系统中可以直接运行JavaScript。
+### (1) 介绍Node.js和npm包管理器
+
+* [Node.js](https://nodejs.org/en/)，是基于Chrome V8 JavaScript引擎的JS运行时环境。这个运行时不依赖于Web浏览器，因此在安装Node.js的操作系统中可以直接运行JavaScript。
 
 > Node.js® is a JavaScript runtime built on [Chrome's V8 JavaScript engine](https://v8.dev/).
 
-
-
-​      [npm](https://docs.npmjs.com/)是Node.js软件包的包管理器[^2]，它维护Node.js开发工程。下面以一个HelloWorld工程，介绍Node.js语法和npm的使用。
+* [npm](https://docs.npmjs.com/)是Node.js软件包的包管理器[^2]，它维护Node.js开发工程。下面以一个HelloWorld工程，介绍Node.js语法和npm的使用。
 
 
 
-### （1）Node.js环境搭建[^4]
+### (2) Node.js环境搭建[^4]
 
-#### node命令
+#### a. 安装node命令和npm命令
 
-检查node命令是否安装以及版本号，如下
+首先检查系统是否已经安装node和npm命令，如下
 
 ```shell
 $ which node
@@ -27,31 +27,31 @@ $ node --version
 v12.10.0
 ```
 
-
-
-node支持交互命令，可以即时执行代码，如下
+在MacOS系统上，可以使用Homebrew来安装node和npm命令，如下
 
 ```shell
-$ node
-Welcome to Node.js v12.10.0.
-Type ".help" for more information.
-> console.log('Hello, Node.js!')
-Hello, Node.js!
-undefined
-> .exit
+$ brew install node
 ```
 
-
-
-如果node命令不存在，在MacOS下，可以使用brew安装，如下
+或者
 
 ```shell
 $ brew install npm
 ```
 
+说明
+
+> node和npm存在依赖关系，执行上面其中一个命令，都会安装另外一个。
+
+更新node，可以执行下面命令，如下
+
+```shell
+$ brew upgrade npm
+```
 
 
-#### npm命令
+
+#### b. 使用npm命令
 
 检查npm命令是否安装以及版本号，如下
 
@@ -68,7 +68,27 @@ $ npm --version
 $ npm install npm@latest -g
 ```
 
+说明
 
+> 使用上面命令有可能更新失败，如下
+>
+> ```shell
+> $ npm install npm@latest -g
+> npm ERR! code EBADENGINE
+> npm ERR! engine Unsupported engine
+> npm ERR! engine Not compatible with your version of node/npm: npm@10.5.2
+> npm ERR! notsup Not compatible with your version of node/npm: npm@10.5.2
+> npm ERR! notsup Required: {"node":"^18.17.0 || >=20.5.0"}
+> npm ERR! notsup Actual:   {"npm":"9.6.6","node":"v20.2.0"}
+> 
+> npm ERR! A complete log of this run can be found in: /Users/wesley_chen/.npm/_logs/2024-04-24T07_51_17_152Z-debug-0.log
+> ```
+>
+> 一般使用Homebrew安装npm，那么也使用Homebrew更新npm包。
+
+
+
+##### `npm config list`
 
 使用`npm config list`，查看Node.js环境相关信息，如下
 
@@ -93,15 +113,13 @@ prefix = "/usr/local"
 
 
 
-​       使用`npm install -g <package>`，都会安装到`{prefix}/lib/node_modules/`路径下，上面看到prefix是/usr/local，因此刚才使用`npm install npm@latest -g`更新的npm，也会安装到/usr/local/lib/node_modules/目录下。
+##### `npm install -g <package>`
 
-
+使用`npm install -g <package>`，都会安装到`{prefix}/lib/node_modules/`路径下，上面看到prefix是/usr/local，因此刚才使用`npm install npm@latest -g`更新的npm，也会安装到/usr/local/lib/node_modules/目录下。
 
 说明
 
 > 使用`npm config get prefix`命令，也可以获取prefix。
-
-
 
 如果要修改全局npm的安装路径，可以修改prefix，如下
 
@@ -123,6 +141,8 @@ export PATH="$HOME/.node_modules_global/bin:$PATH"
 
 
 
+##### `npm list`
+
 使用`npm list`命令，可以列出全局安装的npm包，如下
 
 ```shell
@@ -134,6 +154,8 @@ $ npm list --global --depth 0
 ```
 
 
+
+##### `npm uninstall`
 
 使用`npm uninstall`，来卸载npm包，如下
 
@@ -151,6 +173,8 @@ project@1.0.0 /home/sitepoint/project
 
 
 
+##### `npm outdated`
+
 使用`npm outdated`，来检查npm包是否有可用更新版本，如下
 
 ```shell
@@ -165,6 +189,8 @@ underscore    1.9.0   1.9.1   1.9.1  project
 
 
 
+##### `npm update`
+
 使用`npm update`，来更新npm包，如下
 
 ```shell
@@ -175,9 +201,25 @@ updated 1 package in 0.236s
 
 
 
+#### c. 使用node命令
+
+node支持交互命令，可以即时执行代码，如下
+
+```shell
+$ node
+Welcome to Node.js v12.10.0.
+Type ".help" for more information.
+> console.log('Hello, Node.js!')
+Hello, Node.js!
+undefined
+> .exit
+```
 
 
-#### npm包的作用
+
+### (3) 关于npm包 
+
+#### a. npm包的作用
 
 npm包，按照全局模式（-g）和本地模式安装，大概用途分别为
 
@@ -208,11 +250,9 @@ $ uglifyjs example.js -o example.min.js
 
 
 
-### （2）创建npm包（HelloWorld）
+#### b. 创建npm包（HelloWorld）
 
-
-
-​       使用`npm init`命令可以创建一个Node.js的npm包工程，执行命令之后（如下），在工程会生成一个配置文件package.json。
+使用`npm init`命令可以创建一个Node.js的npm包工程，执行命令之后（如下），在工程会生成一个配置文件package.json。
 
 ```shell
 $ mkdir 01_helloworld
@@ -302,11 +342,27 @@ hello, world!
 
 
 
-### （3）package.json语法
+#### c. npm包的版本号规则[^3]
+
+​         npm包的版本号定义为3位，即x.y.z以及相关匹配符号。x.y.z分别代表主版本号（major release）、次版本号（minor release）和补丁版本号（patch release）
+
+* `~`：如果写`~0.13.0`，只允许升级补丁版本号，例如可以升级到`0.13.1`，不允许升级到`0.14.0`
+* `^`：如果写`^0.13.0`，允许升级次版本号和补丁版本号，例如`0.13.1`和`0.14.0`
+* `*`：如果写`*`，允许升级到所有版本
+* `>`：如果写`>x.y.z`，允许升级到大于x.y.z的所有版本
+* `>=`：如果写`>=x.y.z`，允许升级到大于或等于x.y.z的所有版本
+* `<=`：如果写`<=x.y.z`，允许升级到小于或等于x.y.z的所有版本
+* `<`：如果写`<x.y.z`，允许升级到小于x.y.z的所有版本
+
+* `x.y.z`：如果只写`x.y.z`，只使用x.y.z版本
+
+* `latest`：如果只写`latest`，使用最新的版本
+
+
+
+#### d. package.json语法
 
 package.json语法，可以参考[官方文档](https://docs.npmjs.com/files/package.json)。这里介绍比较常用几个属性。
-
-
 
 | 属性          | 值类型 | 作用                              |
 | ------------- | ------ | --------------------------------- |
@@ -318,7 +374,7 @@ package.json语法，可以参考[官方文档](https://docs.npmjs.com/files/pac
 
 
 
-#### scripts
+##### scripts
 
 示例配置，如下
 
@@ -353,7 +409,7 @@ Hello, world!
 
 
 
-#### dependencies
+##### dependencies
 
 示例配置，如下
 
@@ -379,25 +435,7 @@ underscore
 
 
 
-### （4）npm包的版本号规则[^3]
-
-​         npm包的版本号定义为3位，即x.y.z以及相关匹配符号。x.y.z分别代表主版本号（major release）、次版本号（minor release）和补丁版本号（patch release）
-
-* `~`：如果写`~0.13.0`，只允许升级补丁版本号，例如可以升级到`0.13.1`，不允许升级到`0.14.0`
-* `^`：如果写`^0.13.0`，允许升级次版本号和补丁版本号，例如`0.13.1`和`0.14.0`
-* `*`：如果写`*`，允许升级到所有版本
-* `>`：如果写`>x.y.z`，允许升级到大于x.y.z的所有版本
-* `>=`：如果写`>=x.y.z`，允许升级到大于或等于x.y.z的所有版本
-* `<=`：如果写`<=x.y.z`，允许升级到小于或等于x.y.z的所有版本
-* `<`：如果写`<x.y.z`，允许升级到小于x.y.z的所有版本
-
-* `x.y.z`：如果只写`x.y.z`，只使用x.y.z版本
-
-* `latest`：如果只写`latest`，使用最新的版本
-
-
-
-### （5）source map[^12]
+### (5) source map[^12]
 
 Source map是一个JSON文件，用于记录源码转换成实际代码的信息。JS实际代码一般是经过压缩混淆后的，这个给调试带来很大困难。有了source map文件，可以方便调试线上的JS代码。
 
@@ -427,7 +465,7 @@ module.exports = {
 
 
 
-### （6）搭建Tool工具集的工程
+### (6) 搭建Tool工具集的工程
 
 这里介绍如何搭建自己的工具类和对应的test case，方便开发、维护和测试。
 
@@ -485,7 +523,7 @@ run2();
 
 
 
-### （7）Node.js的module[^24]
+### (7) Node.js的module[^24]
 
 ​        JavaScript本身没有module概念，通过JavaScript库、JavaScript引擎（Chrome V8 JavaScript引擎）支持、浏览器支持等，使得JavaScript有module这个功能。
 
@@ -638,7 +676,7 @@ module.exports = require('./export_a_class');
 
 
 
-### （8）Node.js中使用ES module
+### (8) Node.js中使用ES module
 
 在Node.js中使用ES module，需要一定配置node参数或者使用esm这个库来支持。
 
@@ -748,7 +786,7 @@ Did you mean to import ../app.js?
 
 ## 2、Node.js语法
 
-### （1）Modules
+### (1) Modules
 
 #### a. 内置变量
 
@@ -759,7 +797,7 @@ Did you mean to import ../app.js?
 
 
 
-### （2）assert
+### (2) assert
 
 assert是Node.js内置的库。
 
@@ -820,9 +858,9 @@ assert.deepEqual方法和assert.equal方法的区别是，前者是深度比较�
 
 
 
-## 3、npm常用开发包
+## 3、常用npm包的使用
 
-### （1）webpack[^5]
+### (1) webpack[^5]
 
 webpack是一个npm包，它可以将多个js文件打包成一个js文件。
 
@@ -1205,7 +1243,7 @@ webpack.config.js
 
 
 
-### （2）nodemon
+### (2) nodemon
 
 [nodemon](https://github.com/remy/nodemon)是类似node命令的一个npm包，除了可以执行Node.js代码外，还可以建立监听，当对应的文件内容变化时，不用重新运行命令，就自动执行文件。
 
@@ -1268,7 +1306,7 @@ Hello ever running Node.js project.
 
 
 
-### （3）babel
+### (3) babel
 
 [babel](https://babeljs.io/)也是npm包，它是一个JavaScript编译器，将JS代码转成浏览器兼容的代码。
 
@@ -1384,7 +1422,7 @@ $ npm install -D @babel/core @babel/node @babel/preset-env nodemon
 
 
 
-### （4）esm
+### (4) esm
 
 [esm](https://www.npmjs.com/package/esm)（ECMA Script Module）是支持es6语法的module loader，能在Node.js代码中支持import语法。
 
@@ -1495,7 +1533,7 @@ module.exports = require("./server.js")
 
 
 
-### （5）dotenv[^8]
+### (5) dotenv[^8]
 
 [dotenv](https://www.npmjs.com/package/dotenv)，提供`.env`文件用于配置私有的环境变量值，并把`.env`中的键值对装载到process.env中。
 
@@ -1638,13 +1676,7 @@ $ tsc && node index.js
 
 
 
-
-
-
-
-
-
-### （7）ts-node[^14]
+### (7) ts-node[^14]
 
 ts-node提供ts-node命令，用于编译ts和执行产物js文件。
 
@@ -1654,9 +1686,9 @@ $ ts-node script.ts
 
 
 
-### （8）jest[^16]
+### (8) jest[^16]
 
-​       jest是一个JavaScript测试框架，用于创建、运行和组织测试case。它支持TypeScript、Node、React、Vue等各种类型工程。
+jest是一个JavaScript测试框架，用于创建、运行和组织测试case。它支持TypeScript、Node、React、Vue等各种类型工程。
 
 
 
@@ -1773,7 +1805,7 @@ $ npm test
 
 
 
-### （9）rxjs
+### (9) rxjs
 
 [rxjs](http://reactivex.io/rxjs/)是实现[Reactive X](http://reactivex.io/)的JavaScript库。[官方文档](https://rxjs-dev.firebaseapp.com/guide/overview)对rxjs介绍，如下
 
@@ -2876,7 +2908,7 @@ Wrote to /Users/wesley_chen/GitHub_Projcets/HelloNodeJS/03_webpack/package.json:
 
 #### (11) view
 
-##### 查看npm包所有版本号[^18]
+##### a. 查看npm包所有版本号[^18]
 
 格式：npm view <package> versions --json
 
@@ -2890,7 +2922,7 @@ $ npm view webpack versions --json
 
 
 
-##### 查看已安装的npm包的版本号
+##### b. 查看已安装的npm包的版本号
 
 npm没有提供专门命令，用于查看已安装的npm包的版本号。但是可以通过查看npm包所在的文件夹名（文件夹名上会有版本号信息）来确认版本号[^30]。
 
@@ -2961,7 +2993,7 @@ $ npx create-react-app my-app
 
 
 
-### 2、常用npm包介绍
+### 2、常用npm包简介
 
 | 包名                                                     | 命令行工具                                | 说明                                                         |
 | -------------------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------ |
@@ -3022,7 +3054,7 @@ $ npm install -g icejs
 
 ### 3、Visual Code常用插件
 
-#### （1）Code Outline 
+#### (1) Code Outline 
 
 [Code Outline](https://marketplace.visualstudio.com/items?itemName=patrys.vscode-code-outline)，显示代码结构，方便定位到特定的符号（函数、全局变量等）
 
