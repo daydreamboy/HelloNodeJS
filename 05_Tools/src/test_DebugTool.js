@@ -38,7 +38,7 @@ function test_dump() {
     x = 10;
     DebugTool.dump({x}); // "number"
 
-    x = "a";
+    x = "abc";
     DebugTool.dump({x}); // "string"
 
     x = 9007199254740991n;

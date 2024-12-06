@@ -24,26 +24,28 @@ class DebugTool {
      * @param print If print to console.log. Default is true.
      * @returns {string} the debug info string
      *
+     * @example dump({x})
+     *
      * @see https://stackoverflow.com/questions/46217853/get-constructor-name-of-object
      */
     static dump(obj, print=true) {
         let value = Object.values(obj)[0];
-        let stringifiedValue = value;
+        let stringedValue = value;
         let constructorString = undefined;
 
         // Note: symbol object must use toString function to convert to string
         if (typeof value === 'symbol') {
-            stringifiedValue = value.toString();
+            stringedValue = value.toString();
         }
         else if (typeof value === 'object') {
             try {
-                stringifiedValue = JSON.stringify(value);
+                stringedValue = JSON.stringify(value);
             }
             catch (e) {
                 console.log(e);
             }
 
-            if (stringifiedValue === '{}' && Object.getOwnPropertyNames(value).length > 0) {
+            if (stringedValue === '{}' && Object.getOwnPropertyNames(value).length > 0) {
                 let properties = {};
                 let propertyNames = Object.getOwnPropertyNames(value);
                 propertyNames.forEach((prop) => {
@@ -52,7 +54,7 @@ class DebugTool {
                     }
                 });
 
-                stringifiedValue = JSON.stringify(properties);
+                stringedValue = JSON.stringify(properties);
             }
         }
 
@@ -66,7 +68,7 @@ class DebugTool {
             constructorString = value.constructor.name;
         }
 
-        let debugString = `${Object.keys(obj)[0]} = (${typeof value})[${constructorString}] \`${stringifiedValue}\``;
+        let debugString = `${Object.keys(obj)[0]} = (${typeof value})[${constructorString}] \`${stringedValue}\``;
         if (print) {
             console.log(debugString);
         }

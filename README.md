@@ -441,7 +441,7 @@ Source map是一个JSON文件，用于记录源码转换成实际代码的信息
 
 
 
-#### 生成source map文件
+#### a. 生成source map文件
 
 
 
@@ -513,7 +513,7 @@ index.js的内容，如下
 
 ```javascript
 import {run as run1} from './test_StringTool';
-import {run as run2} from './test_ObjectToo';
+import {run as run2} from './test_ObjectTool';
 
 run1();
 run2();
@@ -2991,6 +2991,20 @@ $ npx create-react-app my-app
 
 
 
+#### (14) root
+
+格式：npm root
+说明：打印node_modules的路径。如果当前文件夹不是npm工程，也会打印伪造的`${pwd}/node_modules`路径
+
+使用`-g`选项，打印全局的node_modules的路径，如下
+
+```shell
+$ npm root -g
+/usr/local/lib/node_modules
+```
+
+
+
 
 
 ### 2、常用npm包简介
@@ -3106,7 +3120,7 @@ BgWhite = "\x1b[47m"
 
 
 
-### 5、安装npm常见错误
+### 5、执行npm命令常见错误
 
 #### (1) Unable to resolve dependency tree
 
@@ -3115,6 +3129,18 @@ BgWhite = "\x1b[47m"
 ```shell
 $ npm install --save --legacy-peer-deps
 ```
+
+
+
+### (2) Error: error:0308010C:digital envelope routines::unsupported
+
+执行npm run start报错，如下
+
+```shell
+Error: error:0308010C:digital envelope routines::unsupported
+```
+
+参考这个[SO](https://stackoverflow.com/questions/69692842/error-message-error0308010cdigital-envelope-routinesunsupported)删除node_modules文件夹，和package-lock.json文件，重新执行npm install，然后再执行npm run start。
 
 
 
