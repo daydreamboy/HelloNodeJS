@@ -53,6 +53,9 @@ function test_dump() {
     x = ['b', 2];
     DebugTool.dump({x}); // "object"
 
+    x = ['c', setTimeout];
+    DebugTool.dump({x}); // "object"
+
     x = Math;
     DebugTool.dump({x}); // "object"
 

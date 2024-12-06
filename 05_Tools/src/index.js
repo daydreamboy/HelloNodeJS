@@ -17,11 +17,16 @@ run7();
 run8();
 console.log('---');
 console.log(typeof Math);
+console.log(typeof ['1']);
 console.log(typeof Object);
 console.log(Math instanceof Object);
 console.log(Math.constructor);
 console.log(Object.constructor);
 console.log(Date.now());
+
+let x = setTimeout
+console.log(typeof x);
+console.log(`<function ${x.name}>`);
 
 // Test if needed
 /*

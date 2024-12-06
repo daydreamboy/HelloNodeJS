@@ -35,11 +35,16 @@ class DebugTool {
 
         // Note: symbol object must use toString function to convert to string
         if (typeof value === 'symbol') {
-            stringedValue = value.toString();
+            stringedValue = `<symbol ${value.description || 'no description'}>`;
         }
         else if (typeof value === 'object') {
             try {
-                stringedValue = JSON.stringify(value);
+                stringedValue = JSON.stringify(value, (key, value) => {
+                    if (typeof value === 'function') {
+                        return `<function ${value.name}>`;
+                    }
+                    return value;
+                });
             }
             catch (e) {
                 console.log(e);
